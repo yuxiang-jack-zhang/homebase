@@ -4,7 +4,8 @@ const ts = Date.parse;
 
 export function decide(i: { claim: Claim | null; settings: MemberSettings; householdWide: boolean; now: string }): Decision {
   const { claim, settings, householdWide, now } = i;
-  const escalate: Decision = householdWide ? { action: 'unknown' } : { action: 'escalate' };
+  // Household-wide questions don't ping ask_me members; everyone else is resolved by the same policy (D54).
+  const escalate: Decision = householdWide && settings.answerMode === 'ask_me' ? { action: 'unknown' } : { action: 'escalate' };
   if (!claim || !settings.visibility) return escalate; // off: every question about the member escalates (D29)
 
   const past = claim.kind === 'now' || (claim.kind === 'at_time' && claim.aboutTime !== null && ts(claim.aboutTime) <= ts(now));
@@ -28,5 +29,6 @@ export function fallbackAllowed(settings: MemberSettings, claim: Claim | null): 
 
 export function shouldLogPrediction(claim: Claim, now: string): boolean {
   if (claim.kind === 'at_time') return claim.aboutTime !== null && ts(claim.aboutTime) > ts(now) && claim.predictedState !== null;
-  return claim.kind === 'until_when' && claim.predictedState === 'away' && claim.predictedTime !== null;
+  // Future-only, like at_time: `reply` logs at approval time, and a passed predicted time can't be a prediction.
+  return claim.kind === 'until_when' && claim.predictedState === 'away' && claim.predictedTime !== null && ts(claim.predictedTime) > ts(now);
 }

@@ -10,7 +10,8 @@ const claim = (o: Partial<Claim>): Claim => ({
   kind: 'now', aboutTime: null, predictedState: 'home', predictedTime: null,
   confidence: 'high', basis: 'presence', ...o,
 });
-const esc = (hw: boolean): Decision => (hw ? { action: 'unknown' } : { action: 'escalate' });
+// Household-wide questions never ping ask_me members (design.md: household questions); everyone else escalates as usual (D54).
+const esc = (hw: boolean, m: AnswerMode = 'ask_me'): Decision => (hw && m === 'ask_me' ? { action: 'unknown' } : { action: 'escalate' });
 const ans = (caveat = false): Decision => ({ action: 'answer', caveat });
 const set = (visibility: boolean, answerMode: AnswerMode) => ({ visibility, answerMode });
 const modes: AnswerMode[] = ['ask_me', 'auto_when_confident', 'always_auto'];
@@ -19,7 +20,7 @@ describe('decide', () => {
   describe.each([true, false])('householdWide=%s', (hw) => {
     const d = (c: Claim | null, s = set(true, 'ask_me')) => decide({ claim: c, settings: s, householdWide: hw, now: NOW });
 
-    it('null claim escalates', () => expect(d(null)).toEqual(esc(hw)));
+    it.each(modes)('null claim escalates (%s)', (m) => expect(d(null, set(true, m))).toEqual(esc(hw, m)));
 
     it.each(modes)('visibility off escalates every kind/timing (%s)', (m) => {
       const s = set(false, m);
@@ -29,7 +30,7 @@ describe('decide', () => {
         claim({ kind: 'at_time', aboutTime: FUTURE }),
         claim({ kind: 'until_when', predictedState: 'home' }),
         claim({ kind: 'until_when', predictedState: 'away', predictedTime: FUTURE }),
-      ]) expect(d(c, s)).toEqual(esc(hw));
+      ]) expect(d(c, s)).toEqual(esc(hw, m));
     });
 
     it.each(modes)('now/history with state answers regardless of mode (%s)', (m) => {
@@ -38,9 +39,9 @@ describe('decide', () => {
       expect(d(claim({ kind: 'at_time', aboutTime: NOW }), set(true, m))).toEqual(ans());
     });
 
-    it('now/history without state escalates', () => {
-      expect(d(claim({ kind: 'now', predictedState: null }))).toEqual(esc(hw));
-      expect(d(claim({ kind: 'at_time', aboutTime: PAST, predictedState: null }))).toEqual(esc(hw));
+    it.each(modes)('now/history without state escalates (%s)', (m) => {
+      expect(d(claim({ kind: 'now', predictedState: null }), set(true, m))).toEqual(esc(hw, m));
+      expect(d(claim({ kind: 'at_time', aboutTime: PAST, predictedState: null }), set(true, m))).toEqual(esc(hw, m));
     });
 
     it('until_when already home answers, even ask_me', () =>
@@ -54,7 +55,7 @@ describe('decide', () => {
       ];
       it.each(['ask_me', 'auto_when_confident'] as const)('%s escalates', (m) => {
         for (const conf of ['high', 'medium', 'low'] as const)
-          for (const c of none(conf)) expect(d(c, set(true, m))).toEqual(esc(hw));
+          for (const c of none(conf)) expect(d(c, set(true, m))).toEqual(esc(hw, m));
       });
       it('always_auto is unknown regardless of householdWide', () => {
         for (const conf of ['high', 'medium', 'low'] as const)
@@ -68,9 +69,9 @@ describe('decide', () => {
         claim({ kind: 'until_when', predictedState: 'away', predictedTime: FUTURE, confidence }),
       ];
       it('ask_me escalates', () => {
-        for (const c of futures('high')) expect(d(c, set(true, 'ask_me'))).toEqual(esc(hw));
+        for (const c of futures('high')) expect(d(c, set(true, 'ask_me'))).toEqual(esc(hw, 'ask_me'));
       });
-      it.each([['high', ans()], ['medium', ans()], ['low', esc(hw)]] as const)(
+      it.each([['high', ans()], ['medium', ans()], ['low', esc(hw, 'auto_when_confident')]] as const)(
         'auto_when_confident %s', (conf, want) => {
           for (const c of futures(conf)) expect(d(c, set(true, 'auto_when_confident'))).toEqual(want);
         });
@@ -108,6 +109,10 @@ describe('shouldLogPrediction', () => {
     expect(shouldLogPrediction(claim({ kind: 'until_when', predictedState: 'away', predictedTime: FUTURE }), NOW)).toBe(true);
     expect(shouldLogPrediction(claim({ kind: 'until_when', predictedState: 'away', predictedTime: null }), NOW)).toBe(false);
     expect(shouldLogPrediction(claim({ kind: 'until_when', predictedState: 'home' }), NOW)).toBe(false);
+  });
+  it('false for until_when whose predicted time already passed (late approval)', () => {
+    expect(shouldLogPrediction(claim({ kind: 'until_when', predictedState: 'away', predictedTime: PAST }), NOW)).toBe(false);
+    expect(shouldLogPrediction(claim({ kind: 'until_when', predictedState: 'away', predictedTime: NOW }), NOW)).toBe(false);
   });
   it('false for now', () => expect(shouldLogPrediction(claim({ kind: 'now' }), NOW)).toBe(false));
 });

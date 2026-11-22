@@ -137,11 +137,15 @@ describe('answerForTarget', () => {
 
   it('fallbackGuess only on escalate', async () => {
     const answered = await answerForTarget(fakeModel({ write: 'x' }), input('auto_when_confident', ev([evening])));
-    const unknown = await answerForTarget(fakeModel({ write: 'x' }), input('auto_when_confident', ev([allDay]), { householdWide: true })); // low claim, fallbackAllowed
+    const unknown = await answerForTarget(fakeModel({ write: 'x' }), input('ask_me', ev([allDay]), { householdWide: true }));
     expect(answered.decision.action).toBe('answer');
     expect(answered.fallbackGuess).toBeNull();
     expect(unknown.decision.action).toBe('unknown');
     expect(unknown.fallbackGuess).toBeNull();
+    // Household-wide still pings non-ask_me members (D54), with the same fallback guess as a direct question.
+    const wide = await answerForTarget(fakeModel({ write: 'x' }), input('auto_when_confident', ev([allDay]), { householdWide: true })); // low claim
+    expect(wide.decision).toEqual({ action: 'escalate' });
+    expect(wide.fallbackGuess).toBe('Sam: probably away at 7:00 PM (not sure)');
     const escalated = await answerForTarget(fakeModel({ write: 'x' }), input('auto_when_confident', ev([allDay]))); // low claim
     expect(escalated.decision).toEqual({ action: 'escalate' });
     expect(escalated.fallbackGuess).toBe('Sam: probably away at 7:00 PM (not sure)');
