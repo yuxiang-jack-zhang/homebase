@@ -25,6 +25,9 @@ const PASSWORD = "test-password-123";
 /** Service-role client: bypasses RLS. Stands in for the edge functions. */
 export const admin: Client = createClient<Database>(env.API_URL, env.SERVICE_ROLE_KEY, opts);
 
+/** Signed-out client (anon key only). */
+export const anon: Client = createClient<Database>(env.API_URL, env.ANON_KEY, opts);
+
 /** A supabase-js client signed in as the given test user. */
 export async function asUser(email: string): Promise<Client> {
   const client = createClient<Database>(env.API_URL, env.ANON_KEY, opts);

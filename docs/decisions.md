@@ -123,14 +123,20 @@ Two-step Claude pipeline approved.
 - *Inline subqueries* — + everything visible in the policy; − recursion on the self/mutual cases; − each row re-runs nested RLS.
 - *Helpers in a non-exposed `private` schema* — + not callable over the API; − extra schema grants for `authenticated`, more setup.
 - *Helpers in `public` (`is_member`, `shares_household`, `can_see_presence`, `asked_question`, `targeted_by_question`), `security definer set search_path = ''`* — + no recursion, one definition of "member" reused by policies and RPCs; − callable via `/rpc`.
-**Decision:** helpers in `public`, each answering only about the caller (`auth.uid()`), so calling one over the API reveals nothing the caller can't already read. EXECUTE on every `public` function is revoked from `anon`. **Revisit if:** a helper ever needs to answer about someone other than the caller — then move helpers to a `private` schema.
+**Decision:** helpers in `public`, each answering only about the caller (`auth.uid()`). EXECUTE on every `public` function is revoked from `anon`, and default privileges for `postgres` are changed so functions added by later migrations aren't anon-callable either.
+**Why:** no recursion, one definition of "member" shared by policies and RPCs, and because each helper answers only about the caller, calling it over the API reveals nothing the caller can't already read — so the `private` schema's extra grants buy nothing.
+**Revisit if:** a helper ever needs to answer about someone other than the caller — then move helpers to a `private` schema.
 
 ## D25. DB test harness: fresh users per test, keys read from the running stack — 2026-11-22, Jack
 **Context:** D18 tests run as real signed-in users against local Supabase.
 **Options:** *shared fixture users + cleanup between tests* — + fewer auth calls; − order-dependent, leaks state between tests. *every test creates its own users (`<name>-<uuid>@example.com`) and households via the real RPCs, no cleanup* — + tests are independent and can run in parallel; − a few hundred ms of setup each; DB fills up until the next `supabase db reset`.
-**Decision:** fresh users per test. Service-role writes stand in for the edge functions. URL and keys come from `SUPABASE_URL`/`SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY` or `npx supabase status -o env`, never from committed files. The `db` Vitest project lives in `vitest.db.config.ts`, referenced from the root config. **Revisit if:** the suite gets slow enough to matter.
+**Decision:** fresh users per test. Service-role writes stand in for the edge functions. URL and keys come from `SUPABASE_URL`/`SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY` or `npx supabase status -o env`, never from committed files. The `db` Vitest project lives in `vitest.db.config.ts`, referenced from the root config.
+**Why:** independent tests can't pass or fail because of another test's leftovers, and going through the real RPCs means the setup itself exercises them; the extra seconds are cheap at this suite size. Reading keys from the running stack keeps the public repo free of secrets.
+**Revisit if:** the suite gets slow enough to matter.
 
 ## D26. `household_accuracy` aggregates every member's predictions — 2026-11-22, Jack
 **Context:** predictions are row-readable only by the predicted-about user, but the stats screen shows household accuracy.
 **Options:** *per-user stats only* — + strictly private; − tiny samples, the stats screen says little. *household-wide counts via a `security definer` RPC* — + meaningful numbers; − members learn aggregate counts that include others' predictions (no times, states or names).
-**Decision:** household-wide counts per kind, members only (`not_member` otherwise); pending predictions (no outcome yet) aren't counted. **Revisit if:** small households make the counts identifying (e.g. a two-person household where your own counts reveal the other person's).
+**Decision:** household-wide counts per kind, members only (`not_member` otherwise); pending predictions (no outcome yet) aren't counted.
+**Why:** the stats screen exists to show the agent's calibration, which needs the household's sample; bare counts per kind carry no times, states or names, so they reveal far less than the row-level data RLS protects.
+**Revisit if:** small households make the counts identifying (e.g. a two-person household where your own counts reveal the other person's).

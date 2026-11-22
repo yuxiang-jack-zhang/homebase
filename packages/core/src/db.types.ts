@@ -251,7 +251,7 @@ isOneToOne: false
 { Args: { "p_household_id": string }; Returns: undefined
                            },
 "create_household":
-{ Args: { "p_lat": number,"p_lng": number,"p_name": string,"p_radius_m": number,"p_timezone": string }; Returns: {
+{ Args: { "p_lat": number,"p_lng": number,"p_name": string,"p_radius_m"?: number,"p_timezone": string }; Returns: {
               "created_at": string,
 "created_by": string,
 "home_lat": number,

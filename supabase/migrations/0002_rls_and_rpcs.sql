@@ -113,18 +113,27 @@ language sql volatile set search_path = '' as $$
   from extensions.gen_random_bytes(6) b, generate_series(0, 5) i
 $$;
 
+-- p_radius_m comes last so it can default; PostgREST calls by name, so order is invisible to clients.
 create function public.create_household(
-  p_name text, p_lat float8, p_lng float8, p_radius_m int, p_timezone text
+  p_name text, p_lat float8, p_lng float8, p_timezone text, p_radius_m int default 100
 ) returns public.households
 language plpgsql security definer set search_path = '' as $$
 declare
   h public.households;
+  v_name text := btrim(p_name);
 begin
+  if v_name is null or char_length(v_name) not between 1 and 60 then
+    raise exception 'invalid_name';
+  end if;
+  -- NaN and +/-Infinity also fail BETWEEN.
+  if p_lat is null or p_lng is null or p_lat not between -90 and 90 or p_lng not between -180 and 180 then
+    raise exception 'invalid_location';
+  end if;
   perform now() at time zone p_timezone; -- rejects unknown time zones
   loop
     begin
       insert into public.households (name, invite_code, home_lat, home_lng, home_radius_m, timezone, created_by)
-      values (p_name, public.new_invite_code(), p_lat, p_lng, p_radius_m, p_timezone, auth.uid())
+      values (v_name, public.new_invite_code(), p_lat, p_lng, p_radius_m, p_timezone, auth.uid())
       returning * into h;
       exit;
     exception when unique_violation then
@@ -170,6 +179,9 @@ begin
   ) then
     raise exception 'not_owner';
   end if;
+  if p_lat is null or p_lng is null or p_lat not between -90 and 90 or p_lng not between -180 and 180 then
+    raise exception 'invalid_location';
+  end if;
   update public.households set home_lat = p_lat, home_lng = p_lng, home_radius_m = p_radius_m
   where id = p_household_id;
   -- Everyone else must re-confirm before their phone geofences the new spot.
@@ -209,3 +221,8 @@ end $$;
 
 -- Supabase grants EXECUTE on new functions to anon; every function here needs a signed-in caller.
 revoke execute on all functions in schema public from public, anon;
+-- Same for functions later migrations create (owned by postgres). PUBLIC's grant is a global
+-- default, which a schema-scoped ALTER DEFAULT PRIVILEGES cannot remove, hence two statements.
+-- supabase_admin's defaults can't be changed from migrations (postgres isn't a member).
+alter default privileges for role postgres revoke execute on functions from public;
+alter default privileges for role postgres in schema public revoke execute on functions from anon;

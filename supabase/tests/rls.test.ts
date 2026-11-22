@@ -54,7 +54,7 @@ describe("RLS", () => {
     const b = await makeHousehold();
     const res = await a.owner.client.from("presence_events")
       .insert({ household_id: b.household.id, user_id: a.owner.id, kind: "enter" });
-    expect(res.error).not.toBeNull();
+    expect(res.error?.code).toBe("42501"); // RLS WITH CHECK, which runs before the FK check
     expect(ok(await admin.from("presence_events").select().eq("household_id", b.household.id))).toEqual([]);
   });
 
