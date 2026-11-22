@@ -19,6 +19,8 @@ function localEnv(): Record<string, string> {
 }
 
 const env = localEnv();
+export const API_URL = env.API_URL;
+export const SERVICE_ROLE_KEY = env.SERVICE_ROLE_KEY;
 const opts = { auth: { persistSession: false, autoRefreshToken: false } };
 const PASSWORD = "test-password-123";
 

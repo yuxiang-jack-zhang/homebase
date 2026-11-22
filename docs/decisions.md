@@ -210,3 +210,31 @@ Two-step Claude pipeline approved.
 **Decision:** index exports `model.ts`, `template.ts` and `pipeline.ts`; `anthropic.ts` is imported directly.
 **Why:** the mobile app imports core too and must never bundle the Anthropic SDK.
 **Revisit if:** never; this is the boundary that keeps the SDK server-side.
+
+## D37. What `ask` writes per target — 2026-11-22, Jack
+**Context:** the brief lists the rows `ask` writes, but `predictions.question_target_id` is unique, `responses.text` is not null, and `answerForTarget` returns `logPrediction` from the claim alone, whatever the decision.
+**Options:** *log an `agent_auto` prediction whenever `logPrediction`* — + every claim logged; − an escalated draft nobody saw counts as a claim, and the target's later approve collides with the unique key. *log `agent_auto` only for answered targets, `agent_approved` on approve* — + one prediction per target, and only claims someone was shown; − an unapproved draft leaves no prediction. For drafts: *always write a draft row (empty text when none)* — + uniform; − fake empty drafts. *write a draft row only when there is draft text* — + the target sees only real suggestions; − `approve` has nothing to approve (409 `no_draft`).
+**Decision:** `agent_auto` only when answered; a `draft` row (with `draft_claim`) only when `draftText` exists; no responses row for `unknown`. The question is parsed before the single `questions` insert, so `kind`/`about_time` are set at insert. Writes are not one transaction (a mid-way failure leaves a partial question).
+**Why:** a prediction should be something the asker was told; the fallback guess shown after the timeout is labelled a guess and is not logged.
+**Revisit if:** accuracy stats want unapproved drafts or fallback guesses scored, or partial questions show up (move the writes into an RPC).
+
+## D38. `ANTHROPIC_FAKE=1` uses a keyword fake model, local stacks only — 2026-11-22, Jack
+**Context:** served edge-function tests need deterministic answers without paying for Claude.
+**Options:** *scripted `fakeModel` via env* — + reuses existing double; − one script per process can't serve different questions. *`keywordFakeModel()` in core: parse by keyword, fixed write sentence* — + deterministic per question, no script; − crude. Guard: *trust the flag* — + simple; − a stray env var in production would answer roommates with fake text. *honour it only when `SUPABASE_URL`'s host is localhost, 127.0.0.1, kong or host.docker.internal; else 500* — + can't fake in production; − none notable.
+**Decision:** keyword fake plus the host guard (`supabase/functions/_shared/model.ts`, unit-tested). Without the flag a missing `ANTHROPIC_API_KEY` is a 500 before any write, instead of every question silently escalating.
+**Why:** fake answers in production would be wrong presence claims shown to real people.
+**Revisit if:** tests need richer scenarios than keywords give (then a per-request scripted fake).
+
+## D39. Edge-function auth: user JWT via Auth, `score` by service-role key — 2026-11-22, Jack
+**Context:** `ask`/`reply` act for a user; `score` must be service role only. The local CLI (3.2.0) issues both legacy JWT keys and `sb_secret_…` keys; the functions get the legacy JWT as `SUPABASE_SERVICE_ROLE_KEY`.
+**Options:** for `score`: *read the JWT `role` claim* — + works for any service JWT; − only safe if the gateway verified the signature, which ties it to `verify_jwt` and the legacy JWT secret. *bearer must equal `SUPABASE_SERVICE_ROLE_KEY` (constant-time)* — + no JWT parsing, no reliance on gateway config; − a rotated or new-format key must match the env exactly.
+**Decision:** `config.toml` sets `verify_jwt` explicitly: true for `ask`/`reply` (the gateway rejects missing/invalid JWTs with 401; the function then resolves the caller with `auth.getUser(jwt)` and never trusts body ids), false for `score` (bearer compared to the service-role key; anything else 403) and `health`.
+**Why:** the key compare is the smallest check that doesn't depend on how the gateway is configured; the scheduler holds the service key anyway.
+**Revisit if:** the hosted project moves to `sb_secret_` keys only (compare against that env var too).
+
+## D40. `reply` semantics — 2026-11-22, Jack
+**Context:** the brief fixes the happy path; races, unknown ids and edge cases were open.
+**Options:** *check status, then insert, then update* — + simple; − two concurrent replies both send. *conditional update `awaiting_reply → replied` first, then insert the response, reverting the status if the insert fails* — + exactly one reply wins (409 for the other); − a revert can itself fail.
+**Decision:** the conditional update; an unknown `questionTargetId` returns 403 like a non-target (no id probing); late replies are accepted (no timeout status exists); the sent response has source `human` even for approve (the target chose to send it; `feedback = approved` records the draft was used); `shouldLogPrediction` is judged at reply time, so an approve after the predicted time logs nothing; a failed `agent_approved` insert is logged, not returned as an error, because the reply already went out.
+**Why:** a double send to the asker or a lost reply are the user-visible failures; a missing stats sample is not.
+**Revisit if:** replies need editing after sending.

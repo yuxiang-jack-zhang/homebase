@@ -397,6 +397,20 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
+# Explicit per function. ask/reply: the gateway rejects calls without a valid user JWT, and the function
+# still resolves the caller via Auth. score: verified in code against the service-role key (D39).
+[functions.health]
+verify_jwt = false
+
+[functions.ask]
+verify_jwt = true
+
+[functions.reply]
+verify_jwt = true
+
+[functions.score]
+verify_jwt = false
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
