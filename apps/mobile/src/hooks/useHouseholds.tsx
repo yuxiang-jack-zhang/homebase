@@ -1,0 +1,82 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import type { Tables } from '@homebase/core/src/db.types';
+import { supabase } from '../lib/supabase';
+
+const CURRENT_KEY = 'homebase.currentHousehold';
+
+export type Household = Tables<'households'>;
+export type Membership = Tables<'household_members'>;
+export type Member = Membership & { display_name: string };
+
+interface Value {
+  households: Household[];
+  current: Household | null;
+  setCurrent: (id: string) => void;
+  members: Member[];
+  me: Membership | null;
+  loading: boolean;
+  refresh: () => Promise<void>;
+}
+
+const Ctx = createContext<Value | null>(null);
+
+export function HouseholdsProvider({ userId, children }: { userId: string; children: React.ReactNode }) {
+  const [households, setHouseholds] = useState<Household[]>([]);
+  const [memberships, setMemberships] = useState<Membership[]>([]);
+  const [names, setNames] = useState<Record<string, string>>({});
+  const [currentId, setCurrentId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    // RLS limits all three to my households and their members.
+    const [h, m, p] = await Promise.all([
+      supabase.from('households').select('*').order('created_at'),
+      supabase.from('household_members').select('*'),
+      supabase.from('profiles').select('id, display_name'),
+    ]);
+    const err = h.error ?? m.error ?? p.error;
+    if (err) throw err;
+    setHouseholds(h.data ?? []);
+    setMemberships(m.data ?? []);
+    setNames(Object.fromEntries((p.data ?? []).map((r) => [r.id, r.display_name])));
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setCurrentId(await AsyncStorage.getItem(CURRENT_KEY));
+        await refresh();
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [refresh, userId]);
+
+  const setCurrent = useCallback((id: string) => {
+    setCurrentId(id);
+    AsyncStorage.setItem(CURRENT_KEY, id).catch(() => {});
+  }, []);
+
+  const value = useMemo<Value>(() => {
+    const current = households.find((x) => x.id === currentId) ?? households[0] ?? null;
+    const inCurrent = memberships.filter((x) => x.household_id === current?.id);
+    return {
+      households,
+      current,
+      setCurrent,
+      members: inCurrent.map((x) => ({ ...x, display_name: names[x.user_id] ?? 'Roommate' })),
+      me: inCurrent.find((x) => x.user_id === userId) ?? null,
+      loading,
+      refresh,
+    };
+  }, [households, memberships, names, currentId, userId, loading, setCurrent, refresh]);
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
+export function useHouseholds(): Value {
+  const v = useContext(Ctx);
+  if (!v) throw new Error('useHouseholds must be used inside HouseholdsProvider');
+  return v;
+}

@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Homebase",
+    "slug": "homebase",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "homebase",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "com.example.homebase",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Homebase uses your location once, to set your household's home. Only home or away is ever shared."
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#208AEF",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Homebase uses your location once, to set your household's home. Only home or away is ever shared."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "platforms": [
+      "ios"
+    ]
+  }
+}

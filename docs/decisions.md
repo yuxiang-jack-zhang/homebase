@@ -252,3 +252,31 @@ Two-step Claude pipeline approved.
 **Decision:** per-fixture catch, exact-id prices with `unpricedCalls`, strict arg parsing (missing or `--`-prefixed values and unknown flags exit non-zero before any call), an answerable injection fixture so the leak check runs on the answer path, a D31 fixture (always_auto, no evidence, unknown), and relative-time fixtures moved to "in 30 minutes" so a 15-minute parse error cannot cross the 60-minute recent-presence boundary. D41's prefix-match choice is superseded.
 **Why:** a billed comparison should be complete and trustworthy even when a call fails.
 **Revisit if:** the API returns dated model ids (add them to `PRICES`).
+
+## D43. Mobile routing gate with `Stack.Protected` — 2026-11-22, Jack
+**Context:** the app must show auth, then create/join, then confirm-home, then tabs, and let a confirmed user open create/join again from settings.
+**Options:** *imperative `router.replace` in a `useEffect` over `useSegments`* — + familiar; − flicker, easy to loop, every screen must remember to navigate. *`Stack.Protected` guards derived from session, households and `home_confirmed_at`* — + the stack redirects whenever the state changes, so a join or confirm needs no navigation code; − the target after a guard flips is chosen by the router (create still calls `router.replace` to land on settings).
+**Decision:** guards in `src/app/_layout.tsx`: tabs when a household is current and confirmed; create/join when there is no household or the user is confirmed; confirm-home when current but unconfirmed. The creator is already confirmed by `create_household`, so only joiners (and everyone after the owner moves home) see confirm-home.
+**Why:** one place states the rule, and it follows the server's `home_confirmed_at`, not client memory.
+**Revisit if:** the router picks a wrong landing screen after a guard flip.
+
+## D44. Household state is one context over three RLS-scoped selects — 2026-11-22, Jack
+**Context:** `useHouseholds()` must serve the gate, settings and the header switcher, and Tasks 10-12 will read it too.
+**Options:** *per-screen queries* — + local; − the gate and screens disagree after a change. *a provider that selects `households`, `household_members` and `profiles` (RLS already limits them to my households and their members) and exposes `refresh()`* — + one source, `me`/`members` derived; − refetches everything on each refresh, no realtime.
+**Decision:** the provider in `src/hooks/useHouseholds.tsx` (keyed by user id so sign-out drops state); current household id is kept in AsyncStorage and falls back to the oldest household.
+**Why:** a household has a handful of rows; simplicity beats incremental updates.
+**Revisit if:** member presence needs live updates (Task 10 can subscribe and call `refresh`).
+
+## D45. Home is set only from the phone's current location; away blocks use text inputs — 2026-11-22, Jack
+**Context:** the home must come from somewhere, and the brief allows simple pickers.
+**Options:** *drag a pin on the map* — + works away from home; − more code, easier to confirm a wrong spot. *one foreground GPS reading sent only to `create_household`/`update_home`* — + matches "be at home when you set it", no member coordinates anywhere else; − the owner must stand at the home. Away blocks: *native time pickers* — + friendlier; − a dependency and iOS-only UI. *"HH:MM" text with validation (`src/lib/blockForm.ts`) plus a midnight-crossing hint* — + small and testable; − typing.
+**Decision:** current location and text inputs.
+**Why:** least code that keeps the privacy rule (only home/away leaves the phone).
+**Revisit if:** testers mistype times or want to set the home remotely.
+
+## D46. One React copy: pin `react` 19.3.0 at the workspace root — 2026-11-22, Jack
+**Context:** Expo SDK 58 needs `react` 19.3.0 and React Native's renderer checks the exact version, but `@testing-library/react-native` pulled 19.3.1 to the root, leaving two copies (expo-doctor failed).
+**Options:** *npm `overrides`* — + one line; − did not replace the already hoisted copy and made `npm ls` report invalid. *root devDependency `react@19.3.0`* — + the hoisted copy is the Expo version, expo-doctor 20/20; − a root dependency only the mobile app needs.
+**Decision:** root devDependency, exact version. Root vitest's `core` project now excludes `apps/mobile/**` because those tests are Jest. `npm ls` still notes an unused `react-dom` peer wanting 19.3.1.
+**Why:** a mismatched React and renderer crashes at launch.
+**Revisit if:** Expo moves to 19.3.1 (bump both).
