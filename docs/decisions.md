@@ -165,7 +165,7 @@ Two-step Claude pipeline approved.
 ## D30. Scoring window, tolerance and feedback edge rules — 2026-11-22, Jack
 **Context:** the brief left boundaries and null cases open.
 **Options:** *exclusive bounds / strict tolerance* — + none; − arbitrary, and an event exactly at a boundary is real evidence. *inclusive `[createdAt − 48h, now]` and `|a − predictedTime| ≤ tolerance`* — + simple to state; − none notable.
-**Decision:** inclusive on both ends, checked first; missing inputs (null aboutTime/predictedState/predictedTime) score `unscored`. `classifyFeedback`: approve → approved and text → edited whatever the claim; yes/no judged only for `now`/`at_time` with a predicted state, else null. ISO strings are compared with `Date.parse`, never string order.
+**Decision:** inclusive on both ends; missing inputs (null aboutTime/predictedState/predictedTime) score `unscored`. `classifyFeedback`: approve → approved and text → edited whatever the claim; yes/no judged only for `now`/`at_time` with a predicted state, else null. ISO strings are compared with `Date.parse`, never string order. *Amended in Task 7 fix round:* order is missing inputs → `unscored`, then not yet due → `pending` (at_time: now < aboutTime; until_when: no arrival yet and now < predictedTime + tolerance), and only then the window rule. Checking the window first finalised a not-yet-due prediction as `unscored` for a member with no recent events, and `score` never revisits a scored row.
 **Why:** an unjudgeable prediction should stay out of accuracy stats rather than count as wrong; text/approve say something about the draft even without a claim.
 **Revisit if:** accuracy stats show the 30 min tolerance is too tight or loose.
 

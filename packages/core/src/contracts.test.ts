@@ -27,4 +27,9 @@ describe("AskRequest", () => {
     expect(AskRequest.safeParse({ ...base, text: "x".repeat(281) }).success).toBe(false);
     expect(AskRequest.safeParse({ ...base, text: "x".repeat(280) }).success).toBe(true);
   });
+  it("caps explicit targets at 20", () => {
+    const ids = (n: number) => Array.from({ length: n }, (_, i) => `123e4567-e89b-42d3-a456-4266141740${String(i).padStart(2, "0")}`);
+    expect(AskRequest.safeParse({ ...base, target: { userIds: ids(20) }, text: "home?" }).success).toBe(true);
+    expect(AskRequest.safeParse({ ...base, target: { userIds: ids(21) }, text: "home?" }).success).toBe(false);
+  });
 });

@@ -4,7 +4,7 @@ const text = z.string().min(1).max(280);
 
 export const AskRequest = z.object({
   householdId: z.uuid(),
-  target: z.union([z.object({ userIds: z.array(z.uuid()) }), z.literal("everyone")]),
+  target: z.union([z.object({ userIds: z.array(z.uuid()).max(20) }), z.literal("everyone")]),
   text,
 });
 export type AskRequest = z.infer<typeof AskRequest>;

@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { isLocalUrl } from "../functions/_shared/model.ts";
+import { isLocalUrl, modelFromEnv } from "../functions/_shared/model.ts";
 import { API_URL, SERVICE_ROLE_KEY, admin, makeHousehold, newUser, ok, type TestUser } from "./helpers.ts";
 
 // Needs the functions served with the fake model; see supabase/tests/README.md.
@@ -50,6 +50,23 @@ describe("isLocalUrl", () => {
     "%s is local", (u) => expect(isLocalUrl(u)).toBe(true));
   it.each(["https://abc.supabase.co", "https://localhost.evil.com", "not a url", ""])(
     "%s is not local", (u) => expect(isLocalUrl(u)).toBe(false));
+});
+
+describe("modelFromEnv", () => {
+  const env = (vars: Record<string, string>) => ({ get: (k: string) => vars[k] });
+  const parseModel = async (m: ReturnType<typeof modelFromEnv>) =>
+    (await m.parse({ system: "", user: "<question>\nis Sam home\n</question>", schema: {} as never })).usage.model;
+
+  it("ANTHROPIC_FAKE=1 against a remote SUPABASE_URL throws", () => {
+    expect(() => modelFromEnv(env({ ANTHROPIC_FAKE: "1", SUPABASE_URL: "https://abc.supabase.co", ANTHROPIC_API_KEY: "k" }))).toThrow(/local/);
+    expect(() => modelFromEnv(env({ ANTHROPIC_FAKE: "1" }))).toThrow(/local/);
+  });
+  it("ANTHROPIC_FAKE=1 against a local SUPABASE_URL returns the keyword fake", async () => {
+    expect(await parseModel(modelFromEnv(env({ ANTHROPIC_FAKE: "1", SUPABASE_URL: "http://kong:8000" })))).toBe("keyword-fake");
+  });
+  it("without the fake, a missing API key throws", () => {
+    expect(() => modelFromEnv(env({ SUPABASE_URL: "http://kong:8000" }))).toThrow(/ANTHROPIC_API_KEY/);
+  });
 });
 
 describe("ask", () => {
@@ -173,5 +190,22 @@ describe("score", () => {
     const after = ok(await admin.from("predictions").select().eq("id", pred.id).single());
     expect(after.outcome).toBe("correct");
     expect(after.scored_at).not.toBeNull();
+  });
+
+  it("leaves a not-yet-due at_time prediction unscored when the member has no recent events", async () => {
+    const { household, owner, members: [sam] } = await makeHousehold(["Sam"]);
+    const question = ok(await admin.from("questions")
+      .insert({ household_id: household.id, asker_id: owner.id, text: "home at 9?", kind: "at_time" }).select().single());
+    const qt = ok(await admin.from("question_targets")
+      .insert({ question_id: question.id, user_id: sam.id, status: "answered" }).select().single());
+    const pred = ok(await admin.from("predictions").insert({
+      question_target_id: qt.id, user_id: sam.id, kind: "at_time", about_time: new Date(Date.now() + 2 * 3_600_000).toISOString(),
+      predicted_state: "away", confidence: "medium", source: "agent_auto",
+    }).select().single());
+
+    expect((await call("score", SERVICE_ROLE_KEY, {})).status).toBe(200);
+
+    const after = ok(await admin.from("predictions").select().eq("id", pred.id).single());
+    expect(after).toMatchObject({ outcome: null, scored_at: null });
   });
 });

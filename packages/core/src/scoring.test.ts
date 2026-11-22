@@ -11,6 +11,8 @@ const recent = [ev('exit', T('09:00'))];
 
 describe('scoreClaim at_time', () => {
   it('pending before aboutTime', () => expect(scoreClaim(base, recent, T('18:00'))).toBe('pending'));
+  it('pending before aboutTime even with no events in the window yet', () =>
+    expect(scoreClaim(base, [], T('18:00'))).toBe('pending'));
   it('correct', () => expect(scoreClaim(base, [ev('enter', T('17:00'))], T('20:00'))).toBe('correct'));
   it('incorrect', () => expect(scoreClaim(base, recent, T('20:00'))).toBe('incorrect'));
   it('unscored without events in window', () =>
@@ -40,5 +42,7 @@ describe('scoreClaim until_when', () => {
   it('arrival exactly at createdAt is not counted (strict >)', () =>
     expect(scoreClaim(until, [ev('enter', CREATED)], T('18:00'))).toBe('pending'));
   it('no events in window unscored', () => expect(scoreClaim(until, [], T('19:00'))).toBe('unscored'));
+  it('pending before the deadline even with no events in the window yet', () =>
+    expect(scoreClaim(until, [], T('18:29'))).toBe('pending'));
   it('null predictedTime unscored', () => expect(scoreClaim({ ...until, predictedTime: null }, recent, T('19:00'))).toBe('unscored'));
 });
