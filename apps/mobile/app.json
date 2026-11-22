@@ -10,7 +10,10 @@
     "ios": {
       "bundleIdentifier": "com.example.homebase",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Homebase uses your location once, to set your household's home. Only home or away is ever shared."
+        "NSLocationWhenInUseUsageDescription": "Homebase uses your location once, to set your household's home. Only home or away is ever shared.",
+        "UIBackgroundModes": [
+          "location"
+        ]
       }
     },
     "plugins": [
@@ -26,7 +29,9 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Homebase uses your location once, to set your household's home. Only home or away is ever shared."
+          "locationAlwaysAndWhenInUsePermission": "Homebase notices when you arrive at or leave your household's home, even when the app is closed. Only home or away is shared, never where you are.",
+          "locationWhenInUsePermission": "Homebase uses your location once, to set your household's home. Only home or away is ever shared.",
+          "isIosBackgroundLocationEnabled": true
         }
       ]
     ],

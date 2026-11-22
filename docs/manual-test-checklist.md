@@ -14,3 +14,15 @@ Setup: `npx supabase start`; copy the API URL and anon key into `apps/mobile/.en
 - [ ] A moves home (Settings > Move home): B is sent back to confirm-home on next refresh/relaunch.
 - [ ] B: "Create or join another household" creates a second household; header switcher swaps between them and remembers the choice after relaunch.
 - [ ] Sign out returns to sign-in; sign back in restores the session state.
+
+## Mobile: geofence and who's-home (Task 10)
+
+Needs a development build (`npx expo run:ios` in `apps/mobile`); Expo Go cannot run background geofencing. Rebuild after any `app.json` change. Apply migration 0003 first (`npx supabase db reset`).
+
+- [ ] With a confirmed home, the who's-home tab explains why "Always" is needed; "Allow Always" prompts (then opens Settings if already decided). After allowing, the explanation disappears.
+- [ ] Set simulator 1 inside the home (`xcrun simctl location <device> set <lat>,<lng>`), open the app: your row shows "Home · since <time>"; simulator 2's list shows A as Home within a few seconds.
+- [ ] Move simulator 1 outside the radius: simulator 2 flips A to "Away" within a few seconds.
+- [ ] A turns visibility off in Settings: B sees "—" for A; A still sees own row, labelled "You".
+- [ ] Force-quit A's app, move the simulated location across the boundary, reopen: the event was recorded (iOS relaunches the app for region events); check the row in B's list.
+- [ ] Sign out on A, cross the boundary: no event is recorded, no crash. Sign back in: the list corrects itself on foreground.
+- [ ] Note any geofence flakiness in `docs/decisions.md` (D48 Revisit).

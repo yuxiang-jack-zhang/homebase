@@ -280,3 +280,17 @@ Two-step Claude pipeline approved.
 **Decision:** root devDependency, exact version. Root vitest's `core` project now excludes `apps/mobile/**` because those tests are Jest. `npm ls` still notes an unused `react-dom` peer wanting 19.3.1.
 **Why:** a mismatched React and renderer crashes at launch.
 **Revisit if:** Expo moves to 19.3.1 (bump both).
+
+## D47. The geofence task is headless and signs in from the stored session — 2026-11-22, Jack
+**Context:** iOS relaunches the app in the background for region events; no React tree or provider exists, yet the event must reach `presence_events` under RLS.
+**Options:** *a server-side token or edge function for the task* — + no client auth in the task; − a second credential on the device. *the module-level task imports the same supabase client and reads the AsyncStorage session via `getSession()`* — + one auth path, RLS still decides; − with no session (signed out, expired refresh token) the event is lost.
+**Decision:** the latter. No session: log and drop. Errors never throw out of the task. Only `{household_id, user_id, kind, at}` is sent, using the time of delivery since iOS region events carry no timestamp.
+**Why:** a dropped event while signed out is correct, and the next foreground `syncInitialPresence` repairs any gap.
+**Revisit if:** testers see missed events after long idle periods (refresh token expiry in background).
+
+## D48. At most 20 regions, newest joined households win, "Always" gates everything — 2026-11-22, Jack
+**Context:** iOS allows 20 monitored regions per app; geofencing is useless without "Always" permission.
+**Options:** *fail when over 20* — + simple; − a member of many households gets nothing. *monitor the 20 most recently joined confirmed households and show a notice* — + degrades gracefully; − older households go stale. Permission: *request at launch* — − prompts before the user knows why. *explain on the who's-home screen with a button (then Settings)* — + in context.
+**Decision:** newest 20 by `joined_at`, notice when truncated; regions are started only with a confirmed home and "Always", re-synced on foreground and when households or confirmations change. `presence_events` is added to the realtime publication (migration 0003); RLS still filters each subscriber.
+**Why:** matches how households are actually used (a few), with a safe cap.
+**Revisit if:** anyone needs more than 20 households, or iOS region events prove flaky (note it here after on-device testing).

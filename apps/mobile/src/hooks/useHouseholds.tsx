@@ -16,6 +16,8 @@ interface Value {
   setCurrent: (id: string) => void;
   members: Member[];
   me: Membership | null;
+  /** My membership in every household (for geofencing across households). */
+  myMemberships: Membership[];
   loading: boolean;
   error: string | null;
   /** Re-run the initial load after a failure. */
@@ -76,6 +78,7 @@ export function HouseholdsProvider({ userId, children }: { userId: string; child
       setCurrent,
       members: inCurrent.map((x) => ({ ...x, display_name: names[x.user_id] ?? 'Roommate' })),
       me: inCurrent.find((x) => x.user_id === userId) ?? null,
+      myMemberships: memberships.filter((x) => x.user_id === userId),
       loading,
       error,
       reload,

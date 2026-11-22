@@ -14,6 +14,7 @@ export default function HouseholdScreen() {
   const [radius, setRadius] = useState('100');
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState<'create' | 'join' | null>(null);
+  const [createdId, setCreatedId] = useState<string | null>(null); // household exists; only the refresh may be pending
   const [error, setError] = useState<string | null>(null);
 
   const r = Number(radius);
@@ -28,8 +29,22 @@ export default function HouseholdScreen() {
         p_name: name.trim(), p_lat: home.lat, p_lng: home.lng, p_timezone: deviceTimezone(), p_radius_m: r,
       });
       if (e) throw e;
+      setCreatedId(data.id);
+      await finishCreate(data.id);
+      return;
+    } catch (e) {
+      setError(friendlyError(e as Error));
+    }
+    setBusy(null);
+  }
+
+  // Separate from create() so a failed refresh offers Retry, never a second household.
+  async function finishCreate(id: string) {
+    setBusy('create');
+    setError(null);
+    try {
       await refresh();
-      setCurrent(data.id);
+      setCurrent(id);
       router.replace('/(tabs)/settings');
     } catch (e) {
       setError(friendlyError(e as Error));
@@ -58,7 +73,11 @@ export default function HouseholdScreen() {
       <Field placeholder="Household name" value={name} onChangeText={setName} maxLength={60} />
       <Field placeholder="Home radius in meters (50-500)" value={radius} onChangeText={setRadius} keyboardType="number-pad" />
       <Text style={ui.hint}>Be at home when you tap the button: your current location becomes the shared home. Only home/away is ever shared, never where you are.</Text>
-      <Button title="Use my current location as home" onPress={create} busy={busy === 'create'} disabled={!name.trim() || !radiusOk || busy === 'join'} />
+      {createdId ? (
+        <Button title="Retry" onPress={() => finishCreate(createdId)} busy={busy === 'create'} />
+      ) : (
+        <Button title="Use my current location as home" onPress={create} busy={busy === 'create'} disabled={!name.trim() || !radiusOk || busy === 'join'} />
+      )}
       <Text style={ui.h2}>Or join with an invite code</Text>
       <Field placeholder="Invite code" value={code} onChangeText={(t) => setCode(t.toUpperCase())} autoCapitalize="characters" autoCorrect={false} maxLength={12} />
       <Button title="Join" onPress={join} busy={busy === 'join'} disabled={!code.trim() || busy === 'create'} alt />

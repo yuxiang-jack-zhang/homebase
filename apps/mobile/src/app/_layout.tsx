@@ -5,6 +5,7 @@ import { Button, ui } from '../components/ui';
 import { HouseholdsProvider, useHouseholds } from '../hooks/useHouseholds';
 import { useSession } from '../hooks/useSession';
 import { gate } from '../lib/gate';
+import '../lib/geofence'; // registers the geofence task at startup, even on a headless relaunch
 
 const Spinner = () => (
   <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>

@@ -6,7 +6,13 @@ import { useHouseholds } from '../../hooks/useHouseholds';
 import { friendlyError } from '../../lib/errors';
 import { supabase } from '../../lib/supabase';
 
-export default function ConfirmHome() {
+// Keyed by household so `confirmed` never carries over when the user switches households.
+export default function ConfirmHomeScreen() {
+  const { current } = useHouseholds();
+  return <ConfirmHome key={current?.id} />;
+}
+
+function ConfirmHome() {
   const { current, households, setCurrent, refresh } = useHouseholds();
   const [busy, setBusy] = useState(false);
   const [confirmed, setConfirmed] = useState(false); // confirm_home succeeded; only the refresh may be pending
@@ -37,7 +43,7 @@ export default function ConfirmHome() {
     await reloadAfterConfirm();
   }
 
-  // Other households whose home I already confirmed: an escape from this screen. (No leave-household RPC exists.)
+  // Other households to switch to, an escape from this screen. (No leave-household RPC exists.)
   const others = households.filter((h) => h.id !== current.id);
 
   return (
