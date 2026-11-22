@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { QuestionItem } from '../components/AnswerList';
 import { supabase } from '../lib/supabase';
 
@@ -9,13 +9,16 @@ export function useMyQuestions(householdId: string | undefined, userId: string, 
   const [rows, setRows] = useState<Row[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const seq = useRef(0);
   const load = useCallback(async () => {
-    if (!householdId) return;
+    if (!householdId || !userId) return;
+    const mine = ++seq.current; // drop out-of-order or post-switch responses
     const { data, error: e } = await supabase
       .from('questions')
       .select('id, text, created_at, question_targets(id, user_id, status, fallback_guess, created_at, responses(visibility, text, created_at))')
       .eq('household_id', householdId).eq('asker_id', userId)
       .order('created_at', { ascending: false }).limit(10);
+    if (mine !== seq.current) return;
     if (e) return setError(e.message);
     setError(null);
     setRows((data ?? []).map((q) => ({
@@ -28,8 +31,9 @@ export function useMyQuestions(householdId: string | undefined, userId: string, 
   }, [householdId, userId]);
 
   useEffect(() => {
+    seq.current++;
     setRows([]);
-    if (!householdId) return;
+    if (!householdId || !userId) return;
     load();
     // No server-side filter possible on these joins; RLS limits events to rows I may read, and a reload is cheap.
     const channel = supabase.channel(`my-questions:${householdId}`)
@@ -37,7 +41,7 @@ export function useMyQuestions(householdId: string | undefined, userId: string, 
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'responses' }, () => load())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [householdId, load]);
+  }, [householdId, userId, load]);
 
   const questions: QuestionItem[] = rows.map((q) => ({
     ...q, targets: q.targets.map((t) => ({ ...t, name: names[t.user_id] ?? 'Roommate' })),

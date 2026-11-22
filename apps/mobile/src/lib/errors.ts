@@ -10,11 +10,13 @@ const MESSAGES: Record<string, string> = {
   cannot_target_self: "You can't ask yourself.",
   target_not_member: 'One of those people is not in this household.',
   no_targets: 'There is nobody to ask.',
+  bad_response: 'Got an unexpected answer from the server. Try again.',
   invalid_location: "That location isn't valid. Try again.",
 };
 
 export function friendlyError(e: { message?: string } | null | undefined): string {
   const msg = e?.message;
   if (!msg) return 'Something went wrong. Try again.';
+  if (/^http_\d+$/.test(msg)) return 'The server had a problem. Try again.';
   return MESSAGES[msg] ?? msg;
 }

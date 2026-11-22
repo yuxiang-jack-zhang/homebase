@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { Alert } from 'react-native';
 import { reply } from './api';
@@ -17,10 +18,14 @@ export async function notifyMember(q: { questionTargetId: string; askerName: str
   });
 }
 
-/** Explain, then ask iOS for permission, once (iOS itself never re-prompts after the first answer). */
+const EXPLAINED_KEY = 'homebase.notifPermissionExplained';
+
+/** Explain, then ask iOS for permission. The explanation shows at most once, even if dismissed with "Not now". */
 export async function ensureNotificationPermission() {
   const { status } = await Notifications.getPermissionsAsync();
   if (status !== 'undetermined') return;
+  if (await AsyncStorage.getItem(EXPLAINED_KEY).catch(() => null)) return;
+  await AsyncStorage.setItem(EXPLAINED_KEY, '1').catch(() => {});
   await new Promise<void>((resolve) =>
     Alert.alert(
       'Get asked here',
@@ -30,6 +35,18 @@ export async function ensureNotificationPermission() {
         { text: 'Allow', onPress: () => Notifications.requestPermissionsAsync().then(() => resolve(), () => resolve()) },
       ],
     ));
+}
+
+/** Remove a question's delivered notification(s) once it is answered. */
+export async function dismissForQuestion(questionTargetId: string) {
+  try {
+    const shown = await Notifications.getPresentedNotificationsAsync();
+    await Promise.all(shown
+      .filter((n) => (n.request.content.data as { questionTargetId?: string } | undefined)?.questionTargetId === questionTargetId)
+      .map((n) => Notifications.dismissNotificationAsync(n.request.identifier)));
+  } catch (e) {
+    console.warn('[notify] dismiss failed:', e);
+  }
 }
 
 const quick = (identifier: string, buttonTitle: string) => ({ identifier, buttonTitle, options: { opensAppToForeground: true } });
@@ -48,6 +65,7 @@ async function handle(r: Notifications.NotificationResponse) {
   if (!req) return;
   try {
     await reply(req);
+    await dismissForQuestion(req.questionTargetId);
   } catch (e) {
     console.warn('[notify] reply failed:', (e as Error).message); // 409 = answered elsewhere; the inbox shows the rest
   }

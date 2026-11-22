@@ -32,7 +32,7 @@ export function AnswerList({ questions, now }: { questions: QuestionItem[]; now?
             return (
               <View key={t.id} style={{ marginTop: 4 }}>
                 <Text>{first}</Text>
-                {rest.map((l) => <Text key={l} style={ui.hint}>{l}</Text>)}
+                {rest.map((l, i) => <Text key={`${i}${l}`} style={ui.hint}>{l}</Text>)}
               </View>
             );
           })}

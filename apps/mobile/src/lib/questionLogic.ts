@@ -38,3 +38,14 @@ export function responseToReply(questionTargetId: string, actionId: string, user
 }
 
 export const newTargets = <T extends { id: string }>(items: T[], seen: Set<string>) => items.filter((i) => !seen.has(i.id));
+
+export const DRAFT_GRACE_MS = 5_000;
+const STALE_FIRST_RUN_MS = 10 * 60_000;
+
+/** The draft row lands just after its target; a draft-less question this young may still get one, so wait. */
+export const notifyDecision = (i: { draft: string | null; created_at: string }, now: number): 'notify' | 'wait' =>
+  i.draft !== null || now - Date.parse(i.created_at) > DRAFT_GRACE_MS ? 'notify' : 'wait';
+
+/** First run has no seen-set: silently mark old questions seen so installing doesn't flood; fresher ones still notify. */
+export const seedOnFirstRun = (items: { id: string; created_at: string }[], first: boolean, now: number) =>
+  first ? items.filter((i) => now - Date.parse(i.created_at) > STALE_FIRST_RUN_MS).map((i) => i.id) : [];

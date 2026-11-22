@@ -5,8 +5,9 @@ import { useHouseholds } from '../../hooks/useHouseholds';
 import { useInbox, type InboxItem } from '../../hooks/useInbox';
 import { reply } from '../../lib/api';
 import { friendlyError } from '../../lib/errors';
+import { dismissForQuestion } from '../../lib/notify';
 
-function Item({ item, onDone }: { item: InboxItem; onDone: () => void }) {
+function Item({ item, onDone }: { item: InboxItem; onDone: (notice?: string) => void }) {
   const [busy, setBusy] = useState(false);
   const [typing, setTyping] = useState(false);
   const [text, setText] = useState('');
@@ -17,11 +18,15 @@ function Item({ item, onDone }: { item: InboxItem; onDone: () => void }) {
     setError(null);
     try {
       await reply({ questionTargetId: item.id, ...req });
+      void dismissForQuestion(item.id);
       onDone();
     } catch (e) {
-      setError(friendlyError(e as Error));
-      // Someone (another device) already answered: it is gone from the inbox on the next load.
-      if ((e as Error).message === 'not_awaiting_reply') onDone();
+      const msg = friendlyError(e as Error);
+      // Already answered elsewhere: the item leaves, and the screen (which outlives it) shows why.
+      if ((e as Error).message === 'not_awaiting_reply') {
+        void dismissForQuestion(item.id);
+        onDone(msg);
+      } else setError(msg);
     } finally {
       setBusy(false);
     }
@@ -55,11 +60,13 @@ function Item({ item, onDone }: { item: InboxItem; onDone: () => void }) {
 export default function Inbox() {
   const { me } = useHouseholds();
   const { items, loading, error, remove } = useInbox(me?.user_id ?? '');
+  const [notice, setNotice] = useState<string | null>(null);
   return (
     <ScrollView style={ui.screen}>
       <ErrorText text={error} />
+      {notice && <Text accessibilityRole="alert" style={ui.hint}>{notice}</Text>}
       {!loading && items.length === 0 && <Text style={ui.hint}>Nothing waiting for you.</Text>}
-      {items.map((i) => <Item key={i.id} item={i} onDone={() => remove(i.id)} />)}
+      {items.map((i) => <Item key={i.id} item={i} onDone={(n) => { setNotice(n ?? null); remove(i.id); }} />)}
     </ScrollView>
   );
 }

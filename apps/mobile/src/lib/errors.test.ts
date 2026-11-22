@@ -12,3 +12,8 @@ test('falls back for unknown or missing errors', () => {
   expect(friendlyError({ message: 'boom' })).toBe('boom');
   expect(friendlyError(null)).toMatch(/something went wrong/i);
 });
+
+test('maps client transport codes', () => {
+  expect(friendlyError({ message: 'bad_response' })).toMatch(/unexpected/i);
+  expect(friendlyError({ message: 'http_502' })).toMatch(/server/i);
+});

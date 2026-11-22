@@ -1,11 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ensureNotificationPermission, notifyMember } from '../lib/notify';
-import { newTargets } from '../lib/questionLogic';
+import { newTargets, notifyDecision, seedOnFirstRun } from '../lib/questionLogic';
 import { supabase } from '../lib/supabase';
 
 const SEEN_KEY = 'homebase.notifiedTargets';
-const DEBOUNCE_MS = 1500; // the draft row is inserted just after its target; wait so the notification can carry it
+const DEBOUNCE_MS = 1500;
+const RECHECK_MS = 5500; // a draft-less question gets one re-check after the draft grace period
 
 export interface InboxItem {
   id: string; // question_target id
@@ -20,15 +21,28 @@ export function useInbox(userId: string) {
   const [items, setItems] = useState<InboxItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const seen = useRef<Set<string> | null>(null);
+  const seq = useRef(0);
+  const recheck = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // Resolved once so concurrent loads share one set; corrupt storage means an empty set.
+  const seenP = useRef<Promise<{ set: Set<string>; first: boolean }>>(undefined);
+  const getSeen = () => (seenP.current ??= AsyncStorage.getItem(SEEN_KEY).then((raw) => {
+    try {
+      return { set: new Set<string>(raw ? JSON.parse(raw) : []), first: raw === null };
+    } catch {
+      return { set: new Set<string>(), first: false };
+    }
+  }, () => ({ set: new Set<string>(), first: false })));
 
   const load = useCallback(async () => {
+    if (!userId) return;
+    const mine = ++seq.current; // drop out-of-order or post-switch responses
     const [t, p] = await Promise.all([
       supabase.from('question_targets')
         .select('id, created_at, questions(text, asker_id), responses(visibility, text)')
         .eq('user_id', userId).eq('status', 'awaiting_reply').order('created_at', { ascending: false }),
       supabase.from('profiles').select('id, display_name'),
     ]);
+    if (mine !== seq.current) return;
     const err = t.error ?? p.error;
     if (err) {
       setError(err.message);
@@ -47,23 +61,36 @@ export function useInbox(userId: string) {
     setItems(next);
     setLoading(false);
 
-    if (!seen.current) {
-      const raw = await AsyncStorage.getItem(SEEN_KEY).catch(() => null);
-      seen.current = new Set<string>(raw ? JSON.parse(raw) : []);
+    const seen = await getSeen();
+    const now = Date.now();
+    const persist = () => AsyncStorage.setItem(SEEN_KEY, JSON.stringify([...seen.set].slice(-200))).catch(() => {});
+    const seed = seedOnFirstRun(next, seen.first, now);
+    if (seen.first) {
+      seen.first = false;
+      seed.forEach((id) => seen.set.add(id));
+      await persist(); // also creates the key, so the next launch isn't "first" again
     }
-    const fresh = newTargets(next, seen.current);
-    if (fresh.length === 0) return;
-    // Mark first and persist before notifying, so a reload racing this one cannot notify twice.
-    fresh.forEach((f) => seen.current!.add(f.id));
-    await AsyncStorage.setItem(SEEN_KEY, JSON.stringify([...seen.current].slice(-200))).catch(() => {});
+    const ready = newTargets(next, seen.set).filter((i) => notifyDecision(i, now) === 'notify');
+    const waiting = newTargets(next, seen.set).length > ready.length;
+    if (waiting) {
+      clearTimeout(recheck.current);
+      recheck.current = setTimeout(load, RECHECK_MS);
+    }
+    if (ready.length === 0) return;
+    // Mark and persist before notifying, so a racing load cannot notify twice.
+    ready.forEach((f) => seen.set.add(f.id));
+    await persist();
     await ensureNotificationPermission().catch(() => {});
-    for (const f of fresh) {
+    for (const f of ready) {
       await notifyMember({ questionTargetId: f.id, askerName: f.askerName, question: f.question, draft: f.draft })
         .catch((e) => console.warn('[notify] schedule failed:', e));
     }
   }, [userId]);
 
   useEffect(() => {
+    seq.current++;
+    setItems([]);
+    if (!userId) return;
     load();
     let timer: ReturnType<typeof setTimeout> | undefined;
     const later = () => { clearTimeout(timer); timer = setTimeout(load, DEBOUNCE_MS); };
@@ -73,6 +100,7 @@ export function useInbox(userId: string) {
       .subscribe();
     return () => {
       clearTimeout(timer);
+      clearTimeout(recheck.current);
       supabase.removeChannel(channel);
     };
   }, [userId, load]);
