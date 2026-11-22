@@ -4,6 +4,7 @@ import { HomeMap } from '../../components/HomeMap';
 import { Button, ErrorText, ui } from '../../components/ui';
 import { useHouseholds } from '../../hooks/useHouseholds';
 import { friendlyError } from '../../lib/errors';
+import { signOut } from '../../lib/geofence';
 import { supabase } from '../../lib/supabase';
 
 // Keyed by household so `confirmed` never carries over when the user switches households.
@@ -63,7 +64,7 @@ function ConfirmHome() {
       {others.map((h) => (
         <Button key={h.id} title={`Switch to ${h.name}`} alt onPress={() => setCurrent(h.id)} />
       ))}
-      <Button title="Sign out" alt onPress={() => supabase.auth.signOut()} />
+      <Button title="Sign out" alt onPress={signOut} />
     </ScrollView>
   );
 }

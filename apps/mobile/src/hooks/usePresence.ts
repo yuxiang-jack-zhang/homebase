@@ -36,6 +36,10 @@ export function usePresence(householdId: string | undefined) {
           // Events can arrive out of order; keep the newest per user.
           setPresence((cur) => (cur[r.user_id] && Date.parse(cur[r.user_id].at) > Date.parse(r.at) ? cur : { ...cur, [r.user_id]: { kind: r.kind, at: r.at } }));
         })
+      // A roommate turning visibility back on reveals their latest row by UPDATE (migration 0005): reload.
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'presence_events', filter: `household_id=eq.${householdId}` },
+        () => { load(); })
       .subscribe();
     const sub = AppState.addEventListener('change', (s) => { if (s === 'active') load(); });
     return () => {

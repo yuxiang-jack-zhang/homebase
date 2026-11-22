@@ -33,7 +33,8 @@ export default function WhosHome() {
       {members.map((m) => (
         <View key={m.user_id} style={ui.row}>
           <Text style={ui.optionTitle}>{m.user_id === userId ? 'You' : m.display_name}</Text>
-          <Text>{presenceLabel(presence[m.user_id])}</Text>
+          {/* Hidden right now: '—' even if a stale row is still in memory. */}
+          <Text>{presenceLabel(m.visibility || m.user_id === userId ? presence[m.user_id] : undefined)}</Text>
         </View>
       ))}
       {current && others.length > 0 && <AskBox householdId={current.id} others={others} onAsked={reload} />}

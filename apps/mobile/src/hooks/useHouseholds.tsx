@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { AppState } from 'react-native';
 import type { Tables } from '@homebase/core/src/db.types';
 import { friendlyError } from '../lib/errors';
 import { supabase } from '../lib/supabase';
@@ -63,6 +64,19 @@ export function HouseholdsProvider({ userId, children }: { userId: string; child
   }, [refresh]);
 
   useEffect(() => { reload(); }, [reload, userId]);
+
+  // Settings (e.g. a roommate's visibility) change elsewhere: refresh on any member change (RLS: my households only) and on foreground.
+  useEffect(() => {
+    const quiet = () => { refresh().catch(() => {}); };
+    const channel = supabase.channel(`members:${userId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'household_members' }, quiet)
+      .subscribe();
+    const sub = AppState.addEventListener('change', (s) => { if (s === 'active') quiet(); });
+    return () => {
+      sub.remove();
+      supabase.removeChannel(channel);
+    };
+  }, [refresh, userId]);
 
   const setCurrent = useCallback((id: string) => {
     setCurrentId(id);

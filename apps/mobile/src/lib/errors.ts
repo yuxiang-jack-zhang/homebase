@@ -12,6 +12,11 @@ const MESSAGES: Record<string, string> = {
   no_targets: 'There is nobody to ask.',
   bad_response: 'Got an unexpected answer from the server. Try again.',
   invalid_location: "That location isn't valid. Try again.",
+  invalid_request: "That request wasn't valid. Check it and try again.",
+  unauthorized: 'Your session has expired. Sign in again.',
+  forbidden: "You don't have access to that.",
+  method_not_allowed: 'The app sent a request the server does not accept. Update the app.',
+  internal_error: 'The server had a problem. Try again.',
 };
 
 export function friendlyError(e: { message?: string } | null | undefined): string {

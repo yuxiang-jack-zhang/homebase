@@ -17,3 +17,11 @@ test('maps client transport codes', () => {
   expect(friendlyError({ message: 'bad_response' })).toMatch(/unexpected/i);
   expect(friendlyError({ message: 'http_502' })).toMatch(/server/i);
 });
+
+test('maps every edge-function error code', () => {
+  expect(friendlyError({ message: 'internal_error' })).toMatch(/server/i);
+  expect(friendlyError({ message: 'invalid_request' })).toMatch(/valid/i);
+  expect(friendlyError({ message: 'unauthorized' })).toMatch(/sign in/i);
+  expect(friendlyError({ message: 'forbidden' })).toMatch(/access/i);
+  expect(friendlyError({ message: 'method_not_allowed' })).toMatch(/update the app/i);
+});

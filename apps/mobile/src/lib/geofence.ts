@@ -52,6 +52,12 @@ export async function stopHomeGeofences() {
   if (await Location.hasStartedGeofencingAsync(GEOFENCE_TASK)) await Location.stopGeofencingAsync(GEOFENCE_TASK);
 }
 
+/** Stop watching homes before signing out, so the regions don't keep firing (or carry over to the next account). */
+export async function signOut() {
+  await stopHomeGeofences().catch((e) => console.warn('[geofence] stop failed:', e instanceof Error ? e.message : e));
+  await supabase.auth.signOut();
+}
+
 export async function startHomeGeofences(homes: { householdId: string; home: Home }[]) {
   await Location.startGeofencingAsync(
     GEOFENCE_TASK,

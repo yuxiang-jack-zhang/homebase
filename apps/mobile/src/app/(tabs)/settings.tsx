@@ -7,6 +7,7 @@ import { MoveHome } from '../../components/MoveHome';
 import { Button, ErrorText, Row, ui } from '../../components/ui';
 import { useHouseholds, type Membership } from '../../hooks/useHouseholds';
 import { friendlyError } from '../../lib/errors';
+import { signOut } from '../../lib/geofence';
 import { supabase } from '../../lib/supabase';
 
 export default function Settings() {
@@ -58,7 +59,7 @@ export default function Settings() {
 
       <Text style={ui.h2}>More</Text>
       <Button title="Create or join another household" alt onPress={() => router.push('/onboarding/household')} />
-      <Button title="Sign out" alt onPress={() => supabase.auth.signOut()} />
+      <Button title="Sign out" alt onPress={signOut} />
     </ScrollView>
   );
 }
