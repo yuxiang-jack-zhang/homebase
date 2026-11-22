@@ -1,5 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { anthropicModel } from './anthropic.ts';
 
@@ -50,5 +50,21 @@ describe('anthropicModel', () => {
     expect(p.value).toBeNull();
     expect(w.text).toBeNull();
     expect(p.usage.model).toBe('claude-opus-5-5');
+  });
+
+  it('logs a thrown error with status, type and message, never the prompt or question', async () => {
+    const err = Object.assign(new Error('Overloaded'), { status: 529, name: 'InternalServerError', error: { error: { type: 'overloaded_error' } } });
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const m = anthropicModel(stub(err).client);
+      await m.parse({ system: 'SECRET-SYSTEM', user: 'is Sam home tonight?', schema });
+      await m.write({ system: 'SECRET-SYSTEM', user: 'is Sam home tonight?' });
+      expect(spy).toHaveBeenCalledTimes(2);
+      const logged = JSON.stringify(spy.mock.calls);
+      for (const s of ['529', 'overloaded_error', 'Overloaded', 'parse', 'write']) expect(logged).toContain(s);
+      for (const s of ['SECRET-SYSTEM', 'Sam', 'tonight']) expect(logged).not.toContain(s);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

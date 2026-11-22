@@ -20,5 +20,6 @@ export function modelFromEnv(env: { get(key: string): string | undefined }): Mod
   }
   const apiKey = env.get('ANTHROPIC_API_KEY');
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not set');
-  return anthropicModel(new Anthropic({ apiKey }));
+  // Bounded so a slow model cannot hang `ask`: 20 s per attempt and one retry (SDK default is 2 retries); a failure escalates.
+  return anthropicModel(new Anthropic({ apiKey, timeout: 20_000, maxRetries: 1 }));
 }

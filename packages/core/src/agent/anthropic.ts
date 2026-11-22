@@ -21,6 +21,11 @@ export function anthropicModel(client: Anthropic, model = 'claude-opus-5-5'): Mo
   });
   // Refusal (whole fallback chain declined) or truncated output is unusable.
   const usable = (r: Res) => r.stop_reason !== 'refusal' && r.stop_reason !== 'max_tokens';
+  // Status, error type and message only: the prompt and question text must never reach the logs.
+  const logError = (call: string, e: unknown) => {
+    const x = e as { status?: number; name?: string; message?: string; error?: { error?: { type?: string } } };
+    console.error(`anthropic ${call} failed`, { status: x?.status, type: x?.error?.error?.type ?? x?.name, message: x?.message });
+  };
 
   return {
     async parse({ system, user, schema }) {
@@ -31,7 +36,8 @@ export function anthropicModel(client: Anthropic, model = 'claude-opus-5-5'): Mo
           output_config: { effort: 'low', format: betaZodOutputFormat(schema) },
         });
         return { value: usable(r) ? (r.parsed_output ?? null) : null, usage: usageOf(r, t0) };
-      } catch {
+      } catch (e) {
+        logError('parse', e);
         return { value: null, usage: usageOf(null, t0) };
       }
     },
@@ -41,7 +47,8 @@ export function anthropicModel(client: Anthropic, model = 'claude-opus-5-5'): Mo
         const r = await client.beta.messages.create({ ...base(system, user), output_config: { effort: 'low' } });
         const text = r.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('').trim();
         return { text: usable(r) && text ? text : null, usage: usageOf(r, t0) };
-      } catch {
+      } catch (e) {
+        logError('write', e);
         return { text: null, usage: usageOf(null, t0) };
       }
     },
