@@ -35,4 +35,14 @@ describe('blockEndAfter', () => {
     // starts Sat 03-13 23:00 PST, ends Sun 08:00 PDT = 15:00Z
     expect(blockEndAfter(b, '2027-03-14T08:00:00Z', LA)).toBe('2027-03-14T15:00:00.000Z');
   });
+  it('fall-back repeated hour: second pass ends strictly after `at`', () => {
+    const b: AwayBlock = { daysOfWeek: [0], startLocal: '01:00', endLocal: '01:30' };
+    // at = 01:15 PST (second pass); 01:30 PST = 09:30Z, not 01:30 PDT = 08:30Z
+    expect(blockEndAfter(b, '2027-11-07T09:15:00Z', LA)).toBe('2027-11-07T09:30:00.000Z');
+  });
+  it('spring-forward skipped hour: end that does not exist is still after `at`', () => {
+    const b: AwayBlock = { daysOfWeek: [0], startLocal: '01:00', endLocal: '02:30' };
+    // at = 01:30 PST; 02:30 does not exist, resolves to 03:30 PDT = 10:30Z
+    expect(blockEndAfter(b, '2027-03-14T09:30:00Z', LA)).toBe('2027-03-14T10:30:00.000Z');
+  });
 });

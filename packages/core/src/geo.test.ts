@@ -7,8 +7,8 @@ describe('geo', () => {
     expect(Math.abs(d - 1300)).toBeLessThanOrEqual(50);
   });
   const home = { lat: 37, lng: -122, radiusM: 100 };
-  // 1 deg latitude = ~111195 m on this sphere
-  const north = (m: number) => ({ lat: 37 + m / 111194.93, lng: -122 });
+  // metres per degree of latitude on the sphere geo.ts uses: R = 6371000 m, so R * pi / 180 = 111194.93
+  const north = (m: number) => ({ lat: 37 + m / ((6371000 * Math.PI) / 180), lng: -122 });
   it('isInsideHome is true at 99 m', () => expect(isInsideHome(home, north(99))).toBe(true));
   it('isInsideHome is false at 101 m', () => expect(isInsideHome(home, north(101))).toBe(false));
 });

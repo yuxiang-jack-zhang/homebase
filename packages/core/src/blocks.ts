@@ -20,11 +20,16 @@ function localMinutes(utcMs: number, tz: string): number {
   return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute) / MIN;
 }
 
-/** Inverse of localMinutes: guess, correct by the offset, repeat once to settle across a DST change. */
-function localToUtcMs(localMin: number, tz: string): number {
-  let utc = localMin * MIN;
-  for (let i = 0; i < 2; i++) utc = localMin * MIN - (localMinutes(utc, tz) - utc / MIN) * MIN;
-  return utc;
+/**
+ * UTC instant for wall-clock `localMin`, strictly after `atMs`. Candidates use the zone offsets in force
+ * around `atMs`, so a repeated hour (fall back) yields both passes and a skipped hour (spring forward)
+ * yields none that round-trip; then we take the earliest candidate after `atMs`.
+ */
+function localToUtcAfter(localMin: number, atMs: number, tz: string): number {
+  const DAY_MS = DAY * MIN;
+  const offsets = new Set([-DAY_MS, 0, DAY_MS].map((d) => localMinutes(atMs + d, tz) - (atMs + d) / MIN));
+  const after = [...offsets].map((o) => (localMin - o) * MIN).filter((c) => c > atMs).sort((x, y) => x - y);
+  return after.find((c) => localMinutes(c, tz) === localMin) ?? after[0];
 }
 
 const hhmm = (s: string) => Number(s.slice(0, 2)) * 60 + Number(s.slice(3, 5));
@@ -50,7 +55,8 @@ export function blockCovering(blocks: AwayBlock[], at: string, timezone: string)
 }
 
 export function blockEndAfter(block: AwayBlock, at: string, timezone: string): string {
-  const end = coveringEnd(block, localMinutes(Date.parse(at), timezone));
+  const atMs = Date.parse(at);
+  const end = coveringEnd(block, localMinutes(atMs, timezone));
   if (end === null) throw new Error('block does not cover the given time');
-  return new Date(localToUtcMs(end, timezone)).toISOString();
+  return new Date(localToUtcAfter(end, atMs, timezone)).toISOString();
 }
