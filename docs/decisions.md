@@ -175,3 +175,38 @@ Two-step Claude pipeline approved.
 **Decision:** with no prediction (or `at_time` with null aboutTime): `ask_me` and `auto_when_confident` escalate* ; `always_auto` returns `unknown` regardless of householdWide. Claims with a prediction behave as before.
 **Why:** an always_auto member chose never to be pinged and there is nothing to answer with, so "unknown" is the only honest reply.
 **Revisit if:** members want to be asked even in always_auto when the agent has nothing.
+
+## D32. Model calls use `max_tokens: 4096` and treat truncation as no answer — 2026-11-22, Jack
+**Context:** the plan said `max_tokens: 1024`, but Opus 5.5 always thinks and thinking tokens count toward `max_tokens`; even at effort `low` a 1024 cap can cut the visible output.
+**Options:** *1024* — + caps spend per call; − truncated JSON or a half sentence. *4096* — + room for thinking plus a one-line output; − a runaway call costs more. *4096 and `stop_reason === 'max_tokens'` → null* — + a cut-off output never reaches anyone; − a truncated call is wasted.
+**Decision:** 4096; `max_tokens` and `refusal` stop reasons, and any thrown API error, return null from the `ModelClient` (parse → `unclear` → escalate; write → template line or no draft). The client never throws.
+**Why:** a truncated parse or line is worse than none, and the code already has a safe path for null.
+**Revisit if:** usage logs show outputs near the cap, or cost per question matters.
+
+## D33. Server-side refusal fallback via the beta Messages API — 2026-11-22, Jack
+**Context:** the brief asked for `client.beta.messages.parse` with `fallbacks: 'default'` if SDK 1.12.0 supports it, else plain `messages.parse`.
+**Options:** *plain `messages.parse` with `zodOutputFormat`* — + GA surface; − a policy decline on a harmless question just stops. *`beta.messages.parse` / `beta.messages.create` with `betas: ['server-side-fallback-2026-07-01']`, `fallbacks: 'default'` and `betaZodOutputFormat`* — + a decline is re-run on the fallback model inside the same call; − beta surface, may change.
+**Decision:** the beta path; it type-checks in 1.12.0. The beta call needs the beta Zod helper (`@anthropic-ai/sdk/helpers/beta/zod`), not `zodOutputFormat`. The system prompt is sent as one text block with a `cache_control` marker.
+**Why:** a refusal on "are you home at 7?" would be a false decline; the fallback costs nothing when unused. The prompts are currently below the 512-token cache minimum, so the marker is a no-op until they grow.
+**Revisit if:** the beta changes shape or graduates to GA.
+
+## D34. No draft is written when escalating without a prediction — 2026-11-22, Jack
+**Context:** escalate also happens when the parse failed (claim null) or the claim has no predicted state or time; a draft "from the claim" would then be invented.
+**Options:** *always ask the model for a draft* — + the target always sees a suggestion; − the suggestion is a guess, and a paid call for it. *draft only when the claim has a prediction* — + drafts are grounded; − the target writes their own reply in those cases.
+**Decision:** `answerForTarget` calls `write` for an escalate only when the claim has a predicted state or time; otherwise `draftText` is null. `unknown` decisions make no model call at all.
+**Why:** the draft is meant to be the agent's prediction for the target to confirm; with no prediction there is nothing to confirm.
+**Revisit if:** targets say a blank reply box is worse than a generic suggestion.
+
+## D35. Writer inputs and time formatting — 2026-11-22, Jack
+**Context:** the writer needs enough to phrase a line, and claims carry UTC ISO times that askers read as local times; the brief's `templateAnswer(name, claim, caveat)` has no timezone.
+**Options:** *give the writer evidence (blocks, presence)* — + richer replies; − block labels and history could reach the asker, which the claim exists to prevent. *give the writer the target's name, the claim, the household timezone and the asker's own question (delimited, marked as data)* — + nothing beyond the claim; − the model converts UTC to local itself. For the template: *UTC clock* — + no signature change; − wrong times for every household outside UTC. *optional 4th `timezone` parameter (default UTC)* — + local times, existing calls still valid.
+**Decision:** writer sees name + claim + timezone + question only; `templateAnswer` gets an optional `timezone` and prints `h:mm AM/PM` local times via `Intl`. `parseQuestion` normalizes `aboutTime` to UTC (`toISOString`) and drops it for kinds other than `at_time`.
+**Why:** the claim is the privacy boundary; the question is the asker's own text, so echoing it leaks nothing.
+**Revisit if:** evals show the model mis-converting times; then pass pre-formatted local times in the user message.
+
+## D36. `agent/anthropic.ts` is not re-exported from the core index — 2026-11-22, Jack
+**Context:** `packages/core/src/index.ts` re-exports every module; `anthropic.ts` imports the SDK at runtime (`betaZodOutputFormat`).
+**Options:** *re-export it* — + one import path; − every consumer of core (the app, tests, edge functions that only need policy) loads the SDK. *import it by path where needed* — + only the edge functions that call Claude load the SDK; − one extra import line there.
+**Decision:** index exports `model.ts`, `template.ts` and `pipeline.ts`; `anthropic.ts` is imported directly.
+**Why:** the mobile app imports core too and must never bundle the Anthropic SDK.
+**Revisit if:** never; this is the boundary that keeps the SDK server-side.
