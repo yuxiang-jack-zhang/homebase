@@ -37,6 +37,8 @@ describe('scoreClaim until_when', () => {
   it('early arrival beyond tolerance incorrect', () => expect(scoreClaim(until, [...recent, ev('enter', T('17:00'))], T('19:00'))).toBe('incorrect'));
   it('no arrival before deadline pending', () => expect(scoreClaim(until, recent, T('18:29'))).toBe('pending'));
   it('no arrival after deadline incorrect', () => expect(scoreClaim(until, recent, T('18:30'))).toBe('incorrect'));
+  it('arrival exactly at createdAt is not counted (strict >)', () =>
+    expect(scoreClaim(until, [ev('enter', CREATED)], T('18:00'))).toBe('pending'));
   it('no events in window unscored', () => expect(scoreClaim(until, [], T('19:00'))).toBe('unscored'));
   it('null predictedTime unscored', () => expect(scoreClaim({ ...until, predictedTime: null }, recent, T('19:00'))).toBe('unscored'));
 });

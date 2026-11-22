@@ -11,6 +11,10 @@ export function decide(i: { claim: Claim | null; settings: MemberSettings; house
   if (past) return claim.predictedState ? { action: 'answer', caveat: false } : escalate;
   if (claim.kind === 'until_when' && claim.predictedState === 'home') return { action: 'answer', caveat: false };
 
+  // Nothing to answer with: always_auto never pings the member, so the asker sees "unknown".
+  const noPrediction = (claim.predictedState === null && claim.predictedTime === null) || (claim.kind === 'at_time' && claim.aboutTime === null);
+  if (noPrediction) return settings.answerMode === 'always_auto' ? { action: 'unknown' } : escalate;
+
   switch (settings.answerMode) {
     case 'ask_me': return escalate;
     case 'auto_when_confident': return claim.confidence === 'low' ? escalate : { action: 'answer', caveat: false };

@@ -168,3 +168,10 @@ Two-step Claude pipeline approved.
 **Decision:** inclusive on both ends, checked first; missing inputs (null aboutTime/predictedState/predictedTime) score `unscored`. `classifyFeedback`: approve → approved and text → edited whatever the claim; yes/no judged only for `now`/`at_time` with a predicted state, else null. ISO strings are compared with `Date.parse`, never string order.
 **Why:** an unjudgeable prediction should stay out of accuracy stats rather than count as wrong; text/approve say something about the draft even without a claim.
 **Revisit if:** accuracy stats show the 30 min tolerance is too tight or loose.
+
+## D31. Future claims with no prediction never get an answer — 2026-11-22, Jack
+**Context:** a future claim with no predictedState and no predictedTime (Task 4's "none" claim), or an `at_time` with no aboutTime, reached the answer-mode switch; `always_auto` then answered with nothing behind it, and `auto_when_confident` was safe only because that claim happens to be low confidence.
+**Options:** *gate only on confidence* — + no new rule; − answers without evidence under `always_auto`, depends on an upstream accident. *escalate when there is no prediction* — + consistent with `fallbackAllowed`; − `always_auto` members would be pinged though they chose not to be. *`unknown` for `always_auto`, escalate otherwise* — + respects "never ping me" and still never invents an answer; − the asker gets no answer.
+**Decision:** with no prediction (or `at_time` with null aboutTime): `ask_me` and `auto_when_confident` escalate* ; `always_auto` returns `unknown` regardless of householdWide. Claims with a prediction behave as before.
+**Why:** an always_auto member chose never to be pinged and there is nothing to answer with, so "unknown" is the only honest reply.
+**Revisit if:** members want to be asked even in always_auto when the agent has nothing.

@@ -46,6 +46,22 @@ describe('decide', () => {
     it('until_when already home answers, even ask_me', () =>
       expect(d(claim({ kind: 'until_when', predictedState: 'home' }))).toEqual(ans()));
 
+    describe('future without a prediction', () => {
+      const none = (conf: Confidence) => [
+        claim({ kind: 'at_time', aboutTime: FUTURE, predictedState: null, confidence: conf }),
+        claim({ kind: 'until_when', predictedState: null, predictedTime: null, confidence: conf }),
+        claim({ kind: 'at_time', aboutTime: null, confidence: conf }), // no answerable time
+      ];
+      it.each(['ask_me', 'auto_when_confident'] as const)('%s escalates', (m) => {
+        for (const conf of ['high', 'medium', 'low'] as const)
+          for (const c of none(conf)) expect(d(c, set(true, m))).toEqual(esc(hw));
+      });
+      it('always_auto is unknown regardless of householdWide', () => {
+        for (const conf of ['high', 'medium', 'low'] as const)
+          for (const c of none(conf)) expect(d(c, set(true, 'always_auto'))).toEqual({ action: 'unknown' });
+      });
+    });
+
     describe('future', () => {
       const futures = (confidence: Confidence) => [
         claim({ kind: 'at_time', aboutTime: FUTURE, confidence }),
