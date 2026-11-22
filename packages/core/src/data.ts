@@ -7,7 +7,10 @@ export interface Membership { timezone: string; members: { userId: string; name:
 export interface HouseholdData {
   /** null = the user is not a member (or the household does not exist). */
   membership(householdId: string, userId: string): Promise<Membership | null>;
-  /** That household's presence for the user over the last 14 days, plus their blocks in that household. */
+  /**
+   * That household's presence for the user over the last 14 days plus the latest event before (the state going in),
+   * keeping only events after the last one recorded while hidden (so a hidden window reads as unknown), and their blocks there.
+   */
   evidence(householdId: string, userId: string, now: string): Promise<Evidence>;
 }
 
@@ -38,18 +41,22 @@ export function supabaseHouseholdData(admin: SupabaseClient<Database>): Househol
     },
 
     async evidence(householdId, userId, now) {
-      const [h, presence, blocks] = await Promise.all([
+      const since = new Date(Date.parse(now) - 14 * DAY).toISOString();
+      const events = () => admin.from('presence_events').select('kind, at, visible').eq('household_id', householdId).eq('user_id', userId);
+      const [h, before, recent, blocks] = await Promise.all([
         admin.from('households').select('timezone').eq('id', householdId).single(),
-        admin.from('presence_events').select('kind, at')
-          .eq('household_id', householdId).eq('user_id', userId)
-          .gte('at', new Date(Date.parse(now) - 14 * DAY).toISOString()).order('at'),
+        events().lt('at', since).order('at', { ascending: false }).order('id', { ascending: false }).limit(1),
+        events().gte('at', since).order('at').order('id'),
         admin.from('away_blocks').select('days_of_week, start_local, end_local, label')
           .eq('household_id', householdId).eq('user_id', userId),
       ]);
+      // Questions are always about another member, so presence recorded while hidden (and anything before it) is never evidence (D55).
+      const all = [...must(before), ...must(recent)];
+      const visible = all.slice(all.map((e) => e.visible).lastIndexOf(false) + 1);
       return {
         now,
         timezone: must(h).timezone,
-        presence: must(presence).map((e) => ({ kind: e.kind, at: new Date(e.at).toISOString() })),
+        presence: visible.map((e) => ({ kind: e.kind, at: new Date(e.at).toISOString() })),
         blocks: must(blocks).map((b) => ({
           daysOfWeek: b.days_of_week, startLocal: b.start_local.slice(0, 5), endLocal: b.end_local.slice(0, 5),
           ...(b.label ? { label: b.label } : {}),

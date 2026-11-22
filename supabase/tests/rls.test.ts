@@ -85,6 +85,46 @@ describe("RLS", () => {
     expect(rows[0]).toMatchObject({ user_id: vis.id, kind: "enter" });
   });
 
+  it("turning visibility back on shows only the latest event; presence recorded while hidden stays hidden (C1)", async () => {
+    const h = await makeHousehold(["Sam"]);
+    const [sam] = h.members;
+    const hid = h.household.id;
+    const setVisible = async (v: boolean) =>
+      ok(await sam.client.rpc("update_my_settings", { p_household_id: hid, p_visibility: v, p_answer_mode: "ask_me" }));
+    const [before, during, latest] = [minutesAgo(300), minutesAgo(100), minutesAgo(50)];
+    await addPresence(sam, hid, "exit", before);   // recorded while visible
+    await setVisible(false);
+    await addPresence(sam, hid, "enter", during);  // hidden window
+    await addPresence(sam, hid, "exit", latest);   // hidden, latest
+    expect(ok(await h.owner.client.from("presence_events").select().eq("user_id", sam.id))).toEqual([]);
+
+    await setVisible(true);
+
+    const seen = ok(await h.owner.client.from("presence_events").select("kind, at").eq("user_id", sam.id).order("at"));
+    const ms = (rows: { kind: string; at: string }[]) => rows.map((e) => [e.kind, Date.parse(e.at)]);
+    expect(ms(seen)).toEqual([["exit", Date.parse(before)], ["exit", Date.parse(latest)]]); // the hidden "enter" never surfaces
+    const current = ok(await h.owner.client.from("current_presence").select("kind, at").eq("user_id", sam.id));
+    expect(ms(current)).toEqual([["exit", Date.parse(latest)]]);
+    // Sam still sees all of their own history.
+    expect(ok(await sam.client.from("presence_events").select().eq("user_id", sam.id))).toHaveLength(3);
+
+    // Toggling again without new events changes nothing for the roommate.
+    await setVisible(false);
+    await setVisible(true);
+    expect(ok(await h.owner.client.from("presence_events").select().eq("user_id", sam.id))).toHaveLength(2);
+  });
+
+  it("a hidden member cannot mark their own event visible at insert; the trigger stamps it from settings", async () => {
+    const h = await makeHousehold(["Sam"]);
+    const [sam] = h.members;
+    ok(await sam.client.rpc("update_my_settings", { p_household_id: h.household.id, p_visibility: false, p_answer_mode: "ask_me" }));
+    ok(await sam.client.from("presence_events").insert({ household_id: h.household.id, user_id: sam.id, kind: "enter", visible: true }));
+    ok(await admin.from("presence_events").insert({ household_id: h.household.id, user_id: h.owner.id, kind: "enter", visible: false }));
+    const rows = ok(await admin.from("presence_events").select("user_id, visible").eq("household_id", h.household.id));
+    expect(rows.sort((a, b) => (a.user_id === sam.id ? -1 : b.user_id === sam.id ? 1 : 0)))
+      .toEqual([{ user_id: sam.id, visible: false }, { user_id: h.owner.id, visible: true }]);
+  });
+
   it("roommate cannot read another member's away_blocks", async () => {
     const h = await makeHousehold(["Mia"]);
     const [mia] = h.members;

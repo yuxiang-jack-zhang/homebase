@@ -27,6 +27,14 @@ describe('keywordFakeModel', () => {
     expect(t - Date.now()).toBeLessThanOrEqual(2 * 3_600_000);
   });
 
+  it('past-tense questions (was/were) get a time two hours before the real clock', async () => {
+    const before = Date.now();
+    const v = (await parse('was Sam home at 3?')) as { kind: string; aboutTime: string };
+    expect(v.kind).toBe('at_time');
+    expect(before - Date.parse(v.aboutTime)).toBeGreaterThanOrEqual(2 * 3_600_000 - 1000);
+    expect(Date.now() - Date.parse(v.aboutTime)).toBeLessThanOrEqual(2 * 3_600_000 + 1000);
+  });
+
   it('only reads the question, not the rest of the prompt', async () => {
     const r = await keywordFakeModel().parse({ system: 'home when back at tonight', user: '<question>\nwhat is for dinner\n</question>', schema });
     expect(r.value).toEqual({ kind: 'unclear', aboutTime: null });

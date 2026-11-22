@@ -117,14 +117,14 @@ isOneToOne: false
                   ]
                 },"presence_events": {
                   Row: {
-                    "at": string,"household_id": string,"id": number,"kind": Database["public"]['Enums']["presence_kind"],"user_id": string
+                    "at": string,"household_id": string,"id": number,"kind": Database["public"]['Enums']["presence_kind"],"user_id": string,"visible": boolean
                   }
                   ComputedFields: never
                   Insert: {
-                    "at"?: string,"household_id": string,"id"?: never,"kind": Database["public"]['Enums']["presence_kind"],"user_id": string
+                    "at"?: string,"household_id": string,"id"?: never,"kind": Database["public"]['Enums']["presence_kind"],"user_id": string,"visible"?: boolean
                   }
                   Update: {
-                    "at"?: string,"household_id"?: string,"id"?: never,"kind"?: Database["public"]['Enums']["presence_kind"],"user_id"?: string
+                    "at"?: string,"household_id"?: string,"id"?: never,"kind"?: Database["public"]['Enums']["presence_kind"],"user_id"?: string,"visible"?: boolean
                   }
                   Relationships: [
                     {

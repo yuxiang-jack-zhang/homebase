@@ -96,6 +96,63 @@ describe("ask", () => {
     expect(ok(await admin.from("predictions").select().eq("question_target_id", qt.id))).toEqual([]);
   });
 
+  it("a hidden member -> awaiting_reply with no answer, guess or draft built from their presence", async () => {
+    const { household, owner, members: [sam] } = await makeHousehold(["Sam"]);
+    ok(await sam.client.rpc("update_my_settings", { p_household_id: household.id, p_visibility: false, p_answer_mode: "always_auto" }));
+    ok(await sam.client.from("presence_events").insert({ household_id: household.id, user_id: sam.id, kind: "enter", at: minutesAgo(5) }));
+
+    const r = await ask(owner, { householdId: household.id, target: { userIds: [sam.id] }, text: "is Sam home" });
+
+    expect(r.status).toBe(200);
+    expect(r.body.targets).toEqual([{ userId: sam.id, status: "awaiting_reply", text: "Asked Sam — waiting for a reply." }]);
+    const qt = ok(await admin.from("question_targets").select("id, fallback_guess").eq("question_id", r.body.questionId).single());
+    expect(qt.fallback_guess).toBeNull();
+    expect(ok(await admin.from("responses").select().eq("question_target_id", qt.id))).toEqual([]);
+  });
+
+  it("after visibility is back on, a past question about the hidden window is not answered from hidden presence (C1)", async () => {
+    const { household, owner, members: [sam] } = await makeHousehold(["Sam"]);
+    const settings = async (v: boolean) => ok(await sam.client.rpc("update_my_settings",
+      { p_household_id: household.id, p_visibility: v, p_answer_mode: "auto_when_confident" }));
+    await settings(false);
+    ok(await sam.client.from("presence_events").insert({ household_id: household.id, user_id: sam.id, kind: "enter", at: minutesAgo(150) }));
+    ok(await sam.client.from("presence_events").insert({ household_id: household.id, user_id: sam.id, kind: "exit", at: minutesAgo(60) }));
+    await settings(true);
+
+    // The fake parses "was ..." as two hours ago, inside the hidden window where Sam was really home.
+    const r = await ask(owner, { householdId: household.id, target: { userIds: [sam.id] }, text: "was Sam home at 3" });
+
+    expect(r.status).toBe(200);
+    expect(r.body.targets).toEqual([{ userId: sam.id, status: "awaiting_reply", text: "Asked Sam — waiting for a reply." }]);
+    const qt = ok(await admin.from("question_targets").select("id, fallback_guess").eq("question_id", r.body.questionId).single());
+    expect(qt.fallback_guess).toBeNull();
+    expect(ok(await admin.from("responses").select().eq("question_target_id", qt.id))).toEqual([]); // no claim, so no draft
+    // "Now" is answered from the latest event, which turning visibility on revealed.
+    const now = await ask(owner, { householdId: household.id, target: { userIds: [sam.id] }, text: "is Sam home" });
+    expect(now.body.targets[0].status).toBe("answered");
+  });
+
+  it("'everyone' with mixed modes: ask_me -> unknown (not pinged), auto with no prediction -> awaiting_reply, always_auto with a block -> answered (D54)", async () => {
+    const { household, owner, members: [ann, bo, cy] } = await makeHousehold(["Ann", "Bo", "Cy"]);
+    ok(await bo.client.rpc("update_my_settings", { p_household_id: household.id, p_visibility: true, p_answer_mode: "auto_when_confident" }));
+    ok(await cy.client.rpc("update_my_settings", { p_household_id: household.id, p_visibility: true, p_answer_mode: "always_auto" }));
+    const all = [0, 1, 2, 3, 4, 5, 6];
+    ok(await cy.client.from("away_blocks").insert([
+      { household_id: household.id, user_id: cy.id, days_of_week: all, start_local: "00:00", end_local: "12:00" },
+      { household_id: household.id, user_id: cy.id, days_of_week: all, start_local: "12:00", end_local: "00:00" },
+    ]));
+
+    const r = await ask(owner, { householdId: household.id, target: "everyone", text: "will anyone be home at 9" });
+
+    expect(r.status).toBe(200);
+    const byUser = Object.fromEntries(r.body.targets.map((t: { userId: string; status: string; text: string }) => [t.userId, t]));
+    expect(byUser[ann.id]).toEqual({ userId: ann.id, status: "unknown", text: "Ann: unknown" });
+    expect(byUser[bo.id]).toEqual({ userId: bo.id, status: "awaiting_reply", text: "Asked Bo — waiting for a reply." });
+    expect(byUser[cy.id]).toEqual({ userId: cy.id, status: "answered", text: FAKE_SENTENCE });
+    const statuses = ok(await admin.from("question_targets").select("user_id, status").eq("question_id", r.body.questionId));
+    expect(statuses).toHaveLength(3);
+  });
+
   it("targeting a non-member id -> 400", async () => {
     const { household, owner } = await makeHousehold(["Sam"]);
     const stranger = await newUser("Stranger");
@@ -190,6 +247,47 @@ describe("score", () => {
     const after = ok(await admin.from("predictions").select().eq("id", pred.id).single());
     expect(after.outcome).toBe("correct");
     expect(after.scored_at).not.toBeNull();
+  });
+
+  it("anchors a late-approved until_when prediction at question time, not approval time (I2)", async () => {
+    const { household, owner, members: [sam] } = await makeHousehold(["Sam"]);
+    ok(await admin.from("presence_events").insert([
+      { household_id: household.id, user_id: sam.id, kind: "exit", at: minutesAgo(180) },
+      { household_id: household.id, user_id: sam.id, kind: "enter", at: minutesAgo(50) }, // arrived before Sam approved
+    ]));
+    const question = ok(await admin.from("questions").insert({
+      household_id: household.id, asker_id: owner.id, text: "when are you back?", kind: "until_when", created_at: minutesAgo(120),
+    }).select().single());
+    const qt = ok(await admin.from("question_targets")
+      .insert({ question_id: question.id, user_id: sam.id, status: "replied", created_at: minutesAgo(120) }).select().single());
+    const pred = ok(await admin.from("predictions").insert({
+      question_target_id: qt.id, user_id: sam.id, kind: "until_when", predicted_state: "away", predicted_time: minutesAgo(40),
+      confidence: "medium", source: "agent_approved", created_at: minutesAgo(45),
+    }).select().single());
+
+    expect((await call("score", SERVICE_ROLE_KEY, {})).status).toBe(200);
+
+    expect(ok(await admin.from("predictions").select("outcome").eq("id", pred.id).single()).outcome).toBe("correct");
+  });
+
+  it("scores from the latest event before the 48 h window when the window has no state-setting event (M1)", async () => {
+    const { household, owner, members: [sam] } = await makeHousehold(["Sam"]);
+    ok(await admin.from("presence_events").insert([
+      { household_id: household.id, user_id: sam.id, kind: "enter", at: minutesAgo(60 * 60) }, // home since 60 h ago
+      { household_id: household.id, user_id: sam.id, kind: "exit", at: minutesAgo(10) },
+    ]));
+    const question = ok(await admin.from("questions")
+      .insert({ household_id: household.id, asker_id: owner.id, text: "home at 1?", kind: "at_time" }).select().single());
+    const qt = ok(await admin.from("question_targets")
+      .insert({ question_id: question.id, user_id: sam.id, status: "answered", created_at: minutesAgo(180) }).select().single());
+    const pred = ok(await admin.from("predictions").insert({
+      question_target_id: qt.id, user_id: sam.id, kind: "at_time", about_time: minutesAgo(60),
+      predicted_state: "home", confidence: "medium", source: "agent_auto", created_at: minutesAgo(180),
+    }).select().single());
+
+    expect((await call("score", SERVICE_ROLE_KEY, {})).status).toBe(200);
+
+    expect(ok(await admin.from("predictions").select("outcome").eq("id", pred.id).single()).outcome).toBe("correct");
   });
 
   it("leaves a not-yet-due at_time prediction unscored when the member has no recent events", async () => {

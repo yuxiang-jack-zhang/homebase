@@ -7,14 +7,15 @@ const daysAgo = (d: number) => new Date(Date.parse(NOW) - d * 86_400_000).toISOS
 const data = supabaseHouseholdData(admin);
 
 describe("supabaseHouseholdData", () => {
-  it("evidence() returns only that user's presence in that household from the last 14 days, and their blocks there", async () => {
+  it("evidence() returns that user's presence in that household from the last 14 days plus the latest event before, and their blocks there", async () => {
     const a = await makeHousehold(["Sam"]);
     const b = await makeHousehold();
     const [sam] = a.members;
     await joinHousehold(sam, b.household.invite_code);
     const hid = a.household.id;
     ok(await admin.from("presence_events").insert([
-      { household_id: hid, user_id: sam.id, kind: "exit", at: daysAgo(15) },          // too old
+      { household_id: hid, user_id: sam.id, kind: "enter", at: daysAgo(20) },         // too old
+      { household_id: hid, user_id: sam.id, kind: "exit", at: daysAgo(15) },          // latest before the window: the state going in
       { household_id: hid, user_id: sam.id, kind: "enter", at: daysAgo(2) },
       { household_id: hid, user_id: sam.id, kind: "exit", at: daysAgo(1) },
       { household_id: b.household.id, user_id: sam.id, kind: "enter", at: daysAgo(1) }, // other household
@@ -31,9 +32,33 @@ describe("supabaseHouseholdData", () => {
     expect(ev).toEqual({
       now: NOW,
       timezone: "America/Los_Angeles",
-      presence: [{ kind: "enter", at: daysAgo(2) }, { kind: "exit", at: daysAgo(1) }],
+      presence: [{ kind: "exit", at: daysAgo(15) }, { kind: "enter", at: daysAgo(2) }, { kind: "exit", at: daysAgo(1) }],
       blocks: [{ daysOfWeek: [1, 3], startLocal: "18:00", endLocal: "21:30", label: "climbing" }],
     });
+  });
+
+  it("evidence() never uses presence recorded while hidden, nor anything before it (C1)", async () => {
+    const { household, members: [sam] } = await makeHousehold(["Sam"]);
+    const hid = household.id;
+    const setVisible = async (v: boolean) =>
+      ok(await sam.client.rpc("update_my_settings", { p_household_id: hid, p_visibility: v, p_answer_mode: "ask_me" }));
+    const ins = async (kind: "enter" | "exit", at: string) =>
+      ok(await sam.client.from("presence_events").insert({ household_id: hid, user_id: sam.id, kind, at }));
+    await ins("exit", daysAgo(20));  // visible, before the window
+    await ins("enter", daysAgo(3));  // visible
+    await setVisible(false);
+    await ins("exit", daysAgo(2));   // hidden
+    await ins("enter", daysAgo(1));  // hidden, latest
+    expect((await data.evidence(hid, sam.id, NOW)).presence).toEqual([]);
+
+    await setVisible(true); // only the latest event becomes visible
+    expect((await data.evidence(hid, sam.id, NOW)).presence).toEqual([{ kind: "enter", at: daysAgo(1) }]);
+  });
+
+  it("evidence() keeps the latest event before the window when the window is empty", async () => {
+    const { household, members: [sam] } = await makeHousehold(["Sam"]);
+    ok(await sam.client.from("presence_events").insert({ household_id: household.id, user_id: sam.id, kind: "enter", at: daysAgo(30) }));
+    expect((await data.evidence(household.id, sam.id, NOW)).presence).toEqual([{ kind: "enter", at: daysAgo(30) }]);
   });
 
   it("membership() maps names and settings, and returns null for a non-member or unknown household", async () => {
