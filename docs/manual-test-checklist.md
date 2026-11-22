@@ -40,3 +40,13 @@ Needs a development build (`npx expo run:ios`). Two users A and B in one househo
 - [ ] A asks and B does nothing for 10 minutes: A sees "No reply yet" and, when the server had one, a best guess line.
 - [ ] B answers on one device after the other already did: "Already answered." and the item disappears.
 - [ ] A never sees B's suggested answer, only the sent reply.
+
+## Mobile: stats screen (Task 12)
+
+Local stack up (`npx supabase start`), functions served with `ANTHROPIC_FAKE=1` (see `supabase/tests/README.md`; no billed model calls). Two users in one household.
+
+- [ ] Empty state: Stats tab shows "Only future predictions count" and "No predictions yet."
+- [ ] Seed predictions with SQL (psql on `postgresql://postgres:postgres@127.0.0.1:54322/postgres`): insert a `questions` row, a `question_targets` row, then `predictions` rows (kind `at_time`, `about_time` in the past, `predicted_state` home/away, `source` `agent_auto`, `created_at` before `about_time`; and `until_when` rows with `predicted_time`). Add `presence_events` for the target user around `about_time` so scoring has evidence. `functions.test.ts` "score" shows working inserts.
+- [ ] Run score: `curl -X POST "$API_URL/functions/v1/score" -H "Authorization: Bearer $SERVICE_ROLE_KEY" -H 'Content-Type: application/json' -d '{}'` (keys from `npx supabase status`). Response has `scored`.
+- [ ] Compare with SQL: `select p.kind, count(*) filter (where outcome='correct') c, count(*) filter (where outcome='incorrect') i, count(*) filter (where outcome='unscored') u from predictions p group by 1;` Pull to refresh (or switch tabs): counts match per kind and Overall; accuracy = c / (c + i), whole percent, "—" when c + i = 0.
+- [ ] Switch household in the header: the numbers change to that household's (no flash of the old one's).
