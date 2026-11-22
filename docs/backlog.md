@@ -15,6 +15,8 @@ See the design doc: `docs/design.md`.
    - `join_household` has no rate limit; invite codes are 6 chars of 32 (~1.07e9), and a match grants presence visibility without owner approval.
    - Raw Postgres errors (bad radius → 23514, bad timezone) instead of named codes.
    - `supabase_admin` default privileges still grant anon EXECUTE on new functions; only matters for objects created via the dashboard/SQL editor.
+   - No per-user rate limit on `ask`: a signed-in user can run up Claude cost.
+   - `question_targets.fallback_guess` is readable by the asker immediately; the 10-minute wait is enforced only in the app UI.
 4. **ETAs** — opt-in, rough "~20 min" from occasional coarse location samples.
 5. **Calendar** — iPhone calendar read on device; only busy/free blocks sent to the server.
 6. **Home-screen widget** — who's home at a glance (Swift target).
