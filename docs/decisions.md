@@ -357,3 +357,18 @@ Two-step Claude pipeline approved.
 **Decision:** substrings. Each answer fixture lists the expected state word or the local clock time ("3:00"); a missing one on an answer counts as wrong-confident and fails the fixture. The fixture-oracle test runs with no writer text so the template line must satisfy every fixture, and `--fake` does the same, so a plumbing run exercises the check. Added fixture `household-auto-low` for D54.
 **Why:** catches the dangerous case (confident text contradicting the claim) for free.
 **Revisit if:** real-model runs flag correct paraphrases; then widen the tokens or allow alternatives.
+
+## D58. Keep Opus 5.5 as the default model until an eval can tell the models apart — 2026-11-22, Jack
+**Context:** first billed eval run (24 fixtures, effort low, two calls per question), 2026-11-22. Results in `evals/results/2026-11-22-*.json`:
+
+| model | parse | decision | wrong-confident | leaks | p50 ms | p95 ms | $/question |
+|---|---|---|---|---|---|---|---|
+| claude-opus-5-5 | 100% | 100% | 0% | 0 | 2653 | 5541 | 0.00212 |
+| claude-sonnet-5-5 | 100% | 100% | 0% | 0 | 2624 | 4595 | 0.00103 |
+| claude-haiku-5-5 | 100% | 100% | 0% | 0 | 1530 | 2457 | 0.00005 |
+
+The first Opus run flagged one fixture: the answer was "Sam isn't home right now", correct but missing the literal word "away". D57's revisit condition triggered: `askerTextMustContain` entries now accept `|`-separated equivalent wordings, and the runner records `askerText` in results.
+**Options:** *switch to Haiku* — + ~44× cheaper, ~1.7× faster p50; − the set is saturated, so a tie says nothing about harder questions. *Keep Opus* — + the spec's model, most headroom on messy phrasing; − pays for headroom no fixture shows yet. *Sonnet* — the middle, with the same caveat.
+**Decision:** keep `claude-opus-5-5` (spec default). Cost at MVP volume is negligible (≈ $0.002/question).
+**Why:** a 24-question set where every model scores 100% can't justify a model change either way; the code needs no change and the decision stays cheap to revisit.
+**Revisit if:** the simulated-roommate evals (backlog #2) or a harder fixture set separate the models; Haiku is the first candidate since it is far cheaper and faster.

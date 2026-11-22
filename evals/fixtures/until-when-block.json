@@ -35,7 +35,7 @@
     "kind": "until_when",
     "decision": "answer",
     "askerTextMustContain": [
-      "5:00"
+      "5:00|5 am|5 pm|5am|5pm"
     ]
   }
 }

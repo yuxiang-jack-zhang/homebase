@@ -3,6 +3,8 @@ import type { ModelUsage } from '../packages/core/src/agent/model.ts';
 export interface FixtureResult {
   name: string; parseOk: boolean; decisionOk: boolean; wrongConfident: boolean; leaked: boolean;
   decision: string; predictedState: string | null; logPrediction: boolean; usage: ModelUsage[]; error?: string;
+  /** What the asker would see; kept so a text mismatch can be read in the results file. */
+  askerText?: string | null;
 }
 
 // USD per million tokens [input, output] for prompts <= 100K tokens. Keyed by the exact serving model id (no prefix guessing; unknown ids are reported as unpriced).

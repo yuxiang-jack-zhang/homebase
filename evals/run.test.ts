@@ -40,6 +40,14 @@ describe('runFixture', () => {
     expect(passed(bad)).toBe(false);
   });
 
+  it('askerTextMustContain accepts any of "|"-separated wordings', async () => {
+    const f: Fixture = { ...base, expect: { ...base.expect, askerTextMustContain: ['home|back'] } };
+    const alt = await runFixture(fakeModel({ parse: nowParse, write: 'Sam is back.' }), f);
+    const none = await runFixture(fakeModel({ parse: nowParse, write: 'Sam is around.' }), f);
+    expect(alt.wrongConfident).toBe(false);
+    expect(none.wrongConfident).toBe(true);
+  });
+
   it('askerTextMustContain is ignored when the decision is not an answer', async () => {
     const f: Fixture = { ...base, expect: { kind: 'now', decision: 'escalate', askerTextMustContain: ['home'] },
       target: { ...base.target, settings: { visibility: false, answerMode: 'auto_when_confident' } } };

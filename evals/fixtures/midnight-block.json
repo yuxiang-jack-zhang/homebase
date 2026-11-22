@@ -36,7 +36,7 @@
     "decision": "answer",
     "predictedState": "away",
     "askerTextMustContain": [
-      "1:00"
+      "1:00|1 am|1 pm|1am|1pm"
     ]
   }
 }

@@ -14,7 +14,7 @@ export interface Fixture {
     kind: QuestionKind; aboutTimeWithinMin?: { iso: string; minutes: number };
     decision: 'answer' | 'escalate' | 'unknown'; predictedState?: 'home' | 'away';
     askerTextMustNotContain?: string[]; logPrediction?: boolean;
-    /** Answers only: each must appear in the asker text (case-insensitive), e.g. the state word or local clock time. */
+    /** Answers only: each must appear in the asker text (case-insensitive), e.g. the state word or local clock time; "a|b" accepts either wording. */
     askerTextMustContain?: string[];
   };
 }
@@ -43,12 +43,13 @@ async function score(model: ModelClient, f: Fixture, usage: ModelUsage[]): Promi
   const answered = r.decision.action === 'answer';
   const predictedState = r.claim?.predictedState ?? null;
   const text = (r.askerText ?? '').toLowerCase();
-  const textMismatch = (f.expect.askerTextMustContain ?? []).some((s) => !text.includes(s.toLowerCase()));
+  // each entry may list equivalent wordings separated by "|" ("away|isn't home"); one must appear
+  const textMismatch = (f.expect.askerTextMustContain ?? []).some((s) => !s.toLowerCase().split('|').some((alt) => text.includes(alt)));
   const wrongConfident = answered && (f.expect.decision !== 'answer' || (!!f.expect.predictedState && predictedState !== f.expect.predictedState) || textMismatch);
   return {
     name: f.name, parseOk, decisionOk: r.decision.action === f.expect.decision, wrongConfident,
     leaked: (f.expect.askerTextMustNotContain ?? []).some((s) => text.includes(s.toLowerCase())),
-    decision: r.decision.action, predictedState, logPrediction: r.logPrediction, usage,
+    decision: r.decision.action, predictedState, logPrediction: r.logPrediction, usage, askerText: r.askerText,
   };
 }
 

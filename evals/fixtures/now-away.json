@@ -27,7 +27,7 @@
     "decision": "answer",
     "predictedState": "away",
     "askerTextMustContain": [
-      "away"
+      "away|not home|isn't home"
     ]
   }
 }
