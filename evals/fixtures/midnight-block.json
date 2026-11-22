@@ -1,0 +1,39 @@
+{
+  "name": "midnight-block",
+  "now": "2026-11-24T04:30:00Z",
+  "timezone": "America/Los_Angeles",
+  "householdWide": false,
+  "question": "will Sam be home at 1am?",
+  "target": {
+    "name": "Sam",
+    "settings": {
+      "visibility": true,
+      "answerMode": "auto_when_confident"
+    },
+    "presence": [
+      {
+        "kind": "enter",
+        "at": "2026-11-24T02:00:00Z"
+      }
+    ],
+    "blocks": [
+      {
+        "daysOfWeek": [
+          1
+        ],
+        "startLocal": "22:00",
+        "endLocal": "06:00",
+        "label": "night shift"
+      }
+    ]
+  },
+  "expect": {
+    "kind": "at_time",
+    "aboutTimeWithinMin": {
+      "iso": "2026-11-24T09:00:00Z",
+      "minutes": 15
+    },
+    "decision": "answer",
+    "predictedState": "away"
+  }
+}

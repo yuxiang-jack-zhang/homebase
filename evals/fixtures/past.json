@@ -1,0 +1,31 @@
+{
+  "name": "past",
+  "now": "2026-11-23T23:30:00Z",
+  "timezone": "America/Los_Angeles",
+  "householdWide": false,
+  "question": "were you home at 3?",
+  "target": {
+    "name": "Sam",
+    "settings": {
+      "visibility": true,
+      "answerMode": "auto_when_confident"
+    },
+    "presence": [
+      {
+        "kind": "enter",
+        "at": "2026-11-23T20:00:00Z"
+      }
+    ],
+    "blocks": []
+  },
+  "expect": {
+    "kind": "at_time",
+    "aboutTimeWithinMin": {
+      "iso": "2026-11-23T23:00:00Z",
+      "minutes": 15
+    },
+    "decision": "answer",
+    "predictedState": "home",
+    "logPrediction": false
+  }
+}

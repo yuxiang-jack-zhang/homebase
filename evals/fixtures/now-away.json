@@ -1,0 +1,30 @@
+{
+  "name": "now-away",
+  "now": "2026-11-23T18:00:00Z",
+  "timezone": "America/Los_Angeles",
+  "householdWide": false,
+  "question": "is Sam home right now?",
+  "target": {
+    "name": "Sam",
+    "settings": {
+      "visibility": true,
+      "answerMode": "auto_when_confident"
+    },
+    "presence": [
+      {
+        "kind": "enter",
+        "at": "2026-11-22T20:00:00Z"
+      },
+      {
+        "kind": "exit",
+        "at": "2026-11-23T17:00:00Z"
+      }
+    ],
+    "blocks": []
+  },
+  "expect": {
+    "kind": "now",
+    "decision": "answer",
+    "predictedState": "away"
+  }
+}

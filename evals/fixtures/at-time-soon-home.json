@@ -1,0 +1,30 @@
+{
+  "name": "at-time-soon-home",
+  "now": "2026-11-23T18:00:00Z",
+  "timezone": "America/Los_Angeles",
+  "householdWide": false,
+  "question": "is Sam going to be home at 10:45?",
+  "target": {
+    "name": "Sam",
+    "settings": {
+      "visibility": true,
+      "answerMode": "auto_when_confident"
+    },
+    "presence": [
+      {
+        "kind": "enter",
+        "at": "2026-11-23T16:00:00Z"
+      }
+    ],
+    "blocks": []
+  },
+  "expect": {
+    "kind": "at_time",
+    "aboutTimeWithinMin": {
+      "iso": "2026-11-23T18:45:00Z",
+      "minutes": 15
+    },
+    "decision": "answer",
+    "predictedState": "home"
+  }
+}

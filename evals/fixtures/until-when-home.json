@@ -1,0 +1,26 @@
+{
+  "name": "until-when-home",
+  "now": "2026-11-23T18:00:00Z",
+  "timezone": "America/Los_Angeles",
+  "householdWide": false,
+  "question": "when will Sam be back?",
+  "target": {
+    "name": "Sam",
+    "settings": {
+      "visibility": true,
+      "answerMode": "auto_when_confident"
+    },
+    "presence": [
+      {
+        "kind": "enter",
+        "at": "2026-11-23T16:00:00Z"
+      }
+    ],
+    "blocks": []
+  },
+  "expect": {
+    "kind": "until_when",
+    "decision": "answer",
+    "predictedState": "home"
+  }
+}

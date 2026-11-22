@@ -1,0 +1,43 @@
+{
+  "name": "always-auto-low",
+  "now": "2026-11-23T18:00:00Z",
+  "timezone": "America/Los_Angeles",
+  "householdWide": false,
+  "question": "will Sam be home at 3pm?",
+  "target": {
+    "name": "Sam",
+    "settings": {
+      "visibility": true,
+      "answerMode": "always_auto"
+    },
+    "presence": [
+      {
+        "kind": "enter",
+        "at": "2026-11-23T17:30:00Z"
+      }
+    ],
+    "blocks": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startLocal": "09:00",
+        "endLocal": "17:00",
+        "label": "work"
+      }
+    ]
+  },
+  "expect": {
+    "kind": "at_time",
+    "aboutTimeWithinMin": {
+      "iso": "2026-11-23T23:00:00Z",
+      "minutes": 15
+    },
+    "decision": "answer",
+    "predictedState": "away"
+  }
+}

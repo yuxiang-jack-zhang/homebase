@@ -1,0 +1,29 @@
+{
+  "name": "ask-me-future",
+  "now": "2026-11-23T18:00:00Z",
+  "timezone": "America/Los_Angeles",
+  "householdWide": false,
+  "question": "will Sam be home at 10:30?",
+  "target": {
+    "name": "Sam",
+    "settings": {
+      "visibility": true,
+      "answerMode": "ask_me"
+    },
+    "presence": [
+      {
+        "kind": "enter",
+        "at": "2026-11-23T16:00:00Z"
+      }
+    ],
+    "blocks": []
+  },
+  "expect": {
+    "kind": "at_time",
+    "aboutTimeWithinMin": {
+      "iso": "2026-11-23T18:30:00Z",
+      "minutes": 15
+    },
+    "decision": "escalate"
+  }
+}

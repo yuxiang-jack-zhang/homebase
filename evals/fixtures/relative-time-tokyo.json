@@ -1,0 +1,30 @@
+{
+  "name": "relative-time-tokyo",
+  "now": "2026-11-23T03:00:00Z",
+  "timezone": "Asia/Tokyo",
+  "householdWide": false,
+  "question": "will Sam be home in an hour?",
+  "target": {
+    "name": "Sam",
+    "settings": {
+      "visibility": true,
+      "answerMode": "auto_when_confident"
+    },
+    "presence": [
+      {
+        "kind": "enter",
+        "at": "2026-11-22T23:00:00Z"
+      }
+    ],
+    "blocks": []
+  },
+  "expect": {
+    "kind": "at_time",
+    "aboutTimeWithinMin": {
+      "iso": "2026-11-23T04:00:00Z",
+      "minutes": 15
+    },
+    "decision": "answer",
+    "predictedState": "home"
+  }
+}

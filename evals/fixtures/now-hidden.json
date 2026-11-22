@@ -1,0 +1,25 @@
+{
+  "name": "now-hidden",
+  "now": "2026-11-23T18:00:00Z",
+  "timezone": "America/Los_Angeles",
+  "householdWide": false,
+  "question": "is Sam home?",
+  "target": {
+    "name": "Sam",
+    "settings": {
+      "visibility": false,
+      "answerMode": "auto_when_confident"
+    },
+    "presence": [
+      {
+        "kind": "enter",
+        "at": "2026-11-23T16:00:00Z"
+      }
+    ],
+    "blocks": []
+  },
+  "expect": {
+    "kind": "now",
+    "decision": "escalate"
+  }
+}
