@@ -3,7 +3,7 @@
   "now": "2026-11-23T18:00:00Z",
   "timezone": "America/Los_Angeles",
   "householdWide": false,
-  "question": "will Sam be home in an hour?",
+  "question": "will Sam be home in 30 minutes?",
   "target": {
     "name": "Sam",
     "settings": {
@@ -21,7 +21,7 @@
   "expect": {
     "kind": "at_time",
     "aboutTimeWithinMin": {
-      "iso": "2026-11-23T19:00:00Z",
+      "iso": "2026-11-23T18:30:00Z",
       "minutes": 15
     },
     "decision": "answer",

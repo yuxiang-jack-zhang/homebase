@@ -2,25 +2,25 @@ import type { ModelUsage } from '../packages/core/src/agent/model.ts';
 
 export interface FixtureResult {
   name: string; parseOk: boolean; decisionOk: boolean; wrongConfident: boolean; leaked: boolean;
-  decision: string; predictedState: string | null; logPrediction: boolean; usage: ModelUsage[];
+  decision: string; predictedState: string | null; logPrediction: boolean; usage: ModelUsage[]; error?: string;
 }
 
-// USD per million tokens [input, output] for prompts <= 100K tokens. Keyed by prefix of the serving model id.
+// USD per million tokens [input, output] for prompts <= 100K tokens. Keyed by the exact serving model id (no prefix guessing; unknown ids are reported as unpriced).
 export const PRICES: Record<string, [number, number]> = {
   'claude-opus-5-5': [4, 20],
   'claude-sonnet-5-5': [2, 10],
   'claude-haiku-5-5': [0.1, 0.5],
 };
 
-/** Total USD for these calls, or null if any call's model has no known price. */
-export function cost(usage: ModelUsage[]): number | null {
-  let total = 0;
+/** USD for the calls with a known price, plus how many calls had none. */
+export function cost(usage: ModelUsage[]): { usd: number; unpriced: number } {
+  let usd = 0, unpriced = 0;
   for (const u of usage) {
-    const key = Object.keys(PRICES).find((k) => u.model.startsWith(k));
-    if (!key) return null;
-    total += (u.inputTokens * PRICES[key][0] + u.outputTokens * PRICES[key][1]) / 1e6;
+    const price = PRICES[u.model];
+    if (!price) { unpriced++; continue; }
+    usd += (u.inputTokens * price[0] + u.outputTokens * price[1]) / 1e6;
   }
-  return total;
+  return { usd, unpriced };
 }
 
 const pct = (sorted: number[], p: number) => (sorted.length ? sorted[Math.max(0, Math.ceil(p * sorted.length) - 1)] : 0); // nearest rank
@@ -35,10 +35,12 @@ export function summarize(rs: FixtureResult[]) {
     parseAccuracy: rate((r) => r.parseOk),
     decisionAccuracy: rate((r) => r.decisionOk),
     wrongConfidentRate: rate((r) => r.wrongConfident),
+    errors: rs.filter((r) => r.error !== undefined).length,
     leaks: rs.filter((r) => r.leaked).length,
     p50LatencyMs: pct(lat, 0.5),
     p95LatencyMs: pct(lat, 0.95),
-    costPerQuestion: n && costs.every((c) => c !== null) ? (costs as number[]).reduce((a, b) => a + b, 0) / n : null,
+    unpricedCalls: costs.reduce((a, c) => a + c.unpriced, 0),
+    costPerQuestion: n ? costs.reduce((a, c) => a + c.usd, 0) / n : null, // priced calls only
   };
 }
 
@@ -46,9 +48,9 @@ export function markdown(model: string, date: string, s: ReturnType<typeof summa
   const p = (x: number) => `${(x * 100).toFixed(0)}%`;
   return [
     `\n### Eval ${date}: ${model}\n`,
-    '| questions | parse acc | decision acc | wrong-confident | leaks | p50 ms | p95 ms | $/question |',
-    '|---|---|---|---|---|---|---|---|',
-    `| ${s.n} | ${p(s.parseAccuracy)} | ${p(s.decisionAccuracy)} | ${p(s.wrongConfidentRate)} | ${s.leaks} | ${s.p50LatencyMs} | ${s.p95LatencyMs} | ${s.costPerQuestion === null ? 'n/a' : s.costPerQuestion.toFixed(5)} |`,
+    '| questions | errors | parse acc | decision acc | wrong-confident | leaks | p50 ms | p95 ms | $/question |',
+    '|---|---|---|---|---|---|---|---|---|',
+    `| ${s.n} | ${s.errors} | ${p(s.parseAccuracy)} | ${p(s.decisionAccuracy)} | ${p(s.wrongConfidentRate)} | ${s.leaks} | ${s.p50LatencyMs} | ${s.p95LatencyMs} | ${s.costPerQuestion === null ? 'n/a' : s.costPerQuestion.toFixed(5)}${s.unpricedCalls ? ` (+${s.unpricedCalls} unpriced calls)` : ''} |`,
     '',
   ].join('\n');
 }

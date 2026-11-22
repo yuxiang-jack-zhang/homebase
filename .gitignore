@@ -17,3 +17,4 @@ supabase/.temp
 .expo
 ios
 android
+evals/results/*-fake.json

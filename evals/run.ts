@@ -19,6 +19,14 @@ export interface Fixture {
 
 export async function runFixture(model: ModelClient, f: Fixture): Promise<FixtureResult> {
   const usage: ModelUsage[] = [];
+  try {
+    return await score(model, f, usage);
+  } catch (e) { // one failed call must not abort a billed run; record it and move on
+    return { name: f.name, parseOk: false, decisionOk: false, wrongConfident: false, leaked: false, decision: 'escalate', predictedState: null, logPrediction: false, usage, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+async function score(model: ModelClient, f: Fixture, usage: ModelUsage[]): Promise<FixtureResult> {
   const m: ModelClient = { // parseQuestion doesn't return usage, so record every call here
     async parse(req) { const r = await model.parse(req); usage.push(r.usage); return r; },
     async write(req) { const r = await model.write(req); usage.push(r.usage); return r; },
@@ -48,25 +56,38 @@ export function loadFixtures(only?: string): Fixture[] {
     .filter((f) => !only || f.name === only);
 }
 
+export function parseArgs(args: string[]): { fake: boolean; model: string; only: string | undefined } {
+  const out = { fake: false, model: 'claude-opus-5-5', only: undefined as string | undefined };
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === '--fake') out.fake = true;
+    else if (a === '--model' || a === '--only') {
+      const v = args[++i];
+      if (v === undefined || v.startsWith('--')) throw new Error(`${a} needs a value`);
+      if (a === '--model') out.model = v; else out.only = v;
+    } else throw new Error(`unknown argument ${a}`);
+  }
+  return out;
+}
+
 async function main() {
-  const args = process.argv.slice(2);
-  const arg = (k: string) => args[args.indexOf(k) + 1];
-  const fake = args.includes('--fake');
-  const modelId = args.includes('--model') ? arg('--model') : 'claude-opus-5-5';
+  let opts: ReturnType<typeof parseArgs>;
+  try { opts = parseArgs(process.argv.slice(2)); } catch (e) { console.error((e as Error).message); return process.exit(1); }
+  const { fake, model: modelId, only } = opts;
   if (!fake && !process.env.ANTHROPIC_API_KEY) {
     console.error('ANTHROPIC_API_KEY is not set. Use --fake for a free plumbing check, or export a key to run billed evals.');
     process.exit(1);
   }
   const model = fake ? keywordFakeModel() : anthropicModel(new Anthropic(), modelId);
   const label = fake ? 'fake' : modelId;
-  const fixtures = loadFixtures(args.includes('--only') ? arg('--only') : undefined);
+  const fixtures = loadFixtures(only);
   if (!fixtures.length) { console.error('No fixtures matched.'); process.exit(1); }
 
   const results: FixtureResult[] = [];
   for (const f of fixtures) {
     const r = await runFixture(model, f);
     results.push(r);
-    console.log(`${r.parseOk && r.decisionOk ? 'ok  ' : 'FAIL'} ${f.name} -> ${r.decision}${r.wrongConfident ? ' (WRONG-CONFIDENT)' : ''}${r.leaked ? ' (LEAK)' : ''}`);
+    console.log(`${r.parseOk && r.decisionOk ? 'ok  ' : 'FAIL'} ${f.name} -> ${r.decision}${r.wrongConfident ? ' (WRONG-CONFIDENT)' : ''}${r.leaked ? ' (LEAK)' : ''}${r.error ? ` (ERROR: ${r.error})` : ''}`);
   }
   const summary = summarize(results);
   const date = new Date().toISOString().slice(0, 10);
