@@ -294,3 +294,10 @@ Two-step Claude pipeline approved.
 **Decision:** newest 20 by `joined_at`, notice when truncated; regions are started only with a confirmed home and "Always", re-synced on foreground and when households or confirmations change. `presence_events` is added to the realtime publication (migration 0003); RLS still filters each subscriber.
 **Why:** matches how households are actually used (a few), with a safe cap.
 **Revisit if:** anyone needs more than 20 households, or iOS region events prove flaky (note it here after on-device testing).
+
+## D49. Repeated presence events are dropped by a trigger, and by the client — 2026-11-22, Jack
+**Context:** expo-location's iOS geofencing consumer emits Enter/Exit for the current state of every region each time regions are registered (cold start, region-set change), so events repeat and race `syncInitialPresence`; "Home · since" would reset on every open.
+**Options:** *client-only dedupe* — + fewer writes; − racy (task vs foreground sync), another device or retry still duplicates. *a BEFORE INSERT trigger that returns NULL when the kind equals my latest in that household* — + race-proof for any client, silent, no error path; − a read per insert, and a backdated event is compared with the latest by `at`. *a unique constraint* — − can't express "equal to previous".
+**Decision:** both. Migration `0004_presence_dedupe.sql` (trigger) is the guarantee; the shared `insertEvents` in `src/lib/geofence.ts` (used by the task and `syncInitialPresence`) also skips kinds equal to my latest. Every app foreground runs the deduped `syncInitialPresence` (this is what repairs gaps from D47); regions restart only when the set of homes or the permission changes.
+**Why:** presence history stays a clean sequence of real transitions.
+**Revisit if:** the extra select per insert matters, or events need to be backfilled out of order.

@@ -1,12 +1,16 @@
 import type { Home } from '@homebase/core/src/types';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
-import { decideInitialEvents, type Kind } from './presenceLogic';
+import { decideInitialEvents, dropRepeats, isUuid, type Kind } from './presenceLogic';
 import { supabase } from './supabase';
 
 export const GEOFENCE_TASK = 'homebase-geofence';
 
-/** The only thing that leaves the phone about my whereabouts: household, me, enter/exit, when. Never coordinates. */
+/**
+ * The only thing that leaves the phone about my whereabouts: household, me, enter/exit, when. Never coordinates.
+ * Shared by the task and syncInitialPresence. Region monitoring re-fires the current state on every registration,
+ * so skip kinds equal to my latest; the presence_events trigger (0004) is the race-proof guarantee.
+ */
 async function insertEvents(rows: { household_id: string; kind: Kind }[]) {
   // The task may run headless after iOS relaunches the app; the session comes from AsyncStorage.
   const { data } = await supabase.auth.getSession();
@@ -15,8 +19,17 @@ async function insertEvents(rows: { household_id: string; kind: Kind }[]) {
     console.warn('[geofence] no session, dropping presence event');
     return;
   }
+  const valid = rows.filter((r) => isUuid(r.household_id));
+  if (valid.length < rows.length) console.warn('[geofence] dropping event with a bad region identifier');
+  if (valid.length === 0) return;
+  const { data: cur, error: e1 } = await supabase
+    .from('current_presence').select('household_id, kind').eq('user_id', userId);
+  if (e1) throw e1;
+  const latest = Object.fromEntries((cur ?? []).map((r) => [r.household_id, r.kind]));
+  const fresh = dropRepeats(valid, latest);
+  if (fresh.length === 0) return;
   const at = new Date().toISOString();
-  const { error } = await supabase.from('presence_events').insert(rows.map((r) => ({ ...r, user_id: userId, at })));
+  const { error } = await supabase.from('presence_events').insert(fresh.map((r) => ({ ...r, user_id: userId, at })));
   if (error) console.warn('[geofence] insert failed:', error.message);
 }
 
@@ -53,14 +66,9 @@ export async function startHomeGeofences(homes: { householdId: string; home: Hom
 }
 
 /** Region events only fire on crossings, so record where I am now if it disagrees with my latest event. */
-export async function syncInitialPresence(homes: { householdId: string; home: Home }[], userId: string) {
+export async function syncInitialPresence(homes: { householdId: string; home: Home }[]) {
   if (homes.length === 0) return;
-  const [{ coords }, { data, error }] = await Promise.all([
-    Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
-    supabase.from('current_presence').select('household_id, kind').eq('user_id', userId),
-  ]);
-  if (error) throw error;
-  const latest = Object.fromEntries((data ?? []).map((r) => [r.household_id, r.kind]));
-  const events = decideInitialEvents(homes, { lat: coords.latitude, lng: coords.longitude }, latest);
-  if (events.length) await insertEvents(events); // position itself is dropped here
+  const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+  // insertEvents drops the ones that match my latest; the position itself is dropped here.
+  await insertEvents(decideInitialEvents(homes, { lat: coords.latitude, lng: coords.longitude }, {}));
 }

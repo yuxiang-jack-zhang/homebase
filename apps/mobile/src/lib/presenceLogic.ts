@@ -17,23 +17,32 @@ export function chooseRegions(rows: HomeRow[], max = MAX_REGIONS) {
   };
 }
 
+type Ev = { household_id: string; kind: Kind };
+
+/** Drop events that repeat my latest kind in that household (the server trigger is the real guarantee). */
+export const dropRepeats = (events: Ev[], latest: Record<string, Kind | undefined>): Ev[] =>
+  events.filter((e) => latest[e.household_id] !== e.kind);
+
 /** Events to insert so my latest per household matches where I am now. */
 export function decideInitialEvents(
   homes: { householdId: string; home: Home }[],
   pos: { lat: number; lng: number },
   latest: Record<string, Kind | undefined>,
-): { household_id: string; kind: Kind }[] {
-  return homes.flatMap(({ householdId, home }) => {
-    const kind: Kind = isInsideHome(home, pos) ? 'enter' : 'exit';
-    return latest[householdId] === kind ? [] : [{ household_id: householdId, kind }];
-  });
+): Ev[] {
+  return dropRepeats(
+    homes.map(({ householdId, home }): Ev => ({ household_id: householdId, kind: isInsideHome(home, pos) ? 'enter' : 'exit' })),
+    latest,
+  );
 }
 
-export function presenceLabel(p: { kind: Kind; at: string } | undefined, now = new Date()): string {
+export const isUuid = (s: string | undefined | null): s is string =>
+  !!s && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+
+export function presenceLabel(p: { kind: Kind; at: string } | undefined, now = new Date(), locale?: string): string {
   if (!p) return '—';
   const at = new Date(p.at);
-  const time = at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const time = at.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
   const day = at.toDateString() === now.toDateString()
-    ? '' : `${at.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}, `;
+    ? '' : `${at.toLocaleDateString(locale, { weekday: 'short', month: 'short', day: 'numeric' })}, `;
   return `${p.kind === 'enter' ? 'Home' : 'Away'} · since ${day}${time}`;
 }

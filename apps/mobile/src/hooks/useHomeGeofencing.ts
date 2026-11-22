@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, Linking } from 'react-native';
 import { startHomeGeofences, stopHomeGeofences, syncInitialPresence } from '../lib/geofence';
 import { chooseRegions } from '../lib/presenceLogic';
@@ -30,34 +30,54 @@ export function useHomeGeofencing(userId: string) {
     setAlways(p.granted);
   }, []);
 
-  // On foreground: re-read permission (it may have changed in Settings) and refresh households.
+  const live = useRef({ always, regions, userId });
+  live.current = { always, regions, userId };
+  const syncing = useRef(false);
+
+  // Region registration re-fires state, so only the (deduped) position check runs on each foreground.
+  const syncPresence = useCallback(async () => {
+    const { always: ok, regions: rs, userId: uid } = live.current;
+    if (syncing.current || !ok || !uid || rs.length === 0) return;
+    syncing.current = true;
+    try {
+      await syncInitialPresence(rs);
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      syncing.current = false;
+    }
+  }, []);
+
+  // On foreground: re-read permission (it may have changed in Settings), refresh households, repair presence.
   useEffect(() => {
     checkPermission().catch(() => setAlways(false));
     const sub = AppState.addEventListener('change', (s) => {
       if (s !== 'active') return;
       checkPermission().catch(() => {});
       refresh().catch(() => {});
+      syncPresence();
     });
     return () => sub.remove();
-  }, [checkPermission, refresh]);
+  }, [checkPermission, refresh, syncPresence]);
 
+  // Restart regions only when the set of homes or the permission changes.
   useEffect(() => {
-    if (always === null) return;
-    let live = true;
+    if (always === null || !userId) return;
+    let cancelled = false;
     (async () => {
       try {
         if (!always || regions.length === 0) return await stopHomeGeofences();
         await startHomeGeofences(regions);
-        await syncInitialPresence(regions, userId);
-        if (live) setError(null);
+        if (!cancelled) await syncPresence();
       } catch (e) {
-        if (live) setError(e instanceof Error ? e.message : String(e));
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
       }
     })();
-    return () => { live = false; };
+    return () => { cancelled = true; };
     // regionsKey stands in for regions (same content, stable identity)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [always, regionsKey, userId]);
+  }, [always, regionsKey, userId, syncPresence]);
 
   const requestAlways = useCallback(async () => {
     const fg = await Location.requestForegroundPermissionsAsync();

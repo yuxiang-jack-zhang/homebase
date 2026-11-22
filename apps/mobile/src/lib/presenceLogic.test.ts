@@ -1,4 +1,4 @@
-import { chooseRegions, decideInitialEvents, presenceLabel } from './presenceLogic';
+import { chooseRegions, decideInitialEvents, dropRepeats, isUuid, presenceLabel } from './presenceLogic';
 
 const home = { lat: 37, lng: -122, radiusM: 100 };
 const row = (id: string, joined: string | null, confirmed = true) => ({
@@ -45,12 +45,31 @@ describe('presenceLabel', () => {
     expect(presenceLabel(undefined, now)).toBe('—');
   });
   test('same day shows time only', () => {
-    const l = presenceLabel({ kind: 'enter', at: new Date(2026, 10, 22, 17, 42).toISOString() }, now);
+    const l = presenceLabel({ kind: 'enter', at: new Date(2026, 10, 22, 17, 42).toISOString() }, now, 'en-US');
     expect(l).toMatch(/^Home · since .*5:42/);
     expect(l).not.toMatch(/Nov/);
   });
   test('other day shows the day', () => {
-    const l = presenceLabel({ kind: 'exit', at: new Date(2026, 10, 20, 9, 5).toISOString() }, now);
+    const l = presenceLabel({ kind: 'exit', at: new Date(2026, 10, 20, 9, 5).toISOString() }, now, 'en-US');
     expect(l).toMatch(/^Away · since .*Nov/);
+  });
+});
+
+describe('dropRepeats', () => {
+  test('drops events equal to my latest in that household, keeps the rest', () => {
+    const ev = [
+      { household_id: 'h1', kind: 'enter' as const },
+      { household_id: 'h2', kind: 'exit' as const },
+      { household_id: 'h3', kind: 'enter' as const },
+    ];
+    expect(dropRepeats(ev, { h1: 'enter', h2: 'enter' })).toEqual([ev[1], ev[2]]);
+  });
+});
+
+describe('isUuid', () => {
+  test('accepts uuids only', () => {
+    expect(isUuid('3f2b8c1e-5a4d-4e6f-9a1b-0c2d3e4f5a6b')).toBe(true);
+    expect(isUuid('not-a-uuid')).toBe(false);
+    expect(isUuid(undefined)).toBe(false);
   });
 });

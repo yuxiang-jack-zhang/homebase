@@ -72,6 +72,7 @@ export default function HouseholdScreen() {
       <Text style={ui.h2}>Create one</Text>
       <Field placeholder="Household name" value={name} onChangeText={setName} maxLength={60} />
       <Field placeholder="Home radius in meters (50-500)" value={radius} onChangeText={setRadius} keyboardType="number-pad" />
+      <Text style={ui.hint}>iOS works best with a radius of 100 m or more.</Text>
       <Text style={ui.hint}>Be at home when you tap the button: your current location becomes the shared home. Only home/away is ever shared, never where you are.</Text>
       {createdId ? (
         <Button title="Retry" onPress={() => finishCreate(createdId)} busy={busy === 'create'} />
