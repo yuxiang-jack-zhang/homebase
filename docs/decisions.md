@@ -111,3 +111,8 @@ Two-step Claude pipeline approved.
 ## D22. Branch instead of a git worktree for the MVP — 2026-11-22, Jack
 **Options:** *worktree* (the subagent workflow's default) — + isolates work from `main`; − a second checkout path breaks Supabase's local project (Docker volumes and config are keyed to the folder) and doubles Expo's native build dirs. *a `mvp` branch in the same checkout* — + one path for Docker/Expo; − no isolation, but the repo is brand new with nothing else on `main` to protect.
 **Decision:** `main` holds only the docs; all build work happens on branch `mvp`.
+
+## D23. Future-timestamp guard on `presence_events` is a CHECK, not a trigger — 2026-11-22, Jack
+**Context:** a phone with a wrong clock must not insert events far in the future, which would shadow real ones in `current_presence`.
+**Options:** *`check (at <= now() + interval '1 minute')`* — + declarative, visible in the schema, one line; − `now()` in a CHECK is non-immutable, so it is evaluated only on insert/update and a dump restore re-checks old rows against the later clock (still true for past rows). *BEFORE INSERT trigger* — + explicit error message; − more code for the same effect.
+**Decision:** CHECK. **Why:** events are append-only, so insert-time evaluation is the only time it matters. **Revisit if:** events become updatable or restores start failing.

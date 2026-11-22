@@ -1,0 +1,370 @@
+
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+
+export type Database = {
+  
+  "graphql_public": {
+          Tables: {
+            [_ in never]: never
+          }
+          Views: {
+            [_ in never]: never
+          }
+          Functions: {
+            "graphql":
+{ Args: { "extensions"?: Json,"operationName"?: string,"query"?: string,"variables"?: Json }; Returns: Json
+                           }
+          }
+          Enums: {
+            [_ in never]: never
+          }
+          CompositeTypes: {
+            [_ in never]: never
+          }
+        },"public": {
+          Tables: {
+            "away_blocks": {
+                  Row: {
+                    "days_of_week": (number)[],"end_local": string,"household_id": string,"id": string,"label": string | null,"start_local": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "days_of_week": (number)[],"end_local": string,"household_id": string,"id"?: string,"label"?: string | null,"start_local": string,"user_id": string
+                  }
+                  Update: {
+                    "days_of_week"?: (number)[],"end_local"?: string,"household_id"?: string,"id"?: string,"label"?: string | null,"start_local"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "away_blocks_household_id_user_id_fkey"
+      columns: ["household_id","user_id"]
+isOneToOne: false
+      referencedRelation: "household_members"
+      referencedColumns: ["household_id","user_id"]
+    }
+                  ]
+                },"household_members": {
+                  Row: {
+                    "answer_mode": Database["public"]['Enums']["answer_mode"],"home_confirmed_at": string | null,"household_id": string,"joined_at": string | null,"role": Database["public"]['Enums']["member_role"],"user_id": string,"visibility": boolean
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "answer_mode"?: Database["public"]['Enums']["answer_mode"],"home_confirmed_at"?: string | null,"household_id": string,"joined_at"?: string | null,"role"?: Database["public"]['Enums']["member_role"],"user_id": string,"visibility"?: boolean
+                  }
+                  Update: {
+                    "answer_mode"?: Database["public"]['Enums']["answer_mode"],"home_confirmed_at"?: string | null,"household_id"?: string,"joined_at"?: string | null,"role"?: Database["public"]['Enums']["member_role"],"user_id"?: string,"visibility"?: boolean
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "household_members_household_id_fkey"
+      columns: ["household_id"]
+isOneToOne: false
+      referencedRelation: "households"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "household_members_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"households": {
+                  Row: {
+                    "created_at": string,"created_by": string,"home_lat": number,"home_lng": number,"home_radius_m": number,"id": string,"invite_code": string,"name": string,"timezone": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by": string,"home_lat": number,"home_lng": number,"home_radius_m"?: number,"id"?: string,"invite_code": string,"name": string,"timezone": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string,"home_lat"?: number,"home_lng"?: number,"home_radius_m"?: number,"id"?: string,"invite_code"?: string,"name"?: string,"timezone"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "households_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"predictions": {
+                  Row: {
+                    "about_time": string | null,"confidence": Database["public"]['Enums']["confidence_level"],"created_at": string,"id": string,"kind": Database["public"]['Enums']["question_kind"],"outcome": Database["public"]['Enums']["outcome_kind"] | null,"predicted_state": string | null,"predicted_time": string | null,"question_target_id": string,"scored_at": string | null,"source": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "about_time"?: string | null,"confidence": Database["public"]['Enums']["confidence_level"],"created_at"?: string,"id"?: string,"kind": Database["public"]['Enums']["question_kind"],"outcome"?: Database["public"]['Enums']["outcome_kind"] | null,"predicted_state"?: string | null,"predicted_time"?: string | null,"question_target_id": string,"scored_at"?: string | null,"source": string,"user_id": string
+                  }
+                  Update: {
+                    "about_time"?: string | null,"confidence"?: Database["public"]['Enums']["confidence_level"],"created_at"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["question_kind"],"outcome"?: Database["public"]['Enums']["outcome_kind"] | null,"predicted_state"?: string | null,"predicted_time"?: string | null,"question_target_id"?: string,"scored_at"?: string | null,"source"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "predictions_question_target_id_fkey"
+      columns: ["question_target_id"]
+isOneToOne: true
+      referencedRelation: "question_targets"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "predictions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"presence_events": {
+                  Row: {
+                    "at": string,"household_id": string,"id": number,"kind": Database["public"]['Enums']["presence_kind"],"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "at"?: string,"household_id": string,"id"?: never,"kind": Database["public"]['Enums']["presence_kind"],"user_id": string
+                  }
+                  Update: {
+                    "at"?: string,"household_id"?: string,"id"?: never,"kind"?: Database["public"]['Enums']["presence_kind"],"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "presence_events_household_id_user_id_fkey"
+      columns: ["household_id","user_id"]
+isOneToOne: false
+      referencedRelation: "household_members"
+      referencedColumns: ["household_id","user_id"]
+    }
+                  ]
+                },"profiles": {
+                  Row: {
+                    "created_at": string,"display_name": string,"id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"display_name": string,"id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"display_name"?: string,"id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"question_targets": {
+                  Row: {
+                    "created_at": string,"fallback_guess": string | null,"id": string,"question_id": string,"status": Database["public"]['Enums']["target_status"],"updated_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"fallback_guess"?: string | null,"id"?: string,"question_id": string,"status": Database["public"]['Enums']["target_status"],"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"fallback_guess"?: string | null,"id"?: string,"question_id"?: string,"status"?: Database["public"]['Enums']["target_status"],"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "question_targets_question_id_fkey"
+      columns: ["question_id"]
+isOneToOne: false
+      referencedRelation: "questions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "question_targets_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"questions": {
+                  Row: {
+                    "about_time": string | null,"asker_id": string,"created_at": string,"household_id": string,"id": string,"kind": Database["public"]['Enums']["question_kind"] | null,"text": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "about_time"?: string | null,"asker_id": string,"created_at"?: string,"household_id": string,"id"?: string,"kind"?: Database["public"]['Enums']["question_kind"] | null,"text": string
+                  }
+                  Update: {
+                    "about_time"?: string | null,"asker_id"?: string,"created_at"?: string,"household_id"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["question_kind"] | null,"text"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "questions_asker_id_fkey"
+      columns: ["asker_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "questions_household_id_fkey"
+      columns: ["household_id"]
+isOneToOne: false
+      referencedRelation: "households"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"responses": {
+                  Row: {
+                    "created_at": string,"draft_claim": Json | null,"feedback": Database["public"]['Enums']["feedback_kind"] | null,"id": string,"question_target_id": string,"source": Database["public"]['Enums']["response_source"],"text": string,"visibility": Database["public"]['Enums']["response_visibility"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"draft_claim"?: Json | null,"feedback"?: Database["public"]['Enums']["feedback_kind"] | null,"id"?: string,"question_target_id": string,"source": Database["public"]['Enums']["response_source"],"text": string,"visibility": Database["public"]['Enums']["response_visibility"]
+                  }
+                  Update: {
+                    "created_at"?: string,"draft_claim"?: Json | null,"feedback"?: Database["public"]['Enums']["feedback_kind"] | null,"id"?: string,"question_target_id"?: string,"source"?: Database["public"]['Enums']["response_source"],"text"?: string,"visibility"?: Database["public"]['Enums']["response_visibility"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "responses_question_target_id_fkey"
+      columns: ["question_target_id"]
+isOneToOne: false
+      referencedRelation: "question_targets"
+      referencedColumns: ["id"]
+    }
+                  ]
+                }
+          }
+          Views: {
+            "current_presence": {
+                  Row: {
+                    "at": string,"household_id": string,"kind": Database["public"]['Enums']["presence_kind"],"user_id": string
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "presence_events_household_id_user_id_fkey"
+      columns: ["household_id","user_id"]
+isOneToOne: false
+      referencedRelation: "household_members"
+      referencedColumns: ["household_id","user_id"]
+    }
+                  ]
+                }
+          }
+          Functions: {
+            [_ in never]: never
+          }
+          Enums: {
+            "answer_mode": "ask_me"|"auto_when_confident"|"always_auto","confidence_level": "high"|"medium"|"low","feedback_kind": "approved"|"edited"|"rejected","member_role": "owner"|"member","outcome_kind": "correct"|"incorrect"|"unscored","presence_kind": "enter"|"exit","question_kind": "now"|"at_time"|"until_when"|"unclear","response_source": "agent"|"human","response_visibility": "draft"|"sent","target_status": "answered"|"awaiting_reply"|"replied"|"unknown"
+          }
+          CompositeTypes: {
+            [_ in never]: never
+          }
+        }
+}
+
+type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+  ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+  : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  : never
+
+export const Constants = {
+  "graphql_public": {
+          Enums: {
+            
+          }
+        },"public": {
+          Enums: {
+            "answer_mode": ["ask_me", "auto_when_confident", "always_auto"],"confidence_level": ["high", "medium", "low"],"feedback_kind": ["approved", "edited", "rejected"],"member_role": ["owner", "member"],"outcome_kind": ["correct", "incorrect", "unscored"],"presence_kind": ["enter", "exit"],"question_kind": ["now", "at_time", "until_when", "unclear"],"response_source": ["agent", "human"],"response_visibility": ["draft", "sent"],"target_status": ["answered", "awaiting_reply", "replied", "unknown"]
+          }
+        }
+} as const
