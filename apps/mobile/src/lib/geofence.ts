@@ -24,7 +24,8 @@ async function insertEvents(rows: { household_id: string; kind: Kind }[]) {
   if (valid.length === 0) return;
   const { data: cur, error: e1 } = await supabase
     .from('current_presence').select('household_id, kind').eq('user_id', userId);
-  if (e1) throw e1;
+  // Data-loss rule: if the dedupe read fails, insert anyway; the 0004 trigger dedupes server-side.
+  if (e1) console.warn('[geofence] current_presence read failed, skipping client dedupe:', e1.message);
   const latest = Object.fromEntries((cur ?? []).map((r) => [r.household_id, r.kind]));
   const fresh = dropRepeats(valid, latest);
   if (fresh.length === 0) return;

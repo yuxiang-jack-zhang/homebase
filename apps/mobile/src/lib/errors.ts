@@ -4,6 +4,12 @@ const MESSAGES: Record<string, string> = {
   not_owner: 'Only the household owner can do that.',
   not_member: "You're not a member of that household.",
   invalid_name: 'Give the household a name (up to 60 characters).',
+  not_awaiting_reply: 'Already answered.',
+  no_draft: 'There is no suggested answer to approve.',
+  not_target: "That question isn't yours to answer.",
+  cannot_target_self: "You can't ask yourself.",
+  target_not_member: 'One of those people is not in this household.',
+  no_targets: 'There is nobody to ask.',
   invalid_location: "That location isn't valid. Try again.",
 };
 

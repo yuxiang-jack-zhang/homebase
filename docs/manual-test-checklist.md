@@ -26,3 +26,17 @@ Needs a development build (`npx expo run:ios` in `apps/mobile`); Expo Go cannot 
 - [ ] Force-quit A's app, move the simulated location across the boundary, reopen: the event was recorded (iOS relaunches the app for region events); check the row in B's list.
 - [ ] Sign out on A, cross the boundary: no event is recorded, no crash. Sign back in: the list corrects itself on foreground.
 - [ ] Note any geofence flakiness in `docs/decisions.md` (D48 Revisit).
+
+## Mobile: ask, inbox, reply, local notifications (Task 11)
+
+Needs a development build (`npx expo run:ios`). Two users A and B in one household; B's answer mode is "Ask me first". Local notifications only (no remote push), so B's app must be running (foreground or recently backgrounded).
+
+- [ ] B opens the app: an explanation alert appears once, then iOS asks for notification permission. Allow.
+- [ ] A, who's-home tab: Send is disabled until a person (or Everyone) and text are set. A asks B "are you home?": the answer appears under "Your questions" immediately.
+- [ ] A asks B a future question ("will you be home at 7?"): A sees "Asked B — waiting…". B gets a banner while the app is open, and the Inbox tab shows the question with a suggested answer and Approve / Yes / No / Not sure / Reply.
+- [ ] B taps Approve: the item leaves B's inbox; A sees the answer within seconds. B reloads the app: no repeat notification.
+- [ ] A asks again; B long-presses the notification and taps Reply, types text, Send: A sees the text.
+- [ ] A asks with a question that has no suggested answer: the notification and inbox show no Approve button.
+- [ ] A asks and B does nothing for 10 minutes: A sees "No reply yet" and, when the server had one, a best guess line.
+- [ ] B answers on one device after the other already did: "Already answered." and the item disappears.
+- [ ] A never sees B's suggested answer, only the sent reply.

@@ -1,7 +1,10 @@
 import { ScrollView, Text, View } from 'react-native';
+import { AnswerList } from '../../components/AnswerList';
+import { AskBox } from '../../components/AskBox';
 import { Button, ErrorText, ui } from '../../components/ui';
 import { useHomeGeofencing } from '../../hooks/useHomeGeofencing';
 import { useHouseholds } from '../../hooks/useHouseholds';
+import { useMyQuestions } from '../../hooks/useMyQuestions';
 import { usePresence } from '../../hooks/usePresence';
 import { presenceLabel } from '../../lib/presenceLogic';
 
@@ -9,6 +12,9 @@ export default function WhosHome() {
   const { current, members, me } = useHouseholds();
   const userId = me?.user_id ?? '';
   const { presence, error } = usePresence(current?.id);
+  const others = members.filter((m) => m.user_id !== userId);
+  const names = Object.fromEntries(members.map((m) => [m.user_id, m.display_name]));
+  const { questions, error: qError, reload } = useMyQuestions(current?.id, userId, names);
   const geo = useHomeGeofencing(userId);
 
   return (
@@ -23,13 +29,15 @@ export default function WhosHome() {
         </View>
       )}
       {geo.truncated && <Text style={ui.hint}>iOS tracks at most 20 homes; only your 20 most recently joined households are watched.</Text>}
-      <ErrorText text={geo.error ?? error} />
+      <ErrorText text={geo.error ?? error ?? qError} />
       {members.map((m) => (
         <View key={m.user_id} style={ui.row}>
           <Text style={ui.optionTitle}>{m.user_id === userId ? 'You' : m.display_name}</Text>
           <Text>{presenceLabel(presence[m.user_id])}</Text>
         </View>
       ))}
+      {current && others.length > 0 && <AskBox householdId={current.id} others={others} onAsked={reload} />}
+      <AnswerList questions={questions} />
     </ScrollView>
   );
 }

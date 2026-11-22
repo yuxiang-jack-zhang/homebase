@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, Text, View } from 'react-native';
@@ -5,6 +6,7 @@ import { Button, ui } from '../components/ui';
 import { HouseholdsProvider, useHouseholds } from '../hooks/useHouseholds';
 import { useSession } from '../hooks/useSession';
 import { gate } from '../lib/gate';
+import { initNotifications } from '../lib/notify';
 import '../lib/geofence'; // registers the geofence task at startup, even on a headless relaunch
 
 const Spinner = () => (
@@ -43,6 +45,7 @@ function SignedInStack() {
 
 export default function Root() {
   const session = useSession();
+  useEffect(() => { initNotifications().catch((e) => console.warn('[notify] init failed:', e)); }, []);
   if (session === undefined) return <Spinner />;
   return (
     <>

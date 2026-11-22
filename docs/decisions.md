@@ -301,3 +301,31 @@ Two-step Claude pipeline approved.
 **Decision:** both. Migration `0004_presence_dedupe.sql` (trigger) is the guarantee; the shared `insertEvents` in `src/lib/geofence.ts` (used by the task and `syncInitialPresence`) also skips kinds equal to my latest. Every app foreground runs the deduped `syncInitialPresence` (this is what repairs gaps from D47); regions restart only when the set of homes or the permission changes.
 **Why:** presence history stays a clean sequence of real transitions.
 **Revisit if:** the extra select per insert matters, or events need to be backfilled out of order.
+
+## D50. Notification actions open the app; Approve only exists on drafted questions — 2026-11-22, Jack
+**Context:** a notification needs Approve/Yes/No/Reply buttons, but Approve is only valid when a draft exists (`reply` returns 409 `no_draft` otherwise), and an action must reach the `reply` function.
+**Options:** *actions with `opensAppToForeground: false`* — + no app switch; − expo-notifications does not deliver the response to the JS listener when the app is killed, so the reply would be silently lost. *`opensAppToForeground: true`* — + the response always reaches the listener, including a cold start (read with `getLastNotificationResponseAsync`); − the app comes to the front. Categories: *one category* — − shows a dead Approve. *`question` (Approve/Yes/No/Reply) and `question_nodraft` (Yes/No/Reply)* — + correct buttons.
+**Decision:** foreground-opening actions, two categories registered once at startup, one response listener at the app root (plus the cold-start response, de-duplicated by notification id and action). Reply sends action `text` with the typed text. "Not sure" exists only in the inbox, since iOS shows few buttons.
+**Why:** a lost reply is worse than an app switch.
+**Revisit if:** on-device testing shows the foreground hop is annoying (then try background actions with a `registerTaskAsync` handler).
+
+## D51. Local notifications are fired by the inbox hook, which is mounted at startup — 2026-11-22, Jack
+**Context:** no remote push (no paid Apple account), so a notification can only be scheduled by the running app when it learns of a new awaiting question. Expo tabs mount lazily, so a hook inside the Inbox tab would not run until the tab is opened.
+**Options:** *hook in the tab, lazy* — − no notification until the tab is visited. *a root provider* — + explicit; − another provider. *`lazy: false` on the tabs* — + one line; the hook runs as soon as the tabs mount. Scope: *current household only* — − misses questions in other households. *all my households* — + RLS already limits rows to mine.
+**Decision:** `useInbox` watches my `awaiting_reply` targets in every household, tabs are `lazy: false`. Notified ids persist in AsyncStorage (last 200), written before notifying, so reloads and racing loads never re-notify. Realtime reloads are debounced 1.5 s so the draft row (inserted just after its target) is usually there when the notification is built. Permission is requested once, after an explanation alert.
+**Why:** the app must be running (foreground, or backgrounded with a live socket) to notify; this is the most that local-only allows.
+**Revisit if:** testers miss questions while the app is suspended (needs remote push, i.e. a paid Apple account), or a notification shows without its draft.
+
+## D52. The asker's list reloads on any realtime event instead of patching rows — 2026-11-22, Jack
+**Context:** `AnswerList` shows my last 10 questions with per-target status and the sent reply text, spread over `questions`, `question_targets` and `responses`.
+**Options:** *patch state from each realtime payload* — + no refetch; − joins across three tables and out-of-order events. *refetch the ten questions on any `question_targets` or `responses` change* — + trivial and correct; − RLS-filtered events with no server filter can trigger reloads for other askers' rows I can see (only my own questions and my own targets reach me, so this is rare).
+**Decision:** refetch. "No reply yet" after 10 minutes is a client rule from `question_targets.created_at`, re-evaluated by a 30 s timer (injectable `now` for tests); no status is stored.
+**Why:** ten rows; simplest thing that stays right.
+**Revisit if:** the list flickers or the query shows up in slow logs.
+
+## D53. Mobile API errors carry the server's code; geofence inserts survive a failed dedupe read — 2026-11-22, Jack
+**Context:** `supabase.functions.invoke` hides the JSON error body inside `FunctionsHttpError`; and in `insertEvents` a failed `current_presence` read threw, dropping a real geofence event.
+**Options:** *show the generic invoke message* — − "non-2xx". *read the body and throw `ApiError(code)`, mapped by `friendlyError`* (409 `not_awaiting_reply` becomes "Already answered.") — + one mapping table. Responses are validated with the zod contracts, a mismatch is `bad_response`. Geofence: *throw on read error* — − loses the event. *warn, skip the client dedupe, insert anyway* — + the 0004 trigger dedupes server-side.
+**Decision:** both of the latter.
+**Why:** server codes are the contract; a lost presence event is data loss, a duplicate is dropped by the trigger.
+**Revisit if:** the codes change or the function contracts add fields the client must read.
