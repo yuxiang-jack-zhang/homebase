@@ -140,3 +140,17 @@ Two-step Claude pipeline approved.
 **Decision:** household-wide counts per kind, members only (`not_member` otherwise); pending predictions (no outcome yet) aren't counted.
 **Why:** the stats screen exists to show the agent's calibration, which needs the household's sample; bare counts per kind carry no times, states or names, so they reveal far less than the row-level data RLS protects.
 **Revisit if:** small households make the counts identifying (e.g. a two-person household where your own counts reveal the other person's).
+
+## D27. Away-block time math uses wall-clock minutes, not a date library — 2026-11-22, Jack
+**Context:** blocks are recurring local-time windows (`"HH:MM"`, days of week) that can cross midnight, and core must run unchanged in Node and Deno with no dependencies.
+**Options:** *a date library (Temporal polyfill, date-fns-tz)* — + handles zones and DST for us; − a dependency in code shared with Deno. *`Intl.DateTimeFormat` to read local wall-clock parts, then do all comparisons as "minutes since epoch as if local were UTC"* — + dependency-free, midnight crossing is just checking today's and yesterday's occurrence, `getUTCDay` gives the weekday; − local→UTC needs a guess-and-correct step, and ambiguous or skipped wall-clock times (DST fall back or spring forward) resolve to one of the two valid instants.
+**Decision:** wall-clock minutes; local→UTC by guessing UTC, correcting by the zone offset, and repeating once. Coverage is start-inclusive, end-exclusive, and `daysOfWeek` refers to the local day the occurrence starts.
+**Why:** it keeps core dependency-free and the DST/midnight cases are covered by tests (Sat/Sun across the March change, a block ending after spring-forward). The ambiguous hour only matters for blocks that start or end inside the 1 h DST gap, which is rare for household schedules.
+**Revisit if:** blocks need to start or end between 01:00 and 03:00 on DST-change nights, or a second zone-aware feature appears.
+
+## D28. `blockEndAfter` throws if the block does not cover the time — 2026-11-22, Jack
+**Context:** the function promises the end of the occurrence covering `at`; a caller could pass a non-covering block.
+**Options:** *return `at` or a null* — + no exceptions; − silently produces a wrong "back at" time. *throw* — + a programming error surfaces immediately; − callers must check coverage first.
+**Decision:** throw. `buildClaim` only calls it with a block from `blockCovering` at the same instant.
+**Why:** a made-up end time would be shown to a roommate as a prediction; failing loudly is safer.
+**Revisit if:** a caller needs to probe without checking first.
