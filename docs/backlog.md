@@ -17,6 +17,10 @@ See the design doc: `docs/design.md`.
    - `supabase_admin` default privileges still grant anon EXECUTE on new functions; only matters for objects created via the dashboard/SQL editor.
    - No per-user rate limit on `ask`: a signed-in user can run up Claude cost.
    - `question_targets.fallback_guess` is readable by the asker immediately; the 10-minute wait is enforced only in the app UI.
+   - Unhiding reveals the timestamp of the last change made while hidden (the "since" of the revealed latest event); consecutive same-kind visible events hint that something happened while hidden.
+   - `score` judges predictions using hidden-period events (outcomes are visible only to the subject and in household aggregates).
+   - Rare race: a geofence insert concurrent with an off→on visibility change can be stamped hidden (fix: `for share` in the stamp trigger's membership read).
+   - Supabase default table grants include TRUNCATE/UPDATE/DELETE for anon/authenticated (blocked by RLS/PostgREST today); tighten explicitly.
 4. **ETAs** — opt-in, rough "~20 min" from occasional coarse location samples.
 5. **Calendar** — iPhone calendar read on device; only busy/free blocks sent to the server.
 6. **Home-screen widget** — who's home at a glance (Swift target).
