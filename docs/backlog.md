@@ -11,7 +11,10 @@ See the design doc: `docs/design.md`.
 
 1. **Tracing / observability** — every agent run's tool calls, latency, tokens, cost; viewable in a small dashboard. Prerequisite for serious evals.
 2. **Simulated-roommate eval harness** — an LLM plays roommates with hidden schedules; the agent is scored on outcomes across many simulated days (τ-bench style). Top portfolio priority.
-3. **Security review / threat model** — "if I were a hacker, how could I get people's sensitive info through this app?" Jack wants to think this through after the build.
+3. **Security review / threat model** — "if I were a hacker, how could I get people's sensitive info through this app?" Jack wants to think this through after the build. Known items so far:
+   - `join_household` has no rate limit; invite codes are 6 chars of 32 (~1.07e9), and a match grants presence visibility without owner approval.
+   - Raw Postgres errors (bad radius → 23514, bad timezone) instead of named codes.
+   - `supabase_admin` default privileges still grant anon EXECUTE on new functions; only matters for objects created via the dashboard/SQL editor.
 4. **ETAs** — opt-in, rough "~20 min" from occasional coarse location samples.
 5. **Calendar** — iPhone calendar read on device; only busy/free blocks sent to the server.
 6. **Home-screen widget** — who's home at a glance (Swift target).
