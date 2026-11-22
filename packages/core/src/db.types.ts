@@ -241,7 +241,74 @@ isOneToOne: false
                 }
           }
           Functions: {
-            [_ in never]: never
+            "asked_question":
+{ Args: { "p_question_id": string }; Returns: boolean
+                           },
+"can_see_presence":
+{ Args: { "p_household_id": string,"p_user_id": string }; Returns: boolean
+                           },
+"confirm_home":
+{ Args: { "p_household_id": string }; Returns: undefined
+                           },
+"create_household":
+{ Args: { "p_lat": number,"p_lng": number,"p_name": string,"p_radius_m": number,"p_timezone": string }; Returns: {
+              "created_at": string,
+"created_by": string,
+"home_lat": number,
+"home_lng": number,
+"home_radius_m": number,
+"id": string,
+"invite_code": string,
+"name": string,
+"timezone": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "households"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"household_accuracy":
+{ Args: { "p_household_id": string }; Returns: {
+              "correct": number,"incorrect": number,"kind": Database["public"]['Enums']["question_kind"],"unscored": number
+            }[]
+                           },
+"is_member":
+{ Args: { "p_household_id": string }; Returns: boolean
+                           },
+"join_household":
+{ Args: { "p_invite_code": string }; Returns: {
+              "created_at": string,
+"created_by": string,
+"home_lat": number,
+"home_lng": number,
+"home_radius_m": number,
+"id": string,
+"invite_code": string,
+"name": string,
+"timezone": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "households"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"new_invite_code":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"shares_household":
+{ Args: { "p_user_id": string }; Returns: boolean
+                           },
+"targeted_by_question":
+{ Args: { "p_question_id": string }; Returns: boolean
+                           },
+"update_home":
+{ Args: { "p_household_id": string,"p_lat": number,"p_lng": number,"p_radius_m": number }; Returns: undefined
+                           },
+"update_my_settings":
+{ Args: { "p_answer_mode": Database["public"]['Enums']["answer_mode"],"p_household_id": string,"p_visibility": boolean }; Returns: undefined
+                           }
           }
           Enums: {
             "answer_mode": "ask_me"|"auto_when_confident"|"always_auto","confidence_level": "high"|"medium"|"low","feedback_kind": "approved"|"edited"|"rejected","member_role": "owner"|"member","outcome_kind": "correct"|"incorrect"|"unscored","presence_kind": "enter"|"exit","question_kind": "now"|"at_time"|"until_when"|"unclear","response_source": "agent"|"human","response_visibility": "draft"|"sent","target_status": "answered"|"awaiting_reply"|"replied"|"unknown"

@@ -116,3 +116,21 @@ Two-step Claude pipeline approved.
 **Context:** a phone with a wrong clock must not insert events far in the future, which would shadow real ones in `current_presence`.
 **Options:** *`check (at <= now() + interval '1 minute')`* — + declarative, visible in the schema, one line; − `now()` in a CHECK is non-immutable, so it is evaluated only on insert/update and a dump restore re-checks old rows against the later clock (still true for past rows). *BEFORE INSERT trigger* — + explicit error message; − more code for the same effect.
 **Decision:** CHECK. **Why:** events are append-only, so insert-time evaluation is the only time it matters. **Revisit if:** events become updatable or restores start failing.
+
+## D24. RLS cross-table checks go through `security definer` helper functions — 2026-11-22, Jack
+**Context:** several policies need another protected table: `household_members` checking membership in `household_members`, `questions` ↔ `question_targets` checking each other. Inline subqueries re-enter the other table's RLS, which recurses (Postgres errors with "infinite recursion detected in policy").
+**Options:**
+- *Inline subqueries* — + everything visible in the policy; − recursion on the self/mutual cases; − each row re-runs nested RLS.
+- *Helpers in a non-exposed `private` schema* — + not callable over the API; − extra schema grants for `authenticated`, more setup.
+- *Helpers in `public` (`is_member`, `shares_household`, `can_see_presence`, `asked_question`, `targeted_by_question`), `security definer set search_path = ''`* — + no recursion, one definition of "member" reused by policies and RPCs; − callable via `/rpc`.
+**Decision:** helpers in `public`, each answering only about the caller (`auth.uid()`), so calling one over the API reveals nothing the caller can't already read. EXECUTE on every `public` function is revoked from `anon`. **Revisit if:** a helper ever needs to answer about someone other than the caller — then move helpers to a `private` schema.
+
+## D25. DB test harness: fresh users per test, keys read from the running stack — 2026-11-22, Jack
+**Context:** D18 tests run as real signed-in users against local Supabase.
+**Options:** *shared fixture users + cleanup between tests* — + fewer auth calls; − order-dependent, leaks state between tests. *every test creates its own users (`<name>-<uuid>@example.com`) and households via the real RPCs, no cleanup* — + tests are independent and can run in parallel; − a few hundred ms of setup each; DB fills up until the next `supabase db reset`.
+**Decision:** fresh users per test. Service-role writes stand in for the edge functions. URL and keys come from `SUPABASE_URL`/`SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY` or `npx supabase status -o env`, never from committed files. The `db` Vitest project lives in `vitest.db.config.ts`, referenced from the root config. **Revisit if:** the suite gets slow enough to matter.
+
+## D26. `household_accuracy` aggregates every member's predictions — 2026-11-22, Jack
+**Context:** predictions are row-readable only by the predicted-about user, but the stats screen shows household accuracy.
+**Options:** *per-user stats only* — + strictly private; − tiny samples, the stats screen says little. *household-wide counts via a `security definer` RPC* — + meaningful numbers; − members learn aggregate counts that include others' predictions (no times, states or names).
+**Decision:** household-wide counts per kind, members only (`not_member` otherwise); pending predictions (no outcome yet) aren't counted. **Revisit if:** small households make the counts identifying (e.g. a two-person household where your own counts reveal the other person's).
