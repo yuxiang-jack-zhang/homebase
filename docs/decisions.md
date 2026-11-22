@@ -329,3 +329,31 @@ Two-step Claude pipeline approved.
 **Decision:** both of the latter.
 **Why:** server codes are the contract; a lost presence event is data loss, a duplicate is dropped by the trigger.
 **Revisit if:** the codes change or the function contracts add fields the client must read.
+
+## D54. Household-wide questions escalate like direct ones, except for ask_me members — 2026-11-22, Jack
+**Context:** the plan's policy turned every escalation into `unknown` when a question was household-wide, so an `auto_when_confident` roommate with a low-confidence claim was never asked. The spec (design.md, household questions) says each member is resolved by the same policy and only `ask_me` members are not pinged.
+**Options:** *keep the plan's rule* — + no extra pings from "anyone home?"; − contradicts the spec, and the asker gets "unknown" for members who agreed to be asked. *`unknown` only for householdWide + `ask_me`* — + matches the spec; members who chose an auto mode get the question (with the usual fallback guess after 10 min); − a household question can ping several people.
+**Decision:** the latter, in `decide`. This supersedes the plan's "escalate* = unknown if householdWide" rule. D31 is unchanged (`always_auto` with no prediction is `unknown`, never a ping). The asker's list already renders each target on its own, so a mix of answered / awaiting / unknown fills in as replies arrive.
+**Why:** the spec is binding, and the nagging anti-goal is covered by `ask_me`, which is the default.
+**Revisit if:** testers find household questions noisy; then make household pings opt-in per member.
+
+## D55. Presence carries the visibility it was recorded with — 2026-11-22, Jack
+**Context:** `can_see_presence` checked the member's visibility now, so turning sharing back on exposed every event recorded while hidden, and the agent answered past questions from that history.
+**Options:** *a visibility-change log, filtering events by interval* — + exact history; − another table and interval joins in RLS. *a `visible` column stamped at insert* — + one column, one trigger, a cheap policy predicate; − can't recover history recorded before the column existed. *on unhide, reveal everything since a timestamp* — − that is the bug.
+**Decision:** migration `0005_presence_visibility.sql`: `presence_events.visible` (default true), a BEFORE INSERT trigger `presence_events_stamp_visible` that always overwrites it from `household_members.visibility` (fires after `presence_events_skip_repeat` by name order, so only kept rows are stamped); co-members need `visible` as well as `can_see_presence`; own rows are always readable. `update_my_settings` off→on sets `visible = true` on that member's latest event in that household only, so the current state shows and hidden history stays hidden. `current_presence` is `security_invoker`, so RLS filters before its DISTINCT ON and co-members get the latest visible row. Existing rows of members hidden at migration time are backfilled `visible = false`. Agent evidence (`data.ts`) keeps only events after the last hidden one, so a hidden window reads as unknown rather than as the stale state before it; it also includes the latest event before the 14-day window (scoring likewise fetches the latest event before its 48 h window). `household_members` joins the realtime publication so the who's-home list refreshes when someone hides or unhides; the list shows "—" for anyone hidden now.
+**Why:** the smallest change that makes "hidden" mean hidden for every past and future read path.
+**Revisit if:** a roommate history view is added (two same-kind visible events in a row reveal that something happened while hidden, though not when), or members want to reveal a hidden period on purpose.
+
+## D56. until_when predictions are future-only and scored from question time — 2026-11-22, Jack
+**Context:** `reply` logs an approved draft's prediction at approval time. `shouldLogPrediction` checked future-ness for `at_time` but not `until_when`, and the scorer looked for the next arrival after the prediction's `created_at`, so an arrival between the question and a late approval was missed and the claim scored wrong.
+**Options:** *store the question time on the prediction* — + explicit; − a schema change for a value already one join away. *score from `question_targets.created_at`* — + no schema change; the scorer already joins question_targets. *backdate `predictions.created_at`* — − the column would lie about when the prediction was made.
+**Decision:** `shouldLogPrediction` requires `predictedTime > now` for `until_when`; the `score` function passes `question_targets.created_at` as the anchor for both the arrival search and the 48 h evidence window, for every kind.
+**Why:** the question time is what the prediction answers; for agent-auto predictions it equals the prediction time anyway.
+**Revisit if:** predictions are ever made without a question target.
+
+## D57. Evals check the asker text, not just the decision — 2026-11-22, Jack
+**Context:** the eval runner scored the claim but never read what the asker was told, so a writer that said "home" for an "away" claim passed.
+**Options:** *an LLM judge* — + handles paraphrase; − cost and its own error rate. *`askerTextMustContain` substrings, case-insensitive* — + free, deterministic; − brittle to paraphrase (e.g. "out" for "away").
+**Decision:** substrings. Each answer fixture lists the expected state word or the local clock time ("3:00"); a missing one on an answer counts as wrong-confident and fails the fixture. The fixture-oracle test runs with no writer text so the template line must satisfy every fixture, and `--fake` does the same, so a plumbing run exercises the check. Added fixture `household-auto-low` for D54.
+**Why:** catches the dangerous case (confident text contradicting the claim) for free.
+**Revisit if:** real-model runs flag correct paraphrases; then widen the tokens or allow alternatives.
