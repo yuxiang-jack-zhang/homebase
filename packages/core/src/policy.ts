@@ -23,7 +23,7 @@ export function decide(i: { claim: Claim | null; settings: MemberSettings; house
 }
 
 export function fallbackAllowed(settings: MemberSettings, claim: Claim | null): boolean {
-  return settings.answerMode !== 'ask_me' && !!claim && (claim.predictedState !== null || claim.predictedTime !== null);
+  return settings.visibility && settings.answerMode !== 'ask_me' && !!claim && (claim.predictedState !== null || claim.predictedTime !== null);
 }
 
 export function shouldLogPrediction(claim: Claim, now: string): boolean {

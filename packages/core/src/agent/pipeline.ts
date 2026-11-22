@@ -25,7 +25,7 @@ export interface TargetResult {
   decision: Decision; claim: Claim | null;
   askerText: string | null;      // non-null only when decision.action === 'answer'
   draftText: string | null;      // non-null only when decision.action === 'escalate' (goes to the target only)
-  fallbackGuess: string | null;  // non-null only when fallbackAllowed()
+  fallbackGuess: string | null;  // non-null only when escalating and fallbackAllowed()
   logPrediction: boolean; usage: ModelUsage[];
 }
 
@@ -43,6 +43,7 @@ export async function answerForTarget(m: ModelClient, input: TargetInput): Promi
     const r = await m.write({ system: ANSWER_SYSTEM, user: answerUser(question, targetName, claim, decision.caveat, tz) });
     usage.push(r.usage);
     askerText = r.text || templateAnswer(targetName, claim, decision.caveat, tz);
+    if (decision.caveat && !/not sure/i.test(askerText)) askerText += ' (not sure)'; // the caveat is policy, not left to the model
   } else if (decision.action === 'escalate' && claim && (claim.predictedState !== null || claim.predictedTime !== null)) {
     const r = await m.write({ system: DRAFT_SYSTEM, user: draftUser(question, targetName, claim, tz) });
     usage.push(r.usage);
@@ -51,7 +52,7 @@ export async function answerForTarget(m: ModelClient, input: TargetInput): Promi
 
   return {
     decision, claim, askerText, draftText,
-    fallbackGuess: fallbackAllowed(settings, claim) ? templateAnswer(targetName, claim, true, tz) : null,
+    fallbackGuess: decision.action === 'escalate' && fallbackAllowed(settings, claim) ? templateAnswer(targetName, claim, true, tz) : null,
     logPrediction: claim ? shouldLogPrediction(claim, evidence.now) : false,
     usage,
   };

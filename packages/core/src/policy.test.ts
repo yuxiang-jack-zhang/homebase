@@ -90,6 +90,9 @@ describe('fallbackAllowed', () => {
     expect(fallbackAllowed(set(true, m), claim({ predictedState: null }))).toBe(false);
     expect(fallbackAllowed(set(true, m), null)).toBe(false);
   });
+  it.each(['auto_when_confident', 'always_auto'] as const)('false when visibility is off (%s)', (m) => {
+    expect(fallbackAllowed(set(false, m), claim({}))).toBe(false);
+  });
 });
 
 describe('shouldLogPrediction', () => {

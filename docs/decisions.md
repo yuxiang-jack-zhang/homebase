@@ -200,9 +200,9 @@ Two-step Claude pipeline approved.
 ## D35. Writer inputs and time formatting — 2026-11-22, Jack
 **Context:** the writer needs enough to phrase a line, and claims carry UTC ISO times that askers read as local times; the brief's `templateAnswer(name, claim, caveat)` has no timezone.
 **Options:** *give the writer evidence (blocks, presence)* — + richer replies; − block labels and history could reach the asker, which the claim exists to prevent. *give the writer the target's name, the claim, the household timezone and the asker's own question (delimited, marked as data)* — + nothing beyond the claim; − the model converts UTC to local itself. For the template: *UTC clock* — + no signature change; − wrong times for every household outside UTC. *optional 4th `timezone` parameter (default UTC)* — + local times, existing calls still valid.
-**Decision:** writer sees name + claim + timezone + question only; `templateAnswer` gets an optional `timezone` and prints `h:mm AM/PM` local times via `Intl`. `parseQuestion` normalizes `aboutTime` to UTC (`toISOString`) and drops it for kinds other than `at_time`.
-**Why:** the claim is the privacy boundary; the question is the asker's own text, so echoing it leaks nothing.
-**Revisit if:** evals show the model mis-converting times; then pass pre-formatted local times in the user message.
+**Decision:** the writer sees only the name, the claim and the question, with the claim's times pre-formatted in code as local `h:mm AM/PM` (the same `clock()` the template uses), so the model never converts zones. `templateAnswer` gets an optional `timezone`. The parser gets the current time as local wall clock with its offset (`Tue 2027-01-05 04:00 (GMT-08:00), America/Los_Angeles`), not a UTC instant. `parseQuestion` normalizes `aboutTime` to UTC (`toISOString`) and drops it for kinds other than `at_time`. `<` and `>` in the question are swapped for `‹ ›` so it cannot close its `<question>` fence.
+**Why:** the claim is the privacy boundary, and the question is the asker's own text, so echoing it leaks nothing. Zone math (DST especially) is where a model silently goes an hour off, and an hour-off time still passes validation.
+**Revisit if:** questions span days ("tomorrow at 7"), where a bare clock time is ambiguous for the writer; then add the weekday.
 
 ## D36. `agent/anthropic.ts` is not re-exported from the core index — 2026-11-22, Jack
 **Context:** `packages/core/src/index.ts` re-exports every module; `anthropic.ts` imports the SDK at runtime (`betaZodOutputFormat`).

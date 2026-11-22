@@ -1,6 +1,6 @@
 import type { Claim } from '../types.ts';
 
-const clock = (iso: string, timeZone: string) =>
+export const clock = (iso: string, timeZone: string) =>
   new Intl.DateTimeFormat('en-US', { timeZone, hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
 
 /** Deterministic asker line, used when the writer returns nothing and for the fallback guess. */
