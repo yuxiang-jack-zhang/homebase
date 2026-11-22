@@ -5,3 +5,6 @@ export * from "./geo.ts";
 export * from "./presence.ts";
 export * from "./blocks.ts";
 export * from "./confidence.ts";
+export * from "./policy.ts";
+export * from "./feedback.ts";
+export * from "./scoring.ts";

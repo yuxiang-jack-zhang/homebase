@@ -154,3 +154,17 @@ Two-step Claude pipeline approved.
 **Decision:** throw. `buildClaim` only calls it with a block from `blockCovering` at the same instant.
 **Why:** a made-up end time would be shown to a roommate as a prediction; failing loudly is safer.
 **Revisit if:** a caller needs to probe without checking first.
+
+## D29. Visibility off escalates every question about the member — 2026-11-22, Jack
+**Context:** the brief only listed "visibility off → escalate" under now/history, but the design says an Off member "shows as '—' and every question about me escalates to me".
+**Options:** *off only blocks now/history* — + matches the brief's literal bullet; − a future-looking auto answer would still leak presence-derived predictions. *off blocks every claim kind and timing, whatever answerMode* — + one rule, no leak; − a member with visibility off and `always_auto` still gets asked.
+**Decision:** `decide` checks visibility right after the null-claim check; off → escalate (`unknown` if household-wide).
+**Why:** the design doc is the product contract and predictions are derived from the same presence data the toggle hides.
+**Revisit if:** members want "hide my status but let the agent answer future questions".
+
+## D30. Scoring window, tolerance and feedback edge rules — 2026-11-22, Jack
+**Context:** the brief left boundaries and null cases open.
+**Options:** *exclusive bounds / strict tolerance* — + none; − arbitrary, and an event exactly at a boundary is real evidence. *inclusive `[createdAt − 48h, now]` and `|a − predictedTime| ≤ tolerance`* — + simple to state; − none notable.
+**Decision:** inclusive on both ends, checked first; missing inputs (null aboutTime/predictedState/predictedTime) score `unscored`. `classifyFeedback`: approve → approved and text → edited whatever the claim; yes/no judged only for `now`/`at_time` with a predicted state, else null. ISO strings are compared with `Date.parse`, never string order.
+**Why:** an unjudgeable prediction should stay out of accuracy stats rather than count as wrong; text/approve say something about the draft even without a claim.
+**Revisit if:** accuracy stats show the 30 min tolerance is too tight or loose.
