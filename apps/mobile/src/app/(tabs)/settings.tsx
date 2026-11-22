@@ -20,7 +20,11 @@ export default function Settings() {
       p_household_id: current!.id, p_visibility: visibility, p_answer_mode: answerMode,
     });
     setError(e ? friendlyError(e) : null);
-    await refresh();
+    try {
+      await refresh();
+    } catch (err) {
+      setError(friendlyError(err as Error));
+    }
   }
 
   return (

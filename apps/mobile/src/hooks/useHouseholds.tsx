@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { Tables } from '@homebase/core/src/db.types';
+import { friendlyError } from '../lib/errors';
 import { supabase } from '../lib/supabase';
 
 const CURRENT_KEY = 'homebase.currentHousehold';
@@ -16,6 +17,9 @@ interface Value {
   members: Member[];
   me: Membership | null;
   loading: boolean;
+  error: string | null;
+  /** Re-run the initial load after a failure. */
+  reload: () => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -27,6 +31,7 @@ export function HouseholdsProvider({ userId, children }: { userId: string; child
   const [names, setNames] = useState<Record<string, string>>({});
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     // RLS limits all three to my households and their members.
@@ -42,16 +47,20 @@ export function HouseholdsProvider({ userId, children }: { userId: string; child
     setNames(Object.fromEntries((p.data ?? []).map((r) => [r.id, r.display_name])));
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        setCurrentId(await AsyncStorage.getItem(CURRENT_KEY));
-        await refresh();
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [refresh, userId]);
+  const reload = useCallback(async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      setCurrentId(await AsyncStorage.getItem(CURRENT_KEY));
+      await refresh();
+    } catch (e) {
+      setError(friendlyError(e as Error));
+    } finally {
+      setLoading(false);
+    }
+  }, [refresh]);
+
+  useEffect(() => { reload(); }, [reload, userId]);
 
   const setCurrent = useCallback((id: string) => {
     setCurrentId(id);
@@ -68,9 +77,11 @@ export function HouseholdsProvider({ userId, children }: { userId: string; child
       members: inCurrent.map((x) => ({ ...x, display_name: names[x.user_id] ?? 'Roommate' })),
       me: inCurrent.find((x) => x.user_id === userId) ?? null,
       loading,
+      error,
+      reload,
       refresh,
     };
-  }, [households, memberships, names, currentId, userId, loading, setCurrent, refresh]);
+  }, [households, memberships, names, currentId, userId, loading, error, reload, setCurrent, refresh]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

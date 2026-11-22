@@ -1,8 +1,10 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { Button, ui } from '../components/ui';
 import { HouseholdsProvider, useHouseholds } from '../hooks/useHouseholds';
 import { useSession } from '../hooks/useSession';
+import { gate } from '../lib/gate';
 
 const Spinner = () => (
   <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -10,20 +12,28 @@ const Spinner = () => (
   </View>
 );
 
-// Gate: signed out -> auth; no household -> create/join; home not yet confirmed -> confirm; else tabs.
 function SignedInStack() {
-  const { loading, current, me } = useHouseholds();
-  if (loading) return <Spinner />;
-  const confirmed = !!me?.home_confirmed_at;
+  const { loading, error, households, current, me, reload } = useHouseholds();
+  const state = gate({ signedIn: true, loading, error, households, current, confirmed: !!me?.home_confirmed_at });
+  if (state === 'loading') return <Spinner />;
+  if (state === 'error') {
+    return (
+      <View style={[ui.screen, { justifyContent: 'center' }]}>
+        <Text style={ui.title}>Couldn't load your households</Text>
+        <Text style={ui.hint}>{error}</Text>
+        <Button title="Retry" onPress={reload} />
+      </View>
+    );
+  }
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!!current && confirmed}>
+      <Stack.Protected guard={state === 'tabs'}>
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
-      <Stack.Protected guard={!current || confirmed}>
+      <Stack.Protected guard={state === 'onboarding' || state === 'tabs'}>
         <Stack.Screen name="onboarding/household" />
       </Stack.Protected>
-      <Stack.Protected guard={!!current && !confirmed}>
+      <Stack.Protected guard={state === 'confirm-home'}>
         <Stack.Screen name="onboarding/confirm-home" />
       </Stack.Protected>
     </Stack>
