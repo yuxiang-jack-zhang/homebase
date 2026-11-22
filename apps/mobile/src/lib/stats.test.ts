@@ -1,4 +1,4 @@
-import { accuracyRows } from './stats';
+import { accuracyRows, forHousehold } from './stats';
 
 const r = (kind: string, correct: number, incorrect: number, unscored = 0) => ({ kind, correct, incorrect, unscored });
 
@@ -24,4 +24,11 @@ test('rounds to a whole percent', () => {
 test('shows unknown kinds and handles empty', () => {
   expect(accuracyRows([r('now', 1, 0)]).rows[0].label).toBe('now');
   expect(accuracyRows([]).rows).toEqual([]);
+});
+
+test('a cached result is hidden after switching household', () => {
+  const s = { id: 'a', data: [] };
+  expect(forHousehold(s, 'a')).toBe(s);
+  expect(forHousehold(s, 'b')).toBeNull();
+  expect(forHousehold(null, 'a')).toBeNull();
 });

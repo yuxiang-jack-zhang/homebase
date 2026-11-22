@@ -20,3 +20,6 @@ export function accuracyRows(data: AccuracyRow[]): { rows: StatRow[]; overall: S
   );
   return { rows, overall };
 }
+
+/** The cached result only counts for the household it was fetched for. */
+export const forHousehold = <T extends { id: string }>(s: T | null, id: string | undefined): T | null => (s && s.id === id ? s : null);

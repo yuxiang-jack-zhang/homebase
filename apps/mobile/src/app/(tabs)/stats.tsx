@@ -24,7 +24,7 @@ export default function Stats() {
   return (
     <ScrollView
       style={ui.screen}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await reload(); setRefreshing(false); }} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); try { await reload(); } finally { setRefreshing(false); } }} />}
     >
       <ErrorText text={error} />
       <Text style={ui.hint}>Only future predictions count</Text>
