@@ -8,3 +8,12 @@ docs/progress.md
 
 .DS_Store
 .Rhistory
+
+# build / local state
+node_modules
+.env*
+!.env.example
+supabase/.temp
+.expo
+ios
+android
