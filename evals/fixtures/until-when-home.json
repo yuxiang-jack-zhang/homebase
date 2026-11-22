@@ -21,6 +21,9 @@
   "expect": {
     "kind": "until_when",
     "decision": "answer",
-    "predictedState": "home"
+    "predictedState": "home",
+    "askerTextMustContain": [
+      "home"
+    ]
   }
 }

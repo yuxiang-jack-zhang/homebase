@@ -25,6 +25,9 @@
       "minutes": 15
     },
     "decision": "answer",
-    "predictedState": "home"
+    "predictedState": "home",
+    "askerTextMustContain": [
+      "10:45"
+    ]
   }
 }

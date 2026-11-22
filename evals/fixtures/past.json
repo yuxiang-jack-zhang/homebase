@@ -26,6 +26,9 @@
     },
     "decision": "answer",
     "predictedState": "home",
-    "logPrediction": false
+    "logPrediction": false,
+    "askerTextMustContain": [
+      "3:00"
+    ]
   }
 }

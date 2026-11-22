@@ -25,6 +25,9 @@
   "expect": {
     "kind": "now",
     "decision": "answer",
-    "predictedState": "away"
+    "predictedState": "away",
+    "askerTextMustContain": [
+      "away"
+    ]
   }
 }

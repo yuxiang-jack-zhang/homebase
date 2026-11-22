@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { fakeModel } from '../packages/core/src/agent/model.ts';
 import { cost, summarize } from './report.ts';
-import { parseArgs, runFixture, type Fixture } from './run.ts';
+import { parseArgs, passed, runFixture, type Fixture } from './run.ts';
 
 const base: Fixture = {
   name: 'f', now: '2026-11-23T18:00:00Z', timezone: 'America/Los_Angeles', question: 'is Sam home?', householdWide: false,
@@ -30,6 +30,24 @@ describe('runFixture', () => {
     expect(r).toMatchObject({ wrongConfident: true, leaked: true });
   });
 
+  it('an answer whose text misses a required word (case-insensitive) is wrong-confident', async () => {
+    const f: Fixture = { ...base, expect: { ...base.expect, askerTextMustContain: ['HOME'] } };
+    const good = await runFixture(fakeModel({ parse: nowParse, write: 'Yes, Sam is home.' }), f);
+    const bad = await runFixture(fakeModel({ parse: nowParse, write: 'Sam is out.' }), f);
+    expect(good).toMatchObject({ decisionOk: true, wrongConfident: false });
+    expect(bad).toMatchObject({ decisionOk: true, wrongConfident: true });
+    expect(passed(good)).toBe(true);
+    expect(passed(bad)).toBe(false);
+  });
+
+  it('askerTextMustContain is ignored when the decision is not an answer', async () => {
+    const f: Fixture = { ...base, expect: { kind: 'now', decision: 'escalate', askerTextMustContain: ['home'] },
+      target: { ...base.target, settings: { visibility: false, answerMode: 'auto_when_confident' } } };
+    const r = await runFixture(fakeModel({ parse: nowParse, write: 'x' }), f);
+    expect(r).toMatchObject({ decision: 'escalate', wrongConfident: false });
+    expect(passed(r)).toBe(true);
+  });
+
   it('checks aboutTime within tolerance', async () => {
     const f: Fixture = { ...base, expect: { kind: 'at_time', aboutTimeWithinMin: { iso: '2026-11-23T23:00:00Z', minutes: 15 }, decision: 'escalate' } };
     const near = await runFixture(fakeModel({ parse: { kind: 'at_time', aboutTime: '2026-11-23T23:10:00Z' } }), f);
@@ -44,7 +62,10 @@ describe('fixtures follow the core rules', () => {
   it.each(files)('%s: a perfect parse yields the expected decision', async (file) => {
     const f: Fixture = JSON.parse(readFileSync(new URL(`./fixtures/${file}`, import.meta.url), 'utf8'));
     const parse = { kind: f.expect.kind, aboutTime: f.expect.aboutTimeWithinMin?.iso ?? null };
-    const r = await runFixture(fakeModel({ parse, write: 'ok' }), f);
+    const r = await runFixture(fakeModel({ parse }), f); // no writer text: the template line must pass the text checks
+    expect(r.wrongConfident).toBe(false);
+    expect(passed(r)).toBe(true);
+    if (f.expect.decision === 'answer') expect(f.expect.askerTextMustContain?.length).toBeGreaterThan(0);
     expect(r.parseOk).toBe(true);
     expect(r.decision).toBe(f.expect.decision);
     if (f.expect.predictedState) expect(r.predictedState).toBe(f.expect.predictedState);

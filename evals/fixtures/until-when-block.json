@@ -33,6 +33,9 @@
   },
   "expect": {
     "kind": "until_when",
-    "decision": "answer"
+    "decision": "answer",
+    "askerTextMustContain": [
+      "5:00"
+    ]
   }
 }

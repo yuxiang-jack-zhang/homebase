@@ -34,6 +34,9 @@
     "predictedState": "home",
     "askerTextMustNotContain": [
       "climbing"
+    ],
+    "askerTextMustContain": [
+      "home"
     ]
   }
 }

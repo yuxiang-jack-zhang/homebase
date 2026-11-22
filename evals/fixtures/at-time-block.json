@@ -38,6 +38,9 @@
       "minutes": 15
     },
     "decision": "answer",
-    "predictedState": "away"
+    "predictedState": "away",
+    "askerTextMustContain": [
+      "3:00"
+    ]
   }
 }

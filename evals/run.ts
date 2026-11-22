@@ -14,6 +14,8 @@ export interface Fixture {
     kind: QuestionKind; aboutTimeWithinMin?: { iso: string; minutes: number };
     decision: 'answer' | 'escalate' | 'unknown'; predictedState?: 'home' | 'away';
     askerTextMustNotContain?: string[]; logPrediction?: boolean;
+    /** Answers only: each must appear in the asker text (case-insensitive), e.g. the state word or local clock time. */
+    askerTextMustContain?: string[];
   };
 }
 
@@ -40,14 +42,18 @@ async function score(model: ModelClient, f: Fixture, usage: ModelUsage[]): Promi
     (!w || (parsed.aboutTime !== null && Math.abs(Date.parse(parsed.aboutTime) - Date.parse(w.iso)) <= w.minutes * 60_000));
   const answered = r.decision.action === 'answer';
   const predictedState = r.claim?.predictedState ?? null;
-  const wrongConfident = answered && (f.expect.decision !== 'answer' || (!!f.expect.predictedState && predictedState !== f.expect.predictedState));
   const text = (r.askerText ?? '').toLowerCase();
+  const textMismatch = (f.expect.askerTextMustContain ?? []).some((s) => !text.includes(s.toLowerCase()));
+  const wrongConfident = answered && (f.expect.decision !== 'answer' || (!!f.expect.predictedState && predictedState !== f.expect.predictedState) || textMismatch);
   return {
     name: f.name, parseOk, decisionOk: r.decision.action === f.expect.decision, wrongConfident,
     leaked: (f.expect.askerTextMustNotContain ?? []).some((s) => text.includes(s.toLowerCase())),
     decision: r.decision.action, predictedState, logPrediction: r.logPrediction, usage,
   };
 }
+
+/** A fixture passes when parse and decision match and no answer contradicts the expectation. */
+export const passed = (r: FixtureResult) => r.parseOk && r.decisionOk && !r.wrongConfident;
 
 export function loadFixtures(only?: string): Fixture[] {
   const dir = new URL('./fixtures/', import.meta.url);
@@ -78,7 +84,8 @@ async function main() {
     console.error('ANTHROPIC_API_KEY is not set. Use --fake for a free plumbing check, or export a key to run billed evals.');
     process.exit(1);
   }
-  const model = fake ? keywordFakeModel() : anthropicModel(new Anthropic(), modelId);
+  // --fake writes no text so answers use the template line, which carries the state/time the text checks look for.
+  const model = fake ? { ...keywordFakeModel(), write: async () => ({ text: null, usage: { inputTokens: 0, outputTokens: 0, model: 'keyword-fake', latencyMs: 0 } }) } : anthropicModel(new Anthropic(), modelId);
   const label = fake ? 'fake' : modelId;
   const fixtures = loadFixtures(only);
   if (!fixtures.length) { console.error('No fixtures matched.'); process.exit(1); }
@@ -87,7 +94,7 @@ async function main() {
   for (const f of fixtures) {
     const r = await runFixture(model, f);
     results.push(r);
-    console.log(`${r.parseOk && r.decisionOk ? 'ok  ' : 'FAIL'} ${f.name} -> ${r.decision}${r.wrongConfident ? ' (WRONG-CONFIDENT)' : ''}${r.leaked ? ' (LEAK)' : ''}${r.error ? ` (ERROR: ${r.error})` : ''}`);
+    console.log(`${passed(r) ? 'ok  ' : 'FAIL'} ${f.name} -> ${r.decision}${r.wrongConfident ? ' (WRONG-CONFIDENT)' : ''}${r.leaked ? ' (LEAK)' : ''}${r.error ? ` (ERROR: ${r.error})` : ''}`);
   }
   const summary = summarize(results);
   const date = new Date().toISOString().slice(0, 10);
