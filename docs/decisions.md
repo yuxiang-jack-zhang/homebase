@@ -1,0 +1,113 @@
+# Decision log
+
+Each entry: **context → options (pros/cons) → decision → why → revisit if**. Newest at the bottom.
+Each entry is dated; all decisions are Jack's.
+
+---
+
+## D1. Mobile framework: Expo (React Native) — 2026-11-22, Jack
+**Context:** iPhone app that needs background geofencing, actionable notifications, eventually a widget.
+**Options:**
+- *Expo / React Native* — + TypeScript/React matches target postings (Sierra lists React/TS); + Jack already knows it; + Android later nearly free; − widget needs a native Swift target; − background location needs a dev build, not Expo Go.
+- *Native Swift* — + best access to every iOS API; − learning Swift during a one-weekend build; − off-target for the postings; − no Android path.
+- *PWA* — + no install; − iOS web apps can't track location in the background. Disqualifying.
+**Decision:** Expo. **Why:** the only disqualifier-free option that matches Jack's skills and the roles. **Revisit if:** background geofencing in Expo proves unreliable on device.
+
+## D2. Q&A lives in the app, not Discord — 2026-11-22, Jack
+**Context:** questions could be asked in a Discord bot (where friends already are) or in the app.
+**Options:** *Discord bot + app for location* — + no new chat habit; − two surfaces, an extra integration, and everyone installs the app anyway. *All in-app* — + one install, lock-screen quick replies, full control of the ask→escalate→reply loop; − competes with the iMessage habit.
+**Decision:** all in-app. **Why:** location already forces the install, which removes Discord's main advantage. **Revisit if:** usage shows people keep asking in iMessage instead (→ iMessage/Shortcuts idea).
+
+## D3. Backend: Supabase over Neon + Vercel — 2026-11-22, Jack
+**Context:** open sign-up in a weekend needs auth, Postgres, realtime, server functions.
+**Options:** *Neon + Vercel* (Jack's market-dashboard stack) — + familiar; − auth and realtime hand-wired. *Supabase* — + auth, Postgres with row-level security, realtime, edge functions in one; + local stack in Docker for tests; − new to Jack; − edge functions run on Deno, a slightly different runtime. *Firebase* — + mature mobile SDKs; − NoSQL makes the prediction/scoring queries awkward; − security rules less testable than SQL RLS.
+**Decision:** Supabase. **Why:** saves most of a day on auth + realtime, and RLS gives the privacy anti-goal a testable, database-level enforcement. **Revisit if:** Deno edge functions block the Anthropic SDK or shared-package imports.
+
+## D4. Raw location never leaves the phone — 2026-11-22, Jack
+**Context:** privacy anti-goal.
+**Options:** *send coordinates, compute home/away on server* — + one place for logic, enables ETAs easily; − server holds everyone's location history, a liability and a trust killer. *geofence on device, send only enter/exit* — + strong, explainable privacy claim; − ETAs later need a separate coarse-location opt-in.
+**Decision:** on device. **Why:** the privacy claim is the product's main edge over Find My. **Revisit if:** never for the default; ETAs get their own opt-in.
+
+## D5. Visibility and answer mode are separate settings — 2026-11-22, Jack
+**Context:** the builder check found a contradiction: a public who's-home list makes "ask me first" for "are you home?" pointless nagging.
+**Decision:** *visibility* controls the live home/away; *answer mode* controls what the agent may say about the future. **Why:** each setting answers one question, so neither undermines the other.
+
+## D6. The guardrail is code, not prompt — 2026-11-22, Jack
+**Context:** the agent must not answer for someone in `ask_me`, or answer confidently on weak evidence.
+**Options:** *instruct the model in the prompt* — + simple; − models occasionally ignore instructions; untestable without the model. *enforce in the `answer_asker` tool handler* — + deterministic, unit-testable, holds even if the model misbehaves; − slightly more code.
+**Decision:** enforce in code. **Why:** privacy rules must hold 100% of the time; prompts get you ~99%. This is the standard guardrail pattern.
+
+## D7. Confidence from rules; the LLM handles language — 2026-11-22, Jack
+**Context:** someone has to decide how sure the agent is.
+**Options:** *ask the model for a confidence* — + flexible; − LLM self-reported confidence is poorly calibrated and hard to test. *rules over the evidence* — + testable, explainable, calibratable against the prediction log; − less flexible; rules must grow with new evidence sources.
+**Decision:** rules decide confidence; the model resolves who/when/what and phrases the answer. **Why:** testability and calibration are the portfolio story. **Revisit if:** pattern statistics arrive — then confidence can become a learned probability.
+
+## D8. No fine-tuning — 2026-11-22, Jack
+**Why:** no labelled data at launch, the task is small, and evals + calibration show more skill for these roles than a fine-tune would. **Revisit if:** the eval set shows a persistent failure class prompting can't fix.
+
+## D9. Tests first for logic and privacy, manual checklist for native — 2026-11-22, Jack
+**Context:** Jack asked for a test-first workflow.
+**Decision:** test-first for `packages/core`, RLS, edge-function tool handlers, and the eval set; a manual simulator/phone checklist for geofencing, notifications and UI. **Why:** unit tests on native integrations mostly test mocks; the time is better spent on the logic that defines the product.
+
+## D10. Backlog in its own file, separate from the plan — 2026-11-22, Jack
+**Options:** *backlog section inside `plan.md`* — + one file; − the plan is rewritten every milestone, so the backlog keeps getting churned and buried. *separate `backlog.md`* — + long-lived, Jack reorders it without touching the active plan; − one more file to keep in sync.
+**Decision:** separate file. **Why:** different lifetimes: the plan lives for one milestone, the backlog for the whole project.
+
+## D11. Drop "tell me when ___ gets home" — 2026-11-22, Jack
+**Context:** arrival alerts were proposed for the planning use case.
+**Objection:** if you're home, you hear roommates arrive. **Analysis:** true; the alert only adds value when you're away, and ETAs answer that case ("~20 min") without a new notification type.
+**Decision:** dropped. **Revisit if:** real usage shows people repeatedly asking "is X back yet?" while away.
+
+## D12. Post-MVP order: tracing before simulated-roommate evals — 2026-11-22, Jack
+**Why:** simulated runs are only debuggable if every agent run's tool calls, latency and cost are already recorded; tracing is standard practice and a prerequisite. MCP and Siri moved to the bottom.
+
+## D13. Agent shape: two-step pipeline, not a tool loop (yet) — 2026-11-22, Jack (changes the approved design)
+**Context:** the design said "Claude with tool use" (get_presence, get_away_blocks, answer_asker, ask_roommate). Writing the plan exposed that, per target, the agent *always* needs exactly the same two pieces of evidence, so letting the model choose tools adds nothing.
+**Options:**
+- *Tool loop (model picks tools each turn)* — + "agentic" on paper; − 2–4 round trips of latency per answer; − nondeterministic paths are harder to test; − the model sees evidence for members it may not be allowed to talk about.
+- *Two-step pipeline* — step 1: Claude parses the question (kind + time) with structured output; code gathers evidence, computes confidence and the send decision; step 2: Claude words the answer or the roommate's draft. + fast (2 calls, small); + every branch unit-testable with a fake model; + the model never decides anything privacy-relevant; − less flexible when more evidence sources arrive.
+- *Managed Agents* (Anthropic-hosted agent loop + sandbox) — + no loop to host; − per-session container and runtime billing for a 2-second Q&A; − our data lives in Supabase, so every tool call round-trips anyway. Overkill.
+**Decision:** two-step pipeline (confirmed by Jack). **Why:** Anthropic's own guidance is to use the simplest tier that works and reach for agent loops only when the path can't be specified in advance. Here it can. **Revisit if:** ETAs/calendar/patterns arrive and the evidence needed starts to depend on the question (e.g. only fetch travel time for "how long till you're back") — that's when a tool loop earns its latency.
+
+## D14. The asker picks the target in the UI — 2026-11-22, Jack
+**Options:** *model resolves names from free text* — + natural; − nicknames/duplicate names cause wrong-person answers, a privacy bug. *target chips (a person, or Everyone) + free text* — + zero ambiguity, no extra model call; − one extra tap.
+**Decision:** chips. **Why:** a wrong-person answer leaks someone's whereabouts; one tap is cheap insurance.
+
+## D15. One agent run per target, scoped to that target's data only — 2026-11-22, Jack
+**Context:** "anyone home?" covers members with different privacy settings.
+**Decision:** each targeted member gets an independent run that sees only that member's evidence; code assembles the combined answer. **Why:** the model can't leak member B's schedule into an answer about member A if it never sees B's data. Isolation beats instructions.
+
+## D16. One household per user (MVP) — 2026-11-22, Jack
+**Options:** many-to-many — + people with two homes; − every query and screen needs a "which household" context. one-to-one — + simpler RLS, UI and tests; − can't belong to two households.
+**Decision:** one-to-one, enforced by `unique(user_id)` on `household_members`. **Revisit if:** anyone actually asks.
+
+## D17. Auth: email + password — 2026-11-22, Jack
+**Options:** *magic link* — + no password; − needs deep-link setup and email deliverability on day one. *Sign in with Apple* — + best iOS UX; − needs the paid developer account. *email + password* — + works in the simulator immediately; − users manage a password.
+**Decision:** email + password. **Revisit when:** the developer account is bought → add Sign in with Apple.
+
+## D18. Database tests: Vitest + supabase-js against the local stack, not pgTAP — 2026-11-22, Jack
+**Options:** *pgTAP (SQL tests via `supabase test db`)* — + fast, idiomatic Postgres; − tests SQL directly, not the path the app uses; another language to learn. *Vitest + supabase-js signed in as real test users* — + tests exactly what the app can and can't do; same language and runner as everything else; − slower, needs `supabase start` running.
+**Decision:** Vitest + supabase-js. **Why:** the privacy claim is "a signed-in roommate can't read X", so test it as a signed-in roommate.
+
+## D19. Settings and home changes only through RPC functions — 2026-11-22, Jack
+**Context:** a plain row-level UPDATE policy on `household_members` "where user_id = me" would also let a member promote themselves to `owner`.
+**Decision:** no direct UPDATE policies on `households`/`household_members`; changes go through `security definer` functions (`update_my_settings`, `update_home`, `confirm_home`) that touch only the allowed columns. **Why:** column-level intent is clearer and testable in a function than in RLS.
+
+## D20. Shared logic in `packages/core`, imported by both Node and the Deno edge functions — 2026-11-22, Jack
+**Options:** *copy code into `supabase/functions/_shared`* — + guaranteed to bundle; − two copies drift. *one package, relative imports with explicit `.ts` extensions + a Deno import map for `@anthropic-ai/sdk`/`zod`* — + single source of truth; − must confirm the Supabase bundler follows imports outside `supabase/functions`.
+**Decision:** one package; Task 1 includes a spike that proves the edge function bundles it. **Fallback if the spike fails:** a sync script copies `packages/core/src` into `_shared/core` (logged as a new decision).
+
+## D21. Default model: Claude Opus 5.5 at low effort, compared in evals — 2026-11-22, Jack
+**Context:** short, latency-sensitive calls (parse a sentence, write one line).
+**Decision:** `claude-opus-5-5`, `effort: "low"`, server-side refusal fallback enabled. The eval task compares it against `claude-sonnet-5-5` and `claude-haiku-5-5` on accuracy, p50/p95 latency and cost per question, and the winner becomes the default (logged then). **Why:** start from the most capable current model and let measurements, not guesses, justify downgrading.
+
+## D16 (revised). Many households per user — 2026-11-22, Jack
+**Supersedes** the original D16 (one household per user). **Jack's call:** people do belong to more than one household (e.g. a college apartment and their family home).
+**Consequences:** `household_members` loses `unique(user_id)`; every RPC, the `ask` request and presence events carry a `household_id`; the phone registers one geofence region per household (iOS caps an app at 20 regions); the app gets a household switcher. **Privacy check added:** a roommate who shares only household B must not see your presence events from household A (tested in Task 3).
+
+## D13 confirmed — 2026-11-22, Jack
+Two-step Claude pipeline approved.
+
+## D22. Branch instead of a git worktree for the MVP — 2026-11-22, Jack
+**Options:** *worktree* (the subagent workflow's default) — + isolates work from `main`; − a second checkout path breaks Supabase's local project (Docker volumes and config are keyed to the folder) and doubles Expo's native build dirs. *a `mvp` branch in the same checkout* — + one path for Docker/Expo; − no isolation, but the repo is brand new with nothing else on `main` to protect.
+**Decision:** `main` holds only the docs; all build work happens on branch `mvp`.

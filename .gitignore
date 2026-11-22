@@ -1,0 +1,10 @@
+# coding-agent files (kept local, never committed)
+CLAUDE.md
+AGENTS.md
+.claude/
+.superpowers/
+docs/plan.md
+docs/progress.md
+
+.DS_Store
+.Rhistory
