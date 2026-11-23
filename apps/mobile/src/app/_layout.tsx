@@ -39,6 +39,9 @@ function SignedInStack() {
       <Stack.Protected guard={state === 'confirm-home'}>
         <Stack.Screen name="onboarding/confirm-home" />
       </Stack.Protected>
+      <Stack.Protected guard={false}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
     </Stack>
   );
 }
@@ -55,8 +58,14 @@ export default function Root() {
           <SignedInStack />
         </HouseholdsProvider>
       ) : (
+        // expo-router registers every route and "/" resolves to (tabs), so guard the signed-in ones explicitly.
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(auth)" />
+          <Stack.Protected guard={false} redirectTo="/sign-in">
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="onboarding/household" />
+            <Stack.Screen name="onboarding/confirm-home" />
+          </Stack.Protected>
         </Stack>
       )}
     </>
