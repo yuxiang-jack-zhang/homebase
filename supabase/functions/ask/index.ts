@@ -1,7 +1,8 @@
-import { AskRequest, type AskResponse, answerForTarget, parseQuestion } from '../../../packages/core/src/index.ts';
+import { AskRequest, type AskResponse, answerForTarget, parseQuestion, tracedModel } from '../../../packages/core/src/index.ts';
 import { supabaseHouseholdData } from '../../../packages/core/src/data.ts';
 import { adminClient, callerId, fail, json, readJson, serve } from '../_shared/http.ts';
 import { modelFromEnv } from '../_shared/model.ts';
+import { saveTrace, type TraceCall } from '../_shared/trace.ts';
 
 const STATUS = { answer: 'answered', escalate: 'awaiting_reply', unknown: 'unknown' } as const;
 
@@ -28,48 +29,66 @@ serve(async (req) => {
   }
   if (targets.length === 0) return fail(400, 'no_targets');
 
-  const now = new Date().toISOString();
-  const parsed = await parseQuestion(model, text, now, household.timezone);
-  const question = must(await admin.from('questions')
-    .insert({ household_id: householdId, asker_id: me, text, kind: parsed.kind, about_time: parsed.aboutTime })
-    .select('id').single());
+  const tz = household.timezone;
+  // Everything from here reaches the model, so it is traced (D62), including runs that fail part-way.
+  const t0 = Date.now();
+  const calls: TraceCall[] = [];
+  const traced = (targetUserId: string | null) => tracedModel(model, (c) => calls.push({ ...c, targetUserId }));
+  let questionId: string | null = null;
+  let ok = false;
+  try {
+    const res = await answer();
+    ok = true;
+    return res;
+  } finally {
+    await saveTrace(admin, { questionId, ok, latencyMs: Date.now() - t0, calls });
+  }
 
-  // shortcut: writes are not one transaction, so a mid-way failure leaves a partial question; move into an RPC if that shows up.
-  const results = await Promise.all(targets.map(async (t) => {
-    const evidence = await data.evidence(householdId, t.userId, now);
-    const r = await answerForTarget(model, {
-      question: text, parsed, targetName: t.name, settings: t.settings, evidence, householdWide: target === 'everyone',
-    });
-    const status = STATUS[r.decision.action];
-    const qt = must(await admin.from('question_targets')
-      .insert({ question_id: question.id, user_id: t.userId, status, fallback_guess: r.fallbackGuess })
+  async function answer() {
+    const now = new Date().toISOString();
+    const parsed = await parseQuestion(traced(null), text, now, tz);
+    const question = must(await admin.from('questions')
+      .insert({ household_id: householdId, asker_id: me, text, kind: parsed.kind, about_time: parsed.aboutTime })
       .select('id').single());
+    questionId = question.id;
 
-    if (status === 'answered') {
-      must(await admin.from('responses')
-        .insert({ question_target_id: qt.id, source: 'agent', visibility: 'sent', text: r.askerText! }));
-      if (r.logPrediction && r.claim) {
-        const c = r.claim;
-        must(await admin.from('predictions').insert({
-          question_target_id: qt.id, user_id: t.userId, kind: c.kind as 'at_time' | 'until_when', about_time: c.aboutTime,
-          predicted_state: c.predictedState, predicted_time: c.predictedTime, confidence: c.confidence, source: 'agent_auto',
+    // shortcut: writes are not one transaction, so a mid-way failure leaves a partial question; move into an RPC if that shows up.
+    const results = await Promise.all(targets.map(async (t) => {
+      const evidence = await data.evidence(householdId, t.userId, now);
+      const r = await answerForTarget(traced(t.userId), {
+        question: text, parsed, targetName: t.name, settings: t.settings, evidence, householdWide: target === 'everyone',
+      });
+      const status = STATUS[r.decision.action];
+      const qt = must(await admin.from('question_targets')
+        .insert({ question_id: question.id, user_id: t.userId, status, fallback_guess: r.fallbackGuess })
+        .select('id').single());
+
+      if (status === 'answered') {
+        must(await admin.from('responses')
+          .insert({ question_target_id: qt.id, source: 'agent', visibility: 'sent', text: r.askerText! }));
+        if (r.logPrediction && r.claim) {
+          const c = r.claim;
+          must(await admin.from('predictions').insert({
+            question_target_id: qt.id, user_id: t.userId, kind: c.kind as 'at_time' | 'until_when', about_time: c.aboutTime,
+            predicted_state: c.predictedState, predicted_time: c.predictedTime, confidence: c.confidence, source: 'agent_auto',
+          }));
+        }
+      } else if (status === 'awaiting_reply' && r.draftText) {
+        // Drafts are target-only (RLS); the claim travels with it so `reply` can classify feedback and log the prediction.
+        must(await admin.from('responses').insert({
+          question_target_id: qt.id, source: 'agent', visibility: 'draft', text: r.draftText, draft_claim: r.claim,
         }));
       }
-    } else if (status === 'awaiting_reply' && r.draftText) {
-      // Drafts are target-only (RLS); the claim travels with it so `reply` can classify feedback and log the prediction.
-      must(await admin.from('responses').insert({
-        question_target_id: qt.id, source: 'agent', visibility: 'draft', text: r.draftText, draft_claim: r.claim,
-      }));
-    }
 
-    // Model text reaches the asker only for an answer (D6).
-    const askerText = status === 'answered' ? r.askerText
-      : status === 'awaiting_reply' ? `Asked ${t.name} — waiting for a reply.`
-      : `${t.name}: unknown`;
-    return { userId: t.userId, status, text: askerText };
-  }));
+      // Model text reaches the asker only for an answer (D6).
+      const askerText = status === 'answered' ? r.askerText
+        : status === 'awaiting_reply' ? `Asked ${t.name} — waiting for a reply.`
+        : `${t.name}: unknown`;
+      return { userId: t.userId, status, text: askerText };
+    }));
 
-  return json({ questionId: question.id, targets: results } satisfies AskResponse);
+    return json({ questionId: question.id, targets: results } satisfies AskResponse);
+  }
 });
 
 function must<T>(res: { data: T | null; error: unknown }): T {

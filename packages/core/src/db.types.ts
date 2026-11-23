@@ -23,7 +23,53 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "away_blocks": {
+            "agent_calls": {
+                  Row: {
+                    "created_at": string,"error": string | null,"id": string,"input_tokens": number,"latency_ms": number,"model": string,"ok": boolean,"output_tokens": number,"run_id": string,"step": string,"stop_reason": string | null,"target_user_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"error"?: string | null,"id"?: string,"input_tokens": number,"latency_ms": number,"model": string,"ok": boolean,"output_tokens": number,"run_id": string,"step": string,"stop_reason"?: string | null,"target_user_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"error"?: string | null,"id"?: string,"input_tokens"?: number,"latency_ms"?: number,"model"?: string,"ok"?: boolean,"output_tokens"?: number,"run_id"?: string,"step"?: string,"stop_reason"?: string | null,"target_user_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "agent_calls_run_id_fkey"
+      columns: ["run_id"]
+isOneToOne: false
+      referencedRelation: "agent_runs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "agent_calls_target_user_id_fkey"
+      columns: ["target_user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"agent_runs": {
+                  Row: {
+                    "core_version": string,"created_at": string,"id": string,"latency_ms": number,"ok": boolean,"question_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "core_version": string,"created_at"?: string,"id"?: string,"latency_ms": number,"ok": boolean,"question_id"?: string | null
+                  }
+                  Update: {
+                    "core_version"?: string,"created_at"?: string,"id"?: string,"latency_ms"?: number,"ok"?: boolean,"question_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "agent_runs_question_id_fkey"
+      columns: ["question_id"]
+isOneToOne: false
+      referencedRelation: "questions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"away_blocks": {
                   Row: {
                     "days_of_week": (number)[],"end_local": string,"household_id": string,"id": string,"label": string | null,"start_local": string,"user_id": string
                   }

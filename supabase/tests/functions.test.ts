@@ -83,6 +83,25 @@ describe("ask", () => {
     expect(q).toEqual({ kind: "now", question_targets: [{ status: "answered", responses: [{ visibility: "sent", text: FAKE_SENTENCE, source: "agent" }] }] });
   });
 
+  it("writes a trace: one run linked to the question, a parse call and one answer call; users can't read traces (D62)", async () => {
+    const { household, owner, members: [sam] } = await makeHousehold(["Sam"]);
+    ok(await sam.client.from("presence_events").insert({ household_id: household.id, user_id: sam.id, kind: "enter", at: minutesAgo(5) }));
+    const r = await ask(owner, { householdId: household.id, target: { userIds: [sam.id] }, text: "is Sam home" });
+    expect(r.status).toBe(200);
+
+    const run = ok(await admin.from("agent_runs").select("id, ok, latency_ms, agent_calls(step, ok, model, target_user_id, error)")
+      .eq("question_id", r.body.questionId).single());
+    expect(run.ok).toBe(true);
+    expect(run.latency_ms).toBeGreaterThanOrEqual(0);
+    expect(run.agent_calls.sort((a, b) => a.step.localeCompare(b.step))).toEqual([
+      { step: "answer", ok: true, model: "keyword-fake", target_user_id: sam.id, error: null },
+      { step: "parse", ok: true, model: "keyword-fake", target_user_id: null, error: null },
+    ]);
+    for (const table of ["agent_runs", "agent_calls"] as const) {
+      expect((await owner.client.from(table).select("id")).error?.code).toBe("42501");
+    }
+  });
+
   it("a future question about an ask_me member -> awaiting_reply; asker sees no draft (RLS); target sees draft", async () => {
     const { owner, sam, ask: r, qt } = await escalatedQuestion();
 
