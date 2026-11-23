@@ -68,16 +68,20 @@ Each fixture checks:
 
 Every model passes every fixture, so the set no longer tells them apart. The default stays Opus 5.5 until a harder eval does ([D58](docs/decisions.md)). That harder eval is next on the roadmap: simulated roommates with hidden schedules, scored over many simulated days. Raw results are in [`evals/results/`](evals/results/).
 
+## Tracing
+
+Every `ask` run is traced in Postgres ([D62](docs/decisions.md)): one row per run (total latency, success) and one per model call (step, model, tokens, latency, stop reason or error type). Only counts and outcomes are stored, never question text or model output, and only the service role can read them. `npm run traces -- --days 7` prints the run count and failures, p50/p95 run latency, total and per-run cost, and per step (parse, answer, draft): calls, calls with no output, p50/p95 latency, tokens and cost, plus why any call produced nothing (refusal, truncation, timeout, overload).
+
 ## Testing
 
 | suite | what | count |
 |---|---|---|
-| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner | 210 |
-| `npm run test:db` | Postgres RLS, RPCs, triggers and edge functions against a local Supabase stack, signed in as real test users | 59 |
-| `apps/mobile`: `npx jest` | screens, hooks, routing gate, geofence logic | 53 |
+| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner, trace report | 216 |
+| `npm run test:db` | Postgres RLS, RPCs, triggers and edge functions against a local Supabase stack, signed in as real test users | 60 |
+| `apps/mobile`: `npx jest` | screens, hooks, routing gate, geofence logic, realtime resync, retry | 61 |
 | [manual checklist](docs/manual-test-checklist.md) | two simulators against the hosted project, including a background relaunch after force-quit | 4 sections |
 
-Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (59 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
+Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (62 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
 
 ## Stack
 
@@ -124,9 +128,8 @@ ANTHROPIC_API_KEY=... npm run evals        # billed run against Claude (--model,
 ## Roadmap
 
 Next, in order:
-1. tracing (every run's calls, latency, tokens and cost)
-2. simulated-roommate evals
-3. a security review / threat model
+1. simulated-roommate evals
+2. a security review / threat model
 
 After that:
 - rough ETAs
