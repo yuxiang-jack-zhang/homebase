@@ -82,7 +82,7 @@ function prompt(q: SimQuestion, names: Record<string, string>, style: string): s
     : `whether ${target} will be home at ${when(q.intent.aboutMs!, q.askMs)}`;
   return `You are ${names[q.askerId]}. It is ${DAYS[dow(q.day)]} ${clock12(q.askMs)}.
 Ask ${ask}. You may address ${target} directly ("you") or ask about them by name.
-Style: ${style}.`;
+Style: ${style}.${q.intent.kind === 'at_time' ? '' : '\nDo not mention any clock time: another time would turn this into a different question.'}`;
 }
 
 /**

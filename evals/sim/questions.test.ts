@@ -114,6 +114,16 @@ describe('generateTexts', () => {
     expect((a.calls[0] as { max_tokens: number }).max_tokens).toBeGreaterThanOrEqual(1024);
   });
 
+  it('tells the generator not to name a clock time unless the question is about one', async () => {
+    const a = stub(['is ben home rn']);
+    const byKind = (k: string) => few.concat(qs).find((q) => q.intent.kind === k)!;
+    await generateTexts([byKind('now'), byKind('until_when'), byKind('at_time')], { client: a.client, model: 'm', cachePath: join(dir(), 'c.json'), names, concurrency: 1 });
+    const sent = a.calls.map((c) => JSON.stringify(c));
+    expect(sent[0]).toContain('Do not mention any clock time');
+    expect(sent[1]).toContain('Do not mention any clock time');
+    expect(sent[2]).not.toContain('Do not mention any clock time');
+  });
+
   it('never tells the generator anything about the target beyond the question intent', async () => {
     const a = stub(['ok']);
     await generateTexts(few.slice(0, 1), { client: a.client, model: 'm', cachePath: join(dir(), 'c.json'), names });
