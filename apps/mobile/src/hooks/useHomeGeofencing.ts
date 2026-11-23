@@ -1,6 +1,7 @@
 import * as Location from 'expo-location';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, Linking } from 'react-native';
+import { geofenceError } from '../lib/errors';
 import { startHomeGeofences, stopHomeGeofences, syncInitialPresence } from '../lib/geofence';
 import { chooseRegions } from '../lib/presenceLogic';
 import { useHouseholds } from './useHouseholds';
@@ -43,7 +44,7 @@ export function useHomeGeofencing(userId: string) {
       await syncInitialPresence(rs);
       setError(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(geofenceError(e));
     } finally {
       syncing.current = false;
     }
@@ -71,7 +72,7 @@ export function useHomeGeofencing(userId: string) {
         await startHomeGeofences(regions);
         if (!cancelled) await syncPresence();
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+        if (!cancelled) setError(geofenceError(e));
       }
     })();
     return () => { cancelled = true; };

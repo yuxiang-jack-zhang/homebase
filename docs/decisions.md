@@ -386,3 +386,10 @@ The first Opus run flagged one fixture: the answer was "Sam isn't home right now
 **Decision:** `lib/live.ts` `subscribeLive(channel, resync)` subscribes and calls `resync` on every `SUBSCRIBED` after the first, and on every switch to foreground. Inbox, who's-home, my questions and households all use it.
 **Why:** realtime's 25 s heartbeat already detects dead sockets and reconnects; the gap was only the missed events, and this closes it with no polling.
 **Revisit if:** staleness is seen again without a reconnect; then add a slow poll (e.g. 60 s while foreground) for the inbox.
+
+## D61. Retry an edge-function call once when it gets no response — 2026-11-23, Jack
+**Context:** in manual testing `ask` failed with iOS `-1005` ("network connection lost"): the phone reused a pooled connection the server had already closed. A second tap worked.
+**Options:** *no retry* — + simplest; − users see a scary error for a transient fault. *Retry once on `FunctionsFetchError` only* — + fixes the common stale-connection case; never retries a real server answer (HTTP errors); − if the first request did reach the server and only the response was lost, `ask` runs twice (a duplicate question and notification, ≈ $0.002). A duplicate `reply` is already rejected by the server as `not_awaiting_reply`. *Retry with an idempotency key* — + exactly-once; − needs a contract change, a migration and a redeploy.
+**Decision:** retry once, immediately, only on `FunctionsFetchError`, in `lib/api.ts`. The raw "Failed to send a request…" message now reads "Couldn't reach the server…".
+**Why:** the observed failure happens before the server sees the request; a rare duplicate question is cheap and visible.
+**Revisit if:** duplicate questions show up in the data; then add a client-generated question id with a unique constraint.

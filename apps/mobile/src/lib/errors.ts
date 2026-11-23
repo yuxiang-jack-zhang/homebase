@@ -17,6 +17,7 @@ const MESSAGES: Record<string, string> = {
   forbidden: "You don't have access to that.",
   method_not_allowed: 'The app sent a request the server does not accept. Update the app.',
   internal_error: 'The server had a problem. Try again.',
+  'Failed to send a request to the Edge Function': "Couldn't reach the server. Check your connection and try again.",
 };
 
 export function friendlyError(e: { message?: string } | null | undefined): string {
@@ -24,4 +25,11 @@ export function friendlyError(e: { message?: string } | null | undefined): strin
   if (!msg) return 'Something went wrong. Try again.';
   if (/^http_\d+$/.test(msg)) return 'The server had a problem. Try again.';
   return MESSAGES[msg] ?? msg;
+}
+
+/** Expo wraps native failures as "Calling the 'startGeofencingAsync' function has failed → Caused by: …". */
+export function geofenceError(e: unknown): string {
+  const msg = e instanceof Error ? e.message : String(e);
+  if (/geofencing is not available|startGeofencingAsync/i.test(msg)) return "Location tracking isn't available on this device.";
+  return friendlyError({ message: msg });
 }

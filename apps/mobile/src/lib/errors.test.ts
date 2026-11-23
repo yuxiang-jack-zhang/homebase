@@ -1,4 +1,4 @@
-import { friendlyError } from './errors';
+import { friendlyError, geofenceError } from './errors';
 
 test('maps known RPC codes', () => {
   expect(friendlyError({ message: 'invalid_invite_code' })).toMatch(/invite code/i);
@@ -24,4 +24,15 @@ test('maps every edge-function error code', () => {
   expect(friendlyError({ message: 'unauthorized' })).toMatch(/sign in/i);
   expect(friendlyError({ message: 'forbidden' })).toMatch(/access/i);
   expect(friendlyError({ message: 'method_not_allowed' })).toMatch(/update the app/i);
+});
+
+test('maps a request that never reached the server', () => {
+  expect(friendlyError({ message: 'Failed to send a request to the Edge Function' })).toMatch(/couldn't reach the server/i);
+});
+
+test('geofenceError hides the raw Expo message', () => {
+  const raw = new Error("Calling the 'startGeofencingAsync' function has failed\n→ Caused by: Geofencing is not available");
+  expect(geofenceError(raw)).toBe("Location tracking isn't available on this device.");
+  expect(geofenceError(new Error('internal_error'))).toMatch(/server/i);
+  expect(geofenceError('boom')).toBe('boom');
 });
