@@ -12,3 +12,4 @@ export * from "./scoring.ts";
 export * from "./agent/model.ts";
 export * from "./agent/template.ts";
 export * from "./agent/pipeline.ts";
+export * from "./agent/trace.ts";

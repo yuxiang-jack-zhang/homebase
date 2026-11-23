@@ -1,6 +1,10 @@
 import type { z } from 'zod';
 
-export interface ModelUsage { inputTokens: number; outputTokens: number; model: string; latencyMs: number }
+export interface ModelUsage {
+  inputTokens: number; outputTokens: number; model: string; latencyMs: number;
+  /** For tracing (D62): the API stop reason, and the error type when the call threw. */
+  stopReason?: string | null; error?: string;
+}
 export interface ModelClient {
   parse<T>(req: { system: string; user: string; schema: z.ZodType<T> }): Promise<{ value: T | null; usage: ModelUsage }>;
   write(req: { system: string; user: string }): Promise<{ text: string | null; usage: ModelUsage }>;

@@ -15,16 +15,20 @@ export function anthropicModel(client: Anthropic, model = 'claude-opus-5-5'): Mo
     system: [{ type: 'text' as const, text: system, cache_control: { type: 'ephemeral' as const } }],
     messages: [{ role: 'user' as const, content: user }],
   });
-  const usageOf = (r: Res | null, t0: number): ModelUsage => ({
+  const usageOf = (r: Res | null, t0: number, error?: string): ModelUsage => ({
     inputTokens: r?.usage.input_tokens ?? 0, outputTokens: r?.usage.output_tokens ?? 0,
-    model: r?.model ?? model, latencyMs: Date.now() - t0,
+    model: r?.model ?? model, latencyMs: Date.now() - t0, stopReason: r?.stop_reason ?? null, ...(error ? { error } : {}),
   });
+  const errorType = (e: unknown) => {
+    const x = e as { name?: string; error?: { error?: { type?: string } } };
+    return x?.error?.error?.type ?? x?.name ?? 'error';
+  };
   // Refusal (whole fallback chain declined) or truncated output is unusable.
   const usable = (r: Res) => r.stop_reason !== 'refusal' && r.stop_reason !== 'max_tokens';
   // Status, error type and message only: the prompt and question text must never reach the logs.
   const logError = (call: string, e: unknown) => {
-    const x = e as { status?: number; name?: string; message?: string; error?: { error?: { type?: string } } };
-    console.error(`anthropic ${call} failed`, { status: x?.status, type: x?.error?.error?.type ?? x?.name, message: x?.message });
+    const x = e as { status?: number; message?: string };
+    console.error(`anthropic ${call} failed`, { status: x?.status, type: errorType(e), message: x?.message });
   };
 
   return {
@@ -38,7 +42,7 @@ export function anthropicModel(client: Anthropic, model = 'claude-opus-5-5'): Mo
         return { value: usable(r) ? (r.parsed_output ?? null) : null, usage: usageOf(r, t0) };
       } catch (e) {
         logError('parse', e);
-        return { value: null, usage: usageOf(null, t0) };
+        return { value: null, usage: usageOf(null, t0, errorType(e)) };
       }
     },
     async write({ system, user }) {
@@ -49,7 +53,7 @@ export function anthropicModel(client: Anthropic, model = 'claude-opus-5-5'): Mo
         return { text: usable(r) && text ? text : null, usage: usageOf(r, t0) };
       } catch (e) {
         logError('write', e);
-        return { text: null, usage: usageOf(null, t0) };
+        return { text: null, usage: usageOf(null, t0, errorType(e)) };
       }
     },
   };

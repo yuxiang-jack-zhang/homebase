@@ -50,6 +50,7 @@ describe('anthropicModel', () => {
     expect(p.value).toBeNull();
     expect(w.text).toBeNull();
     expect(p.usage.model).toBe('claude-opus-5-5');
+    expect(p.usage.stopReason ?? p.usage.error).toBe(r instanceof Error ? 'Error' : r.stop_reason); // kept for tracing (D62)
   });
 
   it('logs a thrown error with status, type and message, never the prompt or question', async () => {
@@ -60,6 +61,7 @@ describe('anthropicModel', () => {
       await m.parse({ system: 'SECRET-SYSTEM', user: 'is Sam home tonight?', schema });
       await m.write({ system: 'SECRET-SYSTEM', user: 'is Sam home tonight?' });
       expect(spy).toHaveBeenCalledTimes(2);
+      expect((await m.write({ system: 'S', user: 'U' })).usage).toMatchObject({ error: 'overloaded_error', stopReason: null });
       const logged = JSON.stringify(spy.mock.calls);
       for (const s of ['529', 'overloaded_error', 'Overloaded', 'parse', 'write']) expect(logged).toContain(s);
       for (const s of ['SECRET-SYSTEM', 'Sam', 'tonight']) expect(logged).not.toContain(s);
