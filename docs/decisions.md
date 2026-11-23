@@ -419,6 +419,6 @@ The first Opus run flagged one fixture: the answer was "Sam isn't home right now
 | Haiku 5.5 | 99% | 59% | 4% | 37% | 1.5 s | 2.0 s | 0.00005 |
 (`auto_when_confident`; code-mode oracle: 59% / 5% / 36%.) Haiku's two misses parsed a clear "when are you back" as unclear, which fails safe (the roommate is asked).
 **Options:** *keep Opus* — + no change; − ~48× Haiku's cost and ~1 s slower at p50 for no measured gain. *Sonnet* — + same accuracy at half Opus's cost; − no faster. *Haiku* — + fastest and cheapest, p95 under 2 s; − 2/252 safe parse misses.
-**Decision:** keep `claude-opus-5-5` in code until Jack chooses. Recommendation: Haiku 5.5, since every system-level number is the same and its misses fail safe. Changing it is one constant plus a function deploy.
+**Decision:** switch the default to `claude-haiku-5-5` (Jack, 2026-11-23): every system-level number is the same and its misses fail safe. One constant, `DEFAULT_MODEL` in `packages/core/src/agent/anthropic.ts`, used by production and both eval runners so the evals always test what ships. Hosted picks it up on the next `ask` deploy. Supersedes D58.
 **Why:** this result says where quality comes from: the evidence and the policy (no evidence for 75% of future at-time questions; until-when answers from block ends cause most confident errors), not the language model.
 **Revisit if:** harder phrasing (option 3, LLM-driven roommates) separates the models, or a learned predictor makes the parse of times more consequential.

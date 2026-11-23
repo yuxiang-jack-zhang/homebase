@@ -66,7 +66,7 @@ Each fixture checks:
 | Claude Sonnet 5.5 | 100% | 100% | 0% | 0 | 2.62 s | 4.60 s | $0.00103 |
 | Claude Haiku 5.5 | 100% | 100% | 0% | 0 | 1.53 s | 2.46 s | $0.00005 |
 
-Every model passes every fixture, so the set no longer tells them apart. The simulation below is the harder eval ([D58](docs/decisions.md), [D64](docs/decisions.md)). Raw results are in [`evals/results/`](evals/results/).
+Every model passes every fixture, so the set no longer tells them apart. The simulation below is the harder eval, and on it Haiku 5.5 matches the larger models, so it is now the default ([D64](docs/decisions.md)). Raw results are in [`evals/results/`](evals/results/).
 
 ### Simulated roommates
 
@@ -84,7 +84,7 @@ What it shows ([D64](docs/decisions.md)):
 - "Are you home?" is 97% right; the misses are dropped geofence events.
 - 75% of future "will you be home at 7?" questions go to the roommate, because without an away block there is no evidence at all about the future.
 - Most confident errors are "when are you back?" answered from the end of an away block: gym days, a stale schedule, an undeclared trip.
-- The model isn't the bottleneck: every system-level number is the same across models, so Haiku would answer as well at about 1/48 of Opus's cost. Learned arrival patterns (roadmap) are the next lever, and this harness is how they'll be judged.
+- The model isn't the bottleneck: every system-level number is the same across models, so the app now runs on Haiku 5.5, at about 1/48 of Opus's cost and a second faster. Learned arrival patterns (roadmap) are the next lever, and this harness is how they'll be judged.
 
 ## Tracing
 

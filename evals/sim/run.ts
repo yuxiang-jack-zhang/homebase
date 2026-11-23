@@ -3,7 +3,7 @@
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
-import { anthropicModel } from '../../packages/core/src/agent/anthropic.ts';
+import { anthropicModel, DEFAULT_MODEL } from '../../packages/core/src/agent/anthropic.ts';
 import type { ModelClient } from '../../packages/core/src/agent/model.ts';
 import { answerForTarget, parseQuestion } from '../../packages/core/src/agent/pipeline.ts';
 import { tracedModel, type TracedCall } from '../../packages/core/src/agent/trace.ts';
@@ -79,7 +79,7 @@ const positiveInt = (flag: string, v: string) => {
 };
 
 export function parseSimArgs(args: string[]): SimOptions {
-  const o: SimOptions = { days: 14, seed: 1, perDay: 3, mode: 'auto_when_confident', noise: true, llm: false, model: 'claude-opus-5-5', generator: 'claude-sonnet-5-5' };
+  const o: SimOptions = { days: 14, seed: 1, perDay: 3, mode: 'auto_when_confident', noise: true, llm: false, model: DEFAULT_MODEL, generator: 'claude-sonnet-5-5' };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === '--no-noise') { o.noise = false; continue; }

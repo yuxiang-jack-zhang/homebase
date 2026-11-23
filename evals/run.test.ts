@@ -141,7 +141,7 @@ describe('leak check on the answer path', () => {
 });
 
 describe('parseArgs', () => {
-  it('defaults', () => expect(parseArgs([])).toEqual({ fake: false, model: 'claude-opus-5-5', only: undefined }));
+  it('defaults', () => expect(parseArgs([])).toEqual({ fake: false, model: 'claude-haiku-5-5', only: undefined }));
   it('reads flags', () => expect(parseArgs(['--fake', '--only', 'now-home', '--model', 'claude-haiku-5-5'])).toEqual({ fake: true, model: 'claude-haiku-5-5', only: 'now-home' }));
   it('rejects a missing value', () => {
     expect(() => parseArgs(['--only'])).toThrow(/--only/);

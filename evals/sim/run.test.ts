@@ -3,7 +3,7 @@ import { fakeModel } from '../../packages/core/src/agent/model.ts';
 import { MODES } from './grade.ts';
 import { parseSimArgs, simulate, type SimOptions } from './run.ts';
 
-const base: SimOptions = { days: 2, seed: 1, perDay: 3, mode: 'auto_when_confident', noise: true, llm: false, model: 'claude-opus-5-5', generator: 'claude-sonnet-5-5' };
+const base: SimOptions = { days: 2, seed: 1, perDay: 3, mode: 'auto_when_confident', noise: true, llm: false, model: 'claude-haiku-5-5', generator: 'claude-sonnet-5-5' };
 
 describe('parseSimArgs', () => {
   it('has the spec defaults', () => {

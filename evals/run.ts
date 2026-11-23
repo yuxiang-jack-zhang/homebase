@@ -1,7 +1,7 @@
 import { appendFileSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
-import { anthropicModel } from '../packages/core/src/agent/anthropic.ts';
+import { anthropicModel, DEFAULT_MODEL } from '../packages/core/src/agent/anthropic.ts';
 import { keywordFakeModel, type ModelClient, type ModelUsage } from '../packages/core/src/agent/model.ts';
 import { answerForTarget, parseQuestion } from '../packages/core/src/agent/pipeline.ts';
 import { tracedModel } from '../packages/core/src/agent/trace.ts';
@@ -62,7 +62,7 @@ export function loadFixtures(only?: string): Fixture[] {
 }
 
 export function parseArgs(args: string[]): { fake: boolean; model: string; only: string | undefined } {
-  const out = { fake: false, model: 'claude-opus-5-5', only: undefined as string | undefined };
+  const out = { fake: false, model: DEFAULT_MODEL, only: undefined as string | undefined };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === '--fake') out.fake = true;

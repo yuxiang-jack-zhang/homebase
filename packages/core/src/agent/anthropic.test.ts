@@ -26,7 +26,7 @@ describe('anthropicModel', () => {
     expect(r.usage).toMatchObject({ inputTokens: 10, outputTokens: 5, model: 'claude-opus-5-5' });
     expect(r.usage.latencyMs).toBeGreaterThanOrEqual(0);
     expect(calls[0]).toMatchObject({
-      model: 'claude-opus-5-5', max_tokens: 4096, betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default',
+      model: 'claude-haiku-5-5', max_tokens: 4096, // the default model (D64) betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default',
       output_config: { effort: 'low' }, messages: [{ role: 'user', content: 'USER' }],
     });
     expect(JSON.stringify(calls[0].system)).toContain('SYS');
@@ -49,7 +49,7 @@ describe('anthropicModel', () => {
     const w = await m.write(req);
     expect(p.value).toBeNull();
     expect(w.text).toBeNull();
-    expect(p.usage.model).toBe('claude-opus-5-5');
+    expect(p.usage.model).toBe(r instanceof Error ? 'claude-haiku-5-5' : 'claude-opus-5-5'); // requested model when nothing came back
     expect(p.usage.stopReason ?? p.usage.error).toBe(r instanceof Error ? 'Error' : r.stop_reason); // kept for tracing (D62)
   });
 

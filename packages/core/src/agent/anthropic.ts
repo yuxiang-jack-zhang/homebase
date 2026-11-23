@@ -2,12 +2,15 @@ import type Anthropic from '@anthropic-ai/sdk';
 import { betaZodOutputFormat } from '@anthropic-ai/sdk/helpers/beta/zod';
 import type { ModelClient, ModelUsage } from './model.ts';
 
-// 4096, not 1024: Opus 5.5 always thinks and thinking counts toward max_tokens (D32).
+// 4096, not 1024: Claude 5.5 models may think first and thinking counts toward max_tokens (D32).
 const MAX_TOKENS = 4096;
 
 interface Res { model: string; stop_reason: string | null; usage: { input_tokens: number; output_tokens: number } }
 
-export function anthropicModel(client: Anthropic, model = 'claude-opus-5-5'): ModelClient {
+/** Production model. Haiku matched Opus and Sonnet on every system-level number in the simulated-roommate eval, at ~1/48 of Opus's cost (D64). */
+export const DEFAULT_MODEL = 'claude-haiku-5-5';
+
+export function anthropicModel(client: Anthropic, model = DEFAULT_MODEL): ModelClient {
   const base = (system: string, user: string) => ({
     model, max_tokens: MAX_TOKENS,
     betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' as const,
