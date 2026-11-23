@@ -408,3 +408,17 @@ The first Opus run flagged one fixture: the answer was "Sam isn't home right now
 **First result (code mode, seed 1, 14 days, 252 questions, `auto_when_confident`):** 59% answered correctly, 5% (12) confidently wrong, 36% asked the roommate. "Now" questions are 97% right (misses come from dropped geofence events). 75% of at-time questions go to the roommate because there is no evidence at all for a future time without an away block: 90 of the 91 escalations have no prediction. Confident errors cluster in until-when answers taken from an away block's end (gym days, the stale block, the undeclared trip) and the traveler's dropped events.
 **Why:** measures what the product actually does over weeks, with an honest bother rate next to accuracy, at zero cost per run.
 **Revisit if:** a predictor change (learned arrival patterns, backlog #7) or a confidence change for block-based until-when answers is proposed: judge it on this harness first.
+
+## D64. Simulated-roommate results across models: the model isn't the bottleneck — 2026-11-23, Jack
+**Context:** D58 said to revisit the default model once an eval could separate models. First LLM-mode runs of the simulation (D63): seed 1, 14 days, 252 questions phrased by Sonnet 5.5 in six styles (terse, slang, typos, reasons, relative times, polite), identical for every model. Two generator flaws found and fixed before these numbers: a 200-token cap left 14 questions empty, and the "mention a reason" style put clock times into until-when/now questions, which made the answer key arguable.
+
+| model | parse | correct | confidently wrong | asked roommate | p50 | p95 | $/question |
+|---|---|---|---|---|---|---|---|
+| Opus 5.5 | 100% | 59% | 5% | 36% | 2.4 s | 5.7 s | 0.00240 |
+| Sonnet 5.5 | 100% | 59% | 5% | 36% | 2.7 s | 5.8 s | 0.00113 |
+| Haiku 5.5 | 99% | 59% | 4% | 37% | 1.5 s | 2.0 s | 0.00005 |
+(`auto_when_confident`; code-mode oracle: 59% / 5% / 36%.) Haiku's two misses parsed a clear "when are you back" as unclear, which fails safe (the roommate is asked).
+**Options:** *keep Opus* — + no change; − ~48× Haiku's cost and ~1 s slower at p50 for no measured gain. *Sonnet* — + same accuracy at half Opus's cost; − no faster. *Haiku* — + fastest and cheapest, p95 under 2 s; − 2/252 safe parse misses.
+**Decision:** keep `claude-opus-5-5` in code until Jack chooses. Recommendation: Haiku 5.5, since every system-level number is the same and its misses fail safe. Changing it is one constant plus a function deploy.
+**Why:** this result says where quality comes from: the evidence and the policy (no evidence for 75% of future at-time questions; until-when answers from block ends cause most confident errors), not the language model.
+**Revisit if:** harder phrasing (option 3, LLM-driven roommates) separates the models, or a learned predictor makes the parse of times more consequential.

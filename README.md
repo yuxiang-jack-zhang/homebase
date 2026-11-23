@@ -66,7 +66,25 @@ Each fixture checks:
 | Claude Sonnet 5.5 | 100% | 100% | 0% | 0 | 2.62 s | 4.60 s | $0.00103 |
 | Claude Haiku 5.5 | 100% | 100% | 0% | 0 | 1.53 s | 2.46 s | $0.00005 |
 
-Every model passes every fixture, so the set no longer tells them apart. The default stays Opus 5.5 until a harder eval does ([D58](docs/decisions.md)). That harder eval is next on the roadmap: simulated roommates with hidden schedules, scored over many simulated days. Raw results are in [`evals/results/`](evals/results/).
+Every model passes every fixture, so the set no longer tells them apart. The simulation below is the harder eval ([D58](docs/decisions.md), [D64](docs/decisions.md)). Raw results are in [`evals/results/`](evals/results/).
+
+### Simulated roommates
+
+The fixtures check single decisions; the simulation checks whether the system makes good calls over weeks ([D63](docs/decisions.md)). `npm run sim` builds a seeded world of six roommates (a 9-to-5er, someone whose declared schedule is out of date, a night-shift worker, a student, someone who leaves for a few days without saying, a homebody), each with a hidden timeline. The agent sees only what the app would: geofence events with realistic noise (0–3 min late, 2% missed) and the away blocks each roommate declared. Three questions a day about each roommate are answered by the real pipeline and graded against the hidden truth, under all three answer modes. Code mode is free and deterministic; `--llm` has Sonnet phrase every question in a natural style (slang, typos, "the plumber's coming at 3") with an answer key, cached so every model sees the same text.
+
+14 days, 252 questions, "answer if confident" mode:
+
+| model | parse | answered correctly | confidently wrong | asked the roommate | p50 | p95 | $/question |
+|---|---|---|---|---|---|---|---|
+| Claude Opus 5.5 | 100% | 59% | 5% | 36% | 2.4 s | 5.7 s | $0.00240 |
+| Claude Sonnet 5.5 | 100% | 59% | 5% | 36% | 2.7 s | 5.8 s | $0.00113 |
+| Claude Haiku 5.5 | 99% | 59% | 4% | 37% | 1.5 s | 2.0 s | $0.00005 |
+
+What it shows ([D64](docs/decisions.md)):
+- "Are you home?" is 97% right; the misses are dropped geofence events.
+- 75% of future "will you be home at 7?" questions go to the roommate, because without an away block there is no evidence at all about the future.
+- Most confident errors are "when are you back?" answered from the end of an away block: gym days, a stale schedule, an undeclared trip.
+- The model isn't the bottleneck: every system-level number is the same across models, so Haiku would answer as well at about 1/48 of Opus's cost. Learned arrival patterns (roadmap) are the next lever, and this harness is how they'll be judged.
 
 ## Tracing
 
@@ -76,12 +94,12 @@ Every `ask` run is traced in Postgres ([D62](docs/decisions.md)): one row per ru
 
 | suite | what | count |
 |---|---|---|
-| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner, trace report | 216 |
+| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner, trace report, simulation | 270 |
 | `npm run test:db` | Postgres RLS, RPCs, triggers and edge functions against a local Supabase stack, signed in as real test users | 60 |
 | `apps/mobile`: `npx jest` | screens, hooks, routing gate, geofence logic, realtime resync, retry | 61 |
 | [manual checklist](docs/manual-test-checklist.md) | two simulators against the hosted project, including a background relaunch after force-quit | 4 sections |
 
-Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (62 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
+Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (64 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
 
 ## Stack
 
@@ -128,7 +146,7 @@ ANTHROPIC_API_KEY=... npm run evals        # billed run against Claude (--model,
 ## Roadmap
 
 Next, in order:
-1. simulated-roommate evals
+1. LLM-driven roommates (τ-bench style) on top of the simulation
 2. a security review / threat model
 
 After that:
