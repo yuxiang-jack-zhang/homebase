@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { QuestionItem } from '../components/AnswerList';
+import { subscribeLive } from '../lib/live';
 import { supabase } from '../lib/supabase';
 
 type Row = Omit<QuestionItem, 'targets'> & { targets: (Omit<QuestionItem['targets'][number], 'name'> & { user_id: string })[] };
@@ -38,9 +39,8 @@ export function useMyQuestions(householdId: string | undefined, userId: string, 
     // No server-side filter possible on these joins; RLS limits events to rows I may read, and a reload is cheap.
     const channel = supabase.channel(`my-questions:${householdId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'question_targets' }, () => load())
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'responses' }, () => load())
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'responses' }, () => load());
+    return subscribeLive(channel, load);
   }, [householdId, userId, load]);
 
   const questions: QuestionItem[] = rows.map((q) => ({

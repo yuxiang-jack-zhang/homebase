@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { AppState } from 'react-native';
 import type { Tables } from '@homebase/core/src/db.types';
 import { friendlyError } from '../lib/errors';
+import { subscribeLive } from '../lib/live';
 import { supabase } from '../lib/supabase';
 
 const CURRENT_KEY = 'homebase.currentHousehold';
@@ -69,13 +69,8 @@ export function HouseholdsProvider({ userId, children }: { userId: string; child
   useEffect(() => {
     const quiet = () => { refresh().catch(() => {}); };
     const channel = supabase.channel(`members:${userId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'household_members' }, quiet)
-      .subscribe();
-    const sub = AppState.addEventListener('change', (s) => { if (s === 'active') quiet(); });
-    return () => {
-      sub.remove();
-      supabase.removeChannel(channel);
-    };
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'household_members' }, quiet);
+    return subscribeLive(channel, quiet);
   }, [refresh, userId]);
 
   const setCurrent = useCallback((id: string) => {

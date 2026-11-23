@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState } from 'react-native';
+import { subscribeLive } from '../lib/live';
 import { supabase } from '../lib/supabase';
 import type { Kind } from '../lib/presenceLogic';
 
@@ -39,13 +39,8 @@ export function usePresence(householdId: string | undefined) {
       // A roommate turning visibility back on reveals their latest row by UPDATE (migration 0005): reload.
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'presence_events', filter: `household_id=eq.${householdId}` },
-        () => { load(); })
-      .subscribe();
-    const sub = AppState.addEventListener('change', (s) => { if (s === 'active') load(); });
-    return () => {
-      sub.remove();
-      supabase.removeChannel(channel);
-    };
+        () => { load(); });
+    return subscribeLive(channel, load);
   }, [householdId, load]);
 
   return { presence, error };

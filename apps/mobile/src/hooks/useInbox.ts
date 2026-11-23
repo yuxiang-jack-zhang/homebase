@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ensureNotificationPermission, notifyMember } from '../lib/notify';
 import { newTargets, notifyDecision, seedOnFirstRun } from '../lib/questionLogic';
+import { subscribeLive } from '../lib/live';
 import { supabase } from '../lib/supabase';
 
 const SEEN_KEY = 'homebase.notifiedTargets';
@@ -96,12 +97,12 @@ export function useInbox(userId: string) {
     const later = () => { clearTimeout(timer); timer = setTimeout(load, DEBOUNCE_MS); };
     const channel = supabase.channel(`inbox:${userId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'question_targets', filter: `user_id=eq.${userId}` }, later)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'responses' }, later)
-      .subscribe();
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'responses' }, later);
+    const stop = subscribeLive(channel, later);
     return () => {
       clearTimeout(timer);
       clearTimeout(recheck.current);
-      supabase.removeChannel(channel);
+      stop();
     };
   }, [userId, load]);
 
