@@ -6,6 +6,11 @@ The current milestone's step-by-step plan lives in `docs/plan.md`; this file is 
 ## Milestone 0 — Weekend MVP
 See the design doc: `docs/design.md`.
 
+## Found in manual testing (2026-11-22)
+- **Realtime goes stale:** B's app, open ~40 min, missed a new question and its own presence change until reloaded. Suspect the realtime socket kept an expired token or dropped silently. Fix: reload the inbox on foreground (presence already does) and re-subscribe/`setAuth` on token refresh; reproduce with a short JWT expiry.
+- **Retry once on network-level failures:** `ask` failed with iOS `-1005` (reused idle connection); the request never reached the server, so one automatic retry is safe.
+- **Friendly geofence error:** the raw Expo message ("Calling the 'startGeofencingAsync' function has failed…") is shown to users; say "Location tracking isn't available on this device." (iOS 27 simulators always report geofencing unavailable.)
+
 ## After MVP (Jack's order, 2026-11-22)
 - **Any time the Apple Developer account is bought:** remote push + TestFlight → real roommates. Independent of the list below.
 

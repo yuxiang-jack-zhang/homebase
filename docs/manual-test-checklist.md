@@ -1,5 +1,16 @@
 # Manual test checklist
 
+## Running it against the hosted project (simplest)
+
+The per-section "Setup" notes below are for a local stack. Against hosted, none of them apply:
+- `apps/mobile/.env` points at the hosted project URL and anon key. Run all commands from the repo, never from `~` (`npx supabase start` there creates a stray project).
+- Build once with `npx expo run:ios` in `apps/mobile` (needs Xcode 26.4+ for Expo SDK 58, and CocoaPods). Metro must stay running while you test.
+- Xcode 27 replaced Simulator.app with **Device Hub** (`open -b com.apple.dt.Devices`).
+- **iOS 27 simulators always report geofencing as unavailable** (Apple bug; real devices and iOS 26 simulators work). Use an iOS 26 simulator for the geofence section; the watcher can be any version.
+- Stats seed on hosted: run `supabase/tests/seed-stats-predictions.sql` with `npx supabase db query --remote --yes` after replacing `:'hid'` with the household id, then POST to `score` with the project's **secret** key (`sb_secret_…`; the legacy service_role JWT gets 403).
+
+Last full run: 2026-11-22, hosted, all sections passed (stats empty state and household switch not rechecked). Issues found are in `docs/backlog.md` under "Found in manual testing".
+
 ## Mobile: auth, households, confirm home, settings (Task 9)
 
 Setup: `npx supabase start`; copy the API URL and anon key into `apps/mobile/.env` as `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` (see `.env.example`). A physical phone needs the Mac's LAN IP in the URL, not 127.0.0.1. Run `npx expo run:ios` in `apps/mobile` (react-native-maps needs a development build, not Expo Go). For a simulator, set a location via Features > Location.
