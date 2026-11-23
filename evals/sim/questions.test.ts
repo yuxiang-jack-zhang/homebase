@@ -102,10 +102,16 @@ describe('generateTexts', () => {
   it('records an error and keeps the template text when the model returns nothing or fails, and does not cache it', async () => {
     const cachePath = join(dir(), 'cache.json');
     writeFileSync(cachePath, '{}');
-    const out = await generateTexts(few.slice(0, 2), { client: stub(['   ', new Error('overloaded')]).client, model: 'm', cachePath, names });
-    expect(out.map((q) => q.error)).toEqual(['empty', 'overloaded']);
-    expect(out.map((q) => q.text)).toEqual(few.slice(0, 2).map((q) => templateText(q, names)));
+    const out = await generateTexts(few, { client: stub(['   ', new Error('overloaded'), 'hey Eli']).client, model: 'm', cachePath, names, concurrency: 1 });
+    expect(out.map((q) => q.error)).toEqual(['empty', 'overloaded', 'too_short']);
+    expect(out.map((q) => q.text)).toEqual(few.map((q) => templateText(q, names)));
     expect(JSON.parse(readFileSync(cachePath, 'utf8'))).toEqual({});
+  });
+
+  it('leaves room for thinking in the token cap', async () => {
+    const a = stub(['is ben home rn']);
+    await generateTexts(few.slice(0, 1), { client: a.client, model: 'm', cachePath: join(dir(), 'c.json'), names });
+    expect((a.calls[0] as { max_tokens: number }).max_tokens).toBeGreaterThanOrEqual(1024);
   });
 
   it('never tells the generator anything about the target beyond the question intent', async () => {

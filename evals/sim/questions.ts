@@ -104,11 +104,12 @@ export async function generateTexts(
       const style = STYLES[hash(q.id) % STYLES.length];
       try {
         const res = await opts.client.messages.create({
-          model: opts.model, max_tokens: 200, system: SYSTEM,
+          model: opts.model, max_tokens: 1024, system: SYSTEM, // the generator may think first; 200 left some replies empty
           messages: [{ role: 'user', content: prompt(q, opts.names, style) }],
         });
         const text = res.content.flatMap((b) => (b.type === 'text' ? [b.text] : [])).join('').trim();
         if (!text) { q.error = 'empty'; continue; }
+        if (text.split(/\s+/).length < 3) { q.error = 'too_short'; continue; } // e.g. just "hey Eli": not a question
         Object.assign(q, { text, style });
         cache[q.id] = { text, style };
       } catch (e) {
