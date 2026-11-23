@@ -8,7 +8,7 @@
     "scheme": "homebase",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "com.example.homebase",
+      "bundleIdentifier": "com.jackzhang.homebase",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Homebase uses your location to set your household's home, and to check whether you're inside your home's area when the app opens. Only home or away is shared, never where you are.",
         "UIBackgroundModes": [

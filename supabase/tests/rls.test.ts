@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { admin, joinHousehold, makeHousehold, makeQuestion, newUser, ok, type TestUser } from "./helpers.ts";
+import { admin, anon, joinHousehold, makeHousehold, makeQuestion, newUser, ok, type TestUser } from "./helpers.ts";
 
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
 
@@ -135,8 +135,8 @@ describe("RLS", () => {
 
     expect(ok(await owner.from("away_blocks").select().eq("user_id", mia.id))).toEqual([]);
     expect(ok(await mia.client.from("away_blocks").select().eq("user_id", mia.id))).toHaveLength(1);
-    // Nor write them: update/delete touch 0 rows, insert-for-someone-else errors.
-    expect(ok(await owner.from("away_blocks").update({ label: "hacked" }).eq("id", block.id).select())).toEqual([]);
+    // Nor write them: no UPDATE grant (D59), delete touches 0 rows, insert-for-someone-else errors.
+    expect((await owner.from("away_blocks").update({ label: "hacked" }).eq("id", block.id).select()).error?.code).toBe("42501");
     expect(ok(await owner.from("away_blocks").delete().eq("id", block.id).select())).toEqual([]);
     const ins = await owner.from("away_blocks").insert({
       household_id: h.household.id, user_id: mia.id, days_of_week: [3], start_local: "09:00", end_local: "10:00",
@@ -178,7 +178,7 @@ describe("RLS", () => {
     expect(row.role).toBe("member");
 
     // No other direct write path: owner can't edit the household row, outsiders can't insert themselves.
-    expect(ok(await h.owner.client.from("households").update({ home_lat: 0 }).eq("id", hid).select())).toEqual([]);
+    expect((await h.owner.client.from("households").update({ home_lat: 0 }).eq("id", hid).select()).error?.code).toBe("42501");
     const outsider = await newUser("Eve");
     const join = await outsider.client.from("household_members").insert({ household_id: hid, user_id: outsider.id });
     expect(join.error).not.toBeNull();
@@ -238,8 +238,8 @@ describe("RLS", () => {
     expect((await mia.client.from("predictions").insert({
       question_target_id: questionTargetId, user_id: mia.id, kind: "at_time", confidence: "high", source: "agent_auto",
     })).error).not.toBeNull();
-    expect(ok(await mia.client.from("question_targets").update({ status: "replied" }).eq("id", questionTargetId).select())).toEqual([]);
-    expect(ok(await asker.from("questions").delete().eq("id", questionId).select())).toEqual([]);
+    expect((await mia.client.from("question_targets").update({ status: "replied" }).eq("id", questionTargetId).select()).error?.code).toBe("42501");
+    expect((await asker.from("questions").delete().eq("id", questionId).select()).error?.code).toBe("42501");
 
     expect(ok(await admin.from("questions").select().eq("household_id", h.household.id))).toHaveLength(1);
     expect(ok(await admin.from("question_targets").select("status").eq("question_id", questionId))).toEqual([{ status: "awaiting_reply" }]);
@@ -254,5 +254,13 @@ describe("RLS", () => {
     const after = ok(await admin.from("question_targets").update({ status: "replied" }).eq("id", questionTargetId)
       .select("updated_at").single());
     expect(Date.parse(after.updated_at)).toBeGreaterThan(Date.parse(before.updated_at));
+  });
+});
+
+describe("grants (D59: explicit, same locally as hosted)", () => {
+  it("signed-out (anon) callers have no table access at all", async () => {
+    await makeHousehold();
+    expect((await anon.from("households").select()).error?.code).toBe("42501");
+    expect((await anon.from("presence_events").select()).error?.code).toBe("42501");
   });
 });

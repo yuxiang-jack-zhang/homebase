@@ -20,7 +20,6 @@ See the design doc: `docs/design.md`.
    - Unhiding reveals the timestamp of the last change made while hidden (the "since" of the revealed latest event); consecutive same-kind visible events hint that something happened while hidden.
    - `score` judges predictions using hidden-period events (outcomes are visible only to the subject and in household aggregates).
    - Rare race: a geofence insert concurrent with an off→on visibility change can be stamped hidden (fix: `for share` in the stamp trigger's membership read).
-   - Supabase default table grants include TRUNCATE/UPDATE/DELETE for anon/authenticated (blocked by RLS/PostgREST today); tighten explicitly.
 4. **ETAs** — opt-in, rough "~20 min" from occasional coarse location samples.
 5. **Calendar** — iPhone calendar read on device; only busy/free blocks sent to the server.
 6. **Home-screen widget** — who's home at a glance (Swift target).

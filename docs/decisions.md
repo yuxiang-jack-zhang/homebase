@@ -372,3 +372,10 @@ The first Opus run flagged one fixture: the answer was "Sam isn't home right now
 **Decision:** keep `claude-opus-5-5` (spec default). Cost at MVP volume is negligible (≈ $0.002/question).
 **Why:** a 24-question set where every model scores 100% can't justify a model change either way; the code needs no change and the decision stays cheap to revisit.
 **Revisit if:** the simulated-roommate evals (backlog #2) or a harder fixture set separate the models; Haiku is the first candidate since it is far cheaper and faster.
+
+## D59. Explicit table and function grants instead of Supabase defaults — 2026-11-22, Jack
+**Context:** the first hosted deploy failed with `permission denied for table predictions`. A new hosted project gives `anon`/`authenticated`/`service_role` only TRUNCATE/REFERENCES/TRIGGER/MAINTAIN on tables and no EXECUTE on functions; the local stack still grants everything, so all 58 DB tests passed against defaults that hosted no longer has. Separately, the backlog listed the broad local defaults (TRUNCATE/UPDATE/DELETE for anon) as something to tighten.
+**Options:** *grant ALL to the three roles* — + one line, matches local; − keeps the broad grants that only RLS was blocking. *Minimal explicit grants* — + matches hosted and local, closes the backlog item, RLS becomes a second layer instead of the only one; − every new table needs its own grant line.
+**Decision:** migration 0006 revokes everything, then grants: `authenticated` SELECT on all tables, INSERT on `presence_events`, INSERT/DELETE on `away_blocks`, EXECUTE on all functions; `service_role` SELECT/INSERT/UPDATE/DELETE on all tables and EXECUTE on functions; `anon` nothing. It also changes postgres's default privileges so local tables created later get no implicit access, as on hosted.
+**Why:** one set of grants that is the same in both environments and is the least the app uses. Blocked direct writes now fail with 42501 rather than "0 rows changed", and the RLS tests assert that.
+**Revisit if:** a feature needs a new direct client write (add a grant next to the policy), or Supabase changes hosted defaults again.
