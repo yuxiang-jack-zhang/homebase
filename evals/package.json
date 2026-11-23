@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "evals": "tsx run.ts"
+    "evals": "tsx run.ts",
+    "traces": "tsx traces.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.6"

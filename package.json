@@ -10,7 +10,8 @@
   "scripts": {
     "test": "vitest run --project core",
     "test:db": "vitest run --project db",
-    "evals": "npm run evals -w evals --if-present --"
+    "evals": "npm run evals -w evals --if-present --",
+    "traces": "npm run traces -w evals --"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.119.0",

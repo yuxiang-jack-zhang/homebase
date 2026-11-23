@@ -4,6 +4,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { anthropicModel } from '../packages/core/src/agent/anthropic.ts';
 import { keywordFakeModel, type ModelClient, type ModelUsage } from '../packages/core/src/agent/model.ts';
 import { answerForTarget, parseQuestion } from '../packages/core/src/agent/pipeline.ts';
+import { tracedModel } from '../packages/core/src/agent/trace.ts';
 import type { AwayBlock, MemberSettings, PresenceEvent, QuestionKind } from '../packages/core/src/types.ts';
 import { markdown, summarize, type FixtureResult } from './report.ts';
 
@@ -29,10 +30,7 @@ export async function runFixture(model: ModelClient, f: Fixture): Promise<Fixtur
 }
 
 async function score(model: ModelClient, f: Fixture, usage: ModelUsage[]): Promise<FixtureResult> {
-  const m: ModelClient = { // parseQuestion doesn't return usage, so record every call here
-    async parse(req) { const r = await model.parse(req); usage.push(r.usage); return r; },
-    async write(req) { const r = await model.write(req); usage.push(r.usage); return r; },
-  };
+  const m = tracedModel(model, (c) => usage.push(c.usage)); // parseQuestion doesn't return usage
   const parsed = await parseQuestion(m, f.question, f.now, f.timezone);
   const evidence = { now: f.now, timezone: f.timezone, presence: f.target.presence, blocks: f.target.blocks };
   const r = await answerForTarget(m, { question: f.question, parsed, targetName: f.target.name, settings: f.target.settings, evidence, householdWide: f.householdWide });
