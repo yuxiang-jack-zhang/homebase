@@ -10,10 +10,12 @@ const who = (me: Roommate) => `You are ${me.name}, ${me.age}, ${me.job}. Routine
 const plan = (xs: Outing[]) => (xs.length ? xs.map((x) => `${x.leave}-${x.back} ${x.why}`).join('; ') : 'staying home all day');
 const mem = (m: string[]) => (m.length ? `Recent days: ${m.join(' ')}` : '');
 
-export function householdPrompt(seed: number) {
+const WORDS: Record<number, string> = { 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six' };
+
+export function householdPrompt(seed: number, size = 5) {
   return {
     system: 'You invent realistic people for a simulation of a shared house. Make them different from each other and believable, with ordinary lives.',
-    user: `Household #${seed}: five adults sharing a house in Los Angeles. For each: name (first name, all different), age, job and hours, routine, habits, social life,
+    user: `Household #${seed}: ${WORDS[size]} adults sharing a house in Los Angeles. For each: name (first name, all different), age, job and hours, routine, habits, social life,
 and the away blocks they would put in a roommate app ("days": 0=Sunday..6=Saturday, "start"/"end" as HH:MM in 00:00-23:59, optional label).
 People are lazy about the app: some add accurate blocks, some add stale or partial ones, some add none. Include at least one irregular schedule.`,
   };

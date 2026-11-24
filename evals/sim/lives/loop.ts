@@ -16,7 +16,7 @@ import { generateHousehold, normalizePlan, type Roommate } from './household.ts'
 import type { Llm } from './llm.ts';
 import { memoryPrompt, phrasePrompt, planPrompt, reactPrompt, replyPrompt } from './prompts.ts';
 
-export interface LivesOptions { days: number; warmup: number; seed: number; mode: AnswerMode; noise: boolean; simModel: string; model: string }
+export interface LivesOptions { days: number; warmup: number; seed: number; size: number; mode: AnswerMode; noise: boolean; simModel: string; model: string }
 export interface QuestionLog {
   day: number; at: string; asker: string; target: string; why: string; text: string;
   intent: { kind: 'now' | 'at_time' | 'until_when'; aboutTime: string | null };
@@ -43,7 +43,7 @@ const outAt = (outings: Outing[], min: number) => outings.some((x) => hhmm(x.lea
 
 export async function runLives(opts: LivesOptions, deps: { sim: Llm; agent: ModelClient }): Promise<LivesResult> {
   const { sim } = deps;
-  const household = await generateHousehold(sim, opts.seed);
+  const household = await generateHousehold(sim, opts.seed, opts.size);
   const names = household.map((r) => r.name);
   const mates: Mate[] = household.map((r, index) => ({ r, index, past: [], today: [], memory: [], events: [], carryMin: null }));
   const byName = new Map(mates.map((m) => [m.r.name, m]));

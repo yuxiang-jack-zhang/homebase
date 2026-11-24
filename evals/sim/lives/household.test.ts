@@ -19,6 +19,14 @@ describe('generateHousehold', () => {
     expect(user).toContain('7');
   });
 
+  it('can make a smaller household; the prompt names the size in words', async () => {
+    let user = '';
+    const h = await generateHousehold(scriptedLlm((n, u) => { user = u; return raw(['Ana', 'Bo']); }), 3, 2);
+    expect(h.map((r) => r.name)).toEqual(['Ana', 'Bo']);
+    expect(user).toContain('two adults');
+    await expect(generateHousehold(scriptedLlm(() => raw(['Ana', 'Bo', 'Cy'])), 3, 2)).rejects.toThrow(/2 roommates/);
+  });
+
   it('rejects the wrong size, duplicate names or bad block times', async () => {
     await expect(generateHousehold(scriptedLlm(() => raw(['A', 'B', 'C', 'D'])), 1)).rejects.toThrow(/5 roommates/);
     await expect(generateHousehold(scriptedLlm(() => raw(['A', 'A', 'C', 'D', 'E'])), 1)).rejects.toThrow(/unique/);

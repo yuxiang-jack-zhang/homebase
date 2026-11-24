@@ -11,7 +11,7 @@ const q = (o: Partial<QuestionLog>): QuestionLog => ({
 });
 const need = (o: Partial<NeedLog>): NeedLog => ({ who: 'Ana', day: 0, at: '15:00', what: 'plumber', met: true, coveredBy: ['Bo'], byChange: false, ...o });
 const result = {
-  options: { days: 1, warmup: 7, seed: 1, mode: 'ask_me', noise: true, simModel: 'claude-sonnet-5-5', model: 'claude-haiku-5-5' },
+  options: { days: 1, warmup: 7, seed: 1, size: 5, mode: 'ask_me', noise: true, simModel: 'claude-sonnet-5-5', model: 'claude-haiku-5-5' },
   household: Array(5).fill(null), days: [], errors: [],
   questions: [
     q({}),
@@ -23,9 +23,11 @@ const result = {
 
 describe('parseLivesArgs', () => {
   it('defaults and flags', () => {
-    expect(parseLivesArgs([])).toEqual({ days: 14, warmup: 7, seed: 1, mode: 'auto_when_confident', noise: true, simModel: 'claude-sonnet-5-5', model: 'claude-haiku-5-5' });
+    expect(parseLivesArgs([])).toEqual({ days: 14, warmup: 7, seed: 1, size: 5, mode: 'auto_when_confident', noise: true, simModel: 'claude-sonnet-5-5', model: 'claude-haiku-5-5' });
+    expect(parseLivesArgs(['--size', '2']).size).toBe(2);
+    expect(() => parseLivesArgs(['--size', '1'])).toThrow(/size/);
     expect(parseLivesArgs(['--days', '3', '--warmup', '0', '--mode', 'ask_me', '--sim-model', 's', '--model', 'm', '--no-noise', '--seed', '4']))
-      .toEqual({ days: 3, warmup: 0, seed: 4, mode: 'ask_me', noise: false, simModel: 's', model: 'm' });
+      .toEqual({ days: 3, warmup: 0, seed: 4, size: 5, mode: 'ask_me', noise: false, simModel: 's', model: 'm' });
     expect(() => parseLivesArgs(['--mode', 'x'])).toThrow(/mode/);
     expect(() => parseLivesArgs(['--bogus'])).toThrow(/unknown/);
   });

@@ -12,7 +12,7 @@ const q = (o: Partial<QuestionLog>): QuestionLog => ({
 const need = (met: boolean, byChange = false): NeedLog => ({ who: 'A', day: 0, at: '15:00', what: 'x', met, coveredBy: met ? ['B'] : [], byChange });
 
 const result = {
-  options: { days: 2, warmup: 0, seed: 1, mode: 'ask_me', noise: true, simModel: 's', model: 'claude-haiku-5-5' },
+  options: { days: 2, warmup: 0, seed: 1, size: 5, mode: 'ask_me', noise: true, simModel: 's', model: 'claude-haiku-5-5' },
   household: Array(5).fill(null), days: [], errors: ['e1'],
   questions: [
     q({}),

@@ -31,7 +31,7 @@ function world(reply: unknown) {
   return { llm, seen };
 }
 const agent = () => fakeModel({ parse: { kind: 'at_time', aboutTime: iso(localMs(0, 15 * 60)) }, write: 'Bo will be away.' });
-const opts = (mode: LivesOptions['mode']): LivesOptions => ({ days: 1, warmup: 0, seed: 1, mode, noise: false, simModel: 'sim', model: 'agent' });
+const opts = (mode: LivesOptions['mode']): LivesOptions => ({ days: 1, warmup: 0, seed: 1, size: 5, mode, noise: false, simModel: 'sim', model: 'agent' });
 const COMEBACK = { reply: 'text', text: 'I can be back by 2:45', change: { backBy: '14:45', outings: [] } };
 
 describe('runLives', () => {

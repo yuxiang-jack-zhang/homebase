@@ -1,4 +1,4 @@
-// `npm run lives -- [--mode ask_me|auto_when_confident|always_auto] [--days 14] [--warmup 7] [--seed 1] [--model <agent>] [--sim-model <id>] [--no-noise]`
+// `npm run lives -- [--mode ask_me|auto_when_confident|always_auto] [--days 14] [--warmup 7] [--seed 1] [--size 5] [--model <agent>] [--sim-model <id>] [--no-noise]`
 // Needs ANTHROPIC_API_KEY. Every LLM call is cached in evals/sim/lives/cache.jsonl, so a rerun with nothing changed is free.
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -18,16 +18,17 @@ const intFlag = (flag: string, v: string, min: number) => {
 };
 
 export function parseLivesArgs(args: string[]): LivesOptions {
-  const o: LivesOptions = { days: 14, warmup: 7, seed: 1, mode: 'auto_when_confident', noise: true, simModel: 'claude-sonnet-5-5', model: DEFAULT_MODEL };
+  const o: LivesOptions = { days: 14, warmup: 7, seed: 1, size: 5, mode: 'auto_when_confident', noise: true, simModel: 'claude-sonnet-5-5', model: DEFAULT_MODEL };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === '--no-noise') { o.noise = false; continue; }
-    if (!['--days', '--warmup', '--seed', '--mode', '--model', '--sim-model'].includes(a)) throw new Error(`unknown argument ${a}`);
+    if (!['--days', '--warmup', '--seed', '--size', '--mode', '--model', '--sim-model'].includes(a)) throw new Error(`unknown argument ${a}`);
     const v = args[++i];
     if (v === undefined || v.startsWith('--')) throw new Error(`${a} needs a value`);
     if (a === '--days') o.days = intFlag(a, v, 1);
     else if (a === '--warmup') o.warmup = intFlag(a, v, 0);
     else if (a === '--seed') o.seed = intFlag(a, v, 1);
+    else if (a === '--size') { o.size = intFlag(a, v, 2); if (o.size > 6) throw new Error('--size must be 2-6'); }
     else if (a === '--mode') {
       if (!MODES.includes(v as AnswerMode)) throw new Error(`--mode must be one of ${MODES.join(', ')}`);
       o.mode = v as AnswerMode;
@@ -52,7 +53,7 @@ async function main() {
   const story = stories(result);
   const date = new Date().toISOString().slice(0, 10);
   mkdirSync(`${root}evals/results`, { recursive: true });
-  const file = `${root}evals/results/lives-${date}-${opts.mode}-${opts.model}-seed${opts.seed}.json`;
+  const file = `${root}evals/results/lives-${date}-${opts.mode}-${opts.model}-seed${opts.seed}${opts.size === 5 ? '' : `-size${opts.size}`}.json`;
   writeFileSync(file, JSON.stringify({ date, summary, stories: story, simCallsMade: sim.calls, ...result }, null, 2) + '\n');
   const md = livesMarkdown(date, summary, story);
   appendFileSync(`${root}docs/progress.md`, md);

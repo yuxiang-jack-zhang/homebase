@@ -16,12 +16,12 @@ export const HouseholdSchema = z.object({
 
 const blockTime = (s: string) => { const m = hhmm(s); if (m >= 24 * 60) throw new Error(s); return m; };
 
-/** Five LLM-invented roommates (the seed is in the prompt, so seed 2 is a different household). Throws if unusable. */
-export async function generateHousehold(llm: Llm, seed: number): Promise<Roommate[]> {
-  const r = await llm.call({ name: 'household', ...householdPrompt(seed), schema: HouseholdSchema });
+/** `size` LLM-invented roommates (the seed is in the prompt, so seed 2 is a different household). Throws if unusable. */
+export async function generateHousehold(llm: Llm, seed: number, size = 5): Promise<Roommate[]> {
+  const r = await llm.call({ name: 'household', ...householdPrompt(seed, size), schema: HouseholdSchema });
   if (!r) throw new Error('household generation failed');
-  if (r.roommates.length !== 5) throw new Error(`expected 5 roommates, got ${r.roommates.length}`);
-  if (new Set(r.roommates.map((m) => m.name.toLowerCase())).size !== 5) throw new Error('roommate names must be unique');
+  if (r.roommates.length !== size) throw new Error(`expected ${size} roommates, got ${r.roommates.length}`);
+  if (new Set(r.roommates.map((m) => m.name.toLowerCase())).size !== size) throw new Error('roommate names must be unique');
   return r.roommates.map((m) => ({
     ...m,
     blocks: m.blocks.map((b) => {
