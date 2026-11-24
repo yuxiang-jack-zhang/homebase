@@ -1,6 +1,8 @@
 import type { Home } from '@homebase/core/src/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
+import { AWAY_CALENDARS_KEY } from './calendarAway';
 import { decideInitialEvents, dropRepeats, isUuid, type Kind } from './presenceLogic';
 import { supabase } from './supabase';
 
@@ -55,6 +57,7 @@ export async function stopHomeGeofences() {
 /** Stop watching homes before signing out, so the regions don't keep firing (or carry over to the next account). */
 export async function signOut() {
   await stopHomeGeofences().catch((e) => console.warn('[geofence] stop failed:', e instanceof Error ? e.message : e));
+  await AsyncStorage.removeItem(AWAY_CALENDARS_KEY).catch(() => {}); // the next person on this phone chooses their own
   await supabase.auth.signOut();
 }
 
