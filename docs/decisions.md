@@ -498,3 +498,18 @@ Realistic generated lives almost never produce a conflict (someone out when some
 **Context:** finding 8: the session was in AsyncStorage.
 **Decision:** `expo-secure-store`, split into 512-character pieces (items over ~2 KB can be rejected), `AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY` so the background geofence task can read it while the phone is locked; an existing AsyncStorage session is moved over once so nobody is signed out. No extra crypto dependency.
 **Revisit if:** expo-secure-store lifts its size limit.
+
+## D74. Learned arrival patterns: on-the-fly habits from 8 weeks of history, tuned on the simulation — 2026-11-24, Jack
+**Context:** the simulation (D63) found 75% of future at-time questions went to the roommate for lack of evidence, and most confident errors came from away-block end times. Design: `docs/superpowers/specs/2026-11-24-learned-patterns-design.md`. Jack chose option A (strong habits are answered automatically) and approach 1, keeping the alternatives.
+**Options:** *compute habits per question from history (chosen)* — no new tables, testable, simulated directly. *Stored patterns from a nightly job* — kept as the alternative if per-question work gets slow; stale between runs and stores a routine summary at rest. *A statistical model* (hour-of-week probabilities, regression) — kept as the alternative if the simple matcher plateaus; harder to explain and tune. Both plug into the same seam: `buildClaim`'s pattern options.
+**Decision:**
+- `EVIDENCE_DAYS = 56`.
+- `comparableInstants` / `homeShareAt` / `typicalReturn` in `packages/core/src/patterns.ts`.
+- A strong habit is a medium claim (basis `pattern`) and wins over a contradicting away block; a weak one is low.
+- Habits are ignored once someone has been out for over 24 hours. Added after the first sweep found mid-trip habits saying "home by 7".
+- Tuned default: same weekday, at least 6 comparable days, at least 90% agreement, return-time spread ≤ 90 min.
+- Tuned on seeds 2–4 (`npm run sim:tune`, 240 settings); simulation warm-up is now 56 days.
+
+**Result (held-out seeds 1, 5, 6, 7; `auto_when_confident`; 1008 questions):** correct 623 → 787, confidently wrong 41 → 40, asked the roommate 344 → 181. Suggested replies get better too (seed 1, `ask_me`: 65% → 81% right). On seed 1 alone, confident errors went 9 → 11. The approved acceptance rule named seed 1, so Jack chose to judge on the four held-out seeds together instead.
+**Why:** the biggest measured gap in answer quality, fixed with plain, explainable code and measured for free. The writer still only states the claim, so the asker never learns the routine behind it.
+**Revisit if:** confident errors rise in real use; per-question computation gets slow (alternative 2); or more gains are needed (alternative 3, or separate thresholds for at-time and until-when).

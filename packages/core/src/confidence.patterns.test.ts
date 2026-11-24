@@ -26,9 +26,10 @@ describe('buildClaim with patterns', () => {
   const nineToSix = history(9 * 60, () => 18 * 60); // out 09:00-18:00 every day; home now? no: at 12:00 today they'd be out, but today has no events
   const outNow = [...nineToSix, { kind: 'exit', at: today(9) } as PresenceEvent];
 
-  it('is off by default until tuned (production behaviour unchanged)', () => {
-    expect(PATTERN_DEFAULTS.matcher).toBe('off');
-    expect(buildClaim(at(today(19)), ev(outNow))).toMatchObject({ basis: 'none', predictedState: null });
+  it('is on by default with the tuned setting (D74); matcher off restores the old behaviour', () => {
+    expect(PATTERN_DEFAULTS).toEqual({ matcher: 'weekday', nMin: 6, pMin: 0.9, spreadMax: 90 });
+    expect(buildClaim(at(today(19)), ev(outNow))).toMatchObject({ basis: 'pattern', confidence: 'medium' });
+    expect(buildClaim(at(today(19)), ev(outNow), { matcher: 'off' })).toMatchObject({ basis: 'none', predictedState: null });
   });
 
   it('a strong habit becomes a medium-confidence claim', () => {

@@ -82,9 +82,16 @@ The fixtures check single decisions; the simulation checks whether the system ma
 
 What it shows ([D64](docs/decisions.md)):
 - "Are you home?" is 97% right; the misses are dropped geofence events.
-- 75% of future "will you be home at 7?" questions go to the roommate, because without an away block there is no evidence at all about the future.
+- 75% of future "will you be home at 7?" questions went to the roommate, because without an away block there was no evidence at all about the future. Learned patterns (below) now cover most of them.
 - Most confident errors are "when are you back?" answered from the end of an away block: gym days, a stale schedule, an undeclared trip.
-- The model isn't the bottleneck: every system-level number is the same across models, so the app now runs on Haiku 5.5, at about 1/48 of Opus's cost and a second faster. Learned arrival patterns (roadmap) are the next lever, and this harness is how they'll be judged.
+- The model isn't the bottleneck: every system-level number is the same across models, so the app now runs on Haiku 5.5, at about 1/48 of Opus's cost and a second faster. Learned arrival patterns were the next lever, judged on this harness (below).
+
+**Learned arrival patterns** ([D74](docs/decisions.md)): the agent now also uses each person's own habits from 8 weeks of enter/exit history (same weekday, same time of day), ignoring them once someone has been out for over a day. Strong habits are answered automatically. Thresholds were tuned on seeds 2–4 and checked on four held-out seeds (1008 questions, "answer if confident"):
+
+| | answered correctly | confidently wrong | asked the roommate |
+|---|---|---|---|
+| without patterns | 623 | 41 | 344 |
+| with patterns | 787 | 40 | 181 |
 
 ### LLM-driven roommates
 
@@ -108,12 +115,12 @@ Every `ask` run is traced in Postgres ([D62](docs/decisions.md)): one row per ru
 
 | suite | what | count |
 |---|---|---|
-| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner, trace report, simulation | 335 |
+| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner, trace report, simulation | 359 |
 | `npm run test:db` | Postgres RLS, RPCs, triggers and edge functions against a local Supabase stack, signed in as real test users | 85 |
 | `apps/mobile`: `npx jest` | screens, hooks, routing gate, geofence logic, realtime resync, retry | 78 |
 | [manual checklist](docs/manual-test-checklist.md) | two simulators against the hosted project, including a background relaunch after force-quit | 4 sections |
 
-Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (73 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
+Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (74 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
 
 ## Stack
 

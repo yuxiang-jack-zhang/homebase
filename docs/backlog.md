@@ -27,7 +27,7 @@ All three fixed on 2026-11-23 (D60, D61, friendly geofence error); recheck on th
 4. **ETAs** — opt-in, rough "~20 min" from occasional coarse location samples.
 5. **Calendar** — iPhone calendar read on device; only busy/free blocks sent to the server.
 6. **Home-screen widget** — who's home at a glance (Swift target).
-7. **Pattern statistics** — learned arrival/departure patterns from presence history.
+7. **Pattern statistics** — done (D74). Alternatives kept: stored nightly patterns; a statistical model; separate thresholds for at-time and until-when.
 8. **MCP server** — expose household tools so any MCP client can ask "is Sam home?".
 9. **Siri / App Intents** — "Hey Siri, will Sam be home by 7?".
 
