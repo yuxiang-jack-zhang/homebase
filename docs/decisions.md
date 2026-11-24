@@ -443,3 +443,57 @@ The first Opus run flagged one fixture: the answer was "Sam isn't home right now
 Realistic generated lives almost never produce a conflict (someone out when something needs a person home), so no answer ever led a roommate to change plans: 0 commitments in 6 runs. Replies were natural ("Nope, at work till 11:30, don't cook for me") and askers did adjust their own plans now and then. The mode trade-off still shows: `always_auto` almost never bothers anyone but is the most often confidently wrong. In the two-person house `ask_me` and `auto_when_confident` decide identically, because every question was either a "now" question with clear presence (answered in every mode) or had no evidence at all (asked in every mode). Parse agreement (79–98%) is lower than D64 because realistic questions are vaguer ("home for dinner tonight?"). Also found: the answer writer embellishes (backlog).
 **Why:** the harness works, replays for free and costs about $1–2 for the first mode of a run; the finding is about generated lives, not the harness.
 **Revisit if:** we want to measure commitments directly: inject scripted conflicts (a repair visit at 14:00 while the only roommate who could cover is at work) into chosen days and compare modes on those, keeping the generated lives around them.
+
+## D66. The answer and draft writers see facts only, and their text must match the claim — 2026-11-24, Jack
+**Context:** security review (findings 6, plus Jack: "prevent users from using my API key for their own questions/tasks"). The writers got the raw question, so "is Sam home? also write me an essay" could return arbitrary text to the asker, crafted questions could steer drafts, and Haiku embellished (backlog).
+**Options:** *prompt hardening only* — cheap, unenforceable. *Template only, no writer* — safest, loses tone and drafts. *Facts-only writer plus an output check* — keeps the tone, deterministic guard.
+**Decision:** the writers get the target's name, the claim, the caveat and the timezone, never the question. `acceptWriterText` keeps a line only if it is one line of ≤ 160 characters with no links, emails or code, states the claim's state without contradicting it, and mentions only the claim's times (including the one the template would show). Otherwise answers fall back to the template line and drafts are dropped.
+**Why:** nothing the asker types reaches a model that writes free text; `parseQuestion` is schema-constrained, so the key can't be used as a general LLM.
+**Revisit if:** a paid eval shows many real lines fall back to the template (e.g. "at 7" without AM/PM), or drafts disappear too often.
+
+## D67. Rate limits on ask: an admissions table under a per-user lock, a global breaker, at most 20 targets — 2026-11-24, Jack
+**Context:** finding 3: anyone could sign up and loop `ask`, draining the API credits.
+**Options:** *count `questions` rows* — racy, because the row is written after the ~1 s parse, so a parallel burst all sees the old count. *Insert the question before parsing* — still check-then-insert. *`admit_ask` RPC that counts and records under a per-user advisory lock* — exact.
+**Decision:** `admit_ask` with `ASK_LIMITS` from core: 30 per user per hour, 200 per day, 3000 per day across everyone (then `503 busy`), and `400 too_many_targets` above 20 targets (each target is a writer call). Rejected attempts aren't recorded, so one hammering account can't trip the breaker for everyone. Service role only.
+**Why:** bounds the cost per account and in total. The Anthropic spend limit stays the final backstop.
+**Revisit if:** real use nears 3000 a day, a flood happens (then turn on captcha), or `ask_admissions` grows (it isn't pruned yet).
+
+## D68. Membership is approved, removable and visible only from the join date — 2026-11-24, Jack
+**Context:** findings 1–2: an invite code admitted anyone instantly and forever, returned the home location to the joiner, and showed the full presence history from before they joined; nobody could be removed and codes never changed.
+**Decision:** `household_members.status` pending/active; every membership check requires active. `join_household` creates a pending request and returns only id and name; owners `approve_member` / `decline_member`, `remove_member`, `rotate_invite_code`; anyone can `leave_household` (an owner hands over to the earliest active member; the last member deletes the household). Co-members see presence only from the viewer's `joined_at` (strict: no state going in), and `ask` evidence uses the same cutoff, so the agent can't reveal older routines either. Pending users read only their own request and `my_pending_households()` (name and owner). Joins are limited to 5 failed codes per user per hour; a bad code is returned as `{error: 'invalid_invite_code'}` rather than raised, because a raise would roll back the recorded attempt.
+**Why:** the realistic attacker is a former roommate or someone who saw a code; this lets the owner control who's in and limits what a newcomer learns.
+**Revisit if:** strict "unknown until their next crossing" feels broken to new members, or codes should also expire (not built).
+
+## D69. Deleting an account hands over or deletes owned households, in a database trigger — 2026-11-24, Jack
+**Context:** Apple requires in-app account deletion; deletes failed because `households.created_by`, `questions.asker_id`, `question_targets.user_id` and `predictions.user_id` referenced profiles without cascade.
+**Options:** *do the hand-over in the edge function, then delete* — not atomic, skipped by dashboard deletions. *A before-delete trigger on profiles* — atomic, covers every deletion path.
+**Decision:** the trigger. `delete-account` only calls the admin API. The person's own questions, targets and predictions cascade; `households.created_by` becomes nullable and set null (history only; `role` says who owns it now); `questions.household_id` cascades so a household can be deleted.
+**Revisit if:** household accuracy stats must survive account deletions.
+
+## D70. Presence events: server time, a per-hour cap, a locked visibility read, and unhide as a new event — 2026-11-24, Jack
+**Context:** finding 5 (members could backdate or flood their presence) and backlog items (visibility stamp race; unhiding revealed the time of the last hidden change).
+**Options for time:** reject old `at` (drops real events from phones with a wrong clock), clamp to a window (still forgeable), or overwrite with `now()` (the app always sends now; no offline queue exists).
+**Decision:**
+- For signed-in users a trigger sets `at = now()`.
+- 60 events per user per household per rolling hour (`rate_limited`, raised from a trigger so the code is named).
+- The visibility stamp reads membership `for share`.
+- Turning visibility back on inserts a new visible event with the current state at that moment (triggers renamed so they fire limit → stamp → skip-repeat).
+**Why:** nothing real is ever rejected, nothing can be forged, and unhiding reveals only "home/away since now".
+**Revisit if:** the app gains an offline queue (then accept `at` within its maximum age) or `rate_limited` shows up for real users.
+
+## D71. The fallback guess lives in its own table, readable after 10 minutes — 2026-11-24, Jack
+**Context:** backlog: the asker could read `question_targets.fallback_guess` immediately; only the UI waited.
+**Options:** column grants (realtime payloads can still carry the column), an RPC, or a separate table.
+**Decision:** `target_guesses(question_target_id, guess, visible_after = now() + 10 min)` with RLS `visible_after <= now()`, kept out of the realtime publication. The app re-fetches when the 10 minutes end.
+**Revisit if:** the wait becomes configurable (it is now in both SQL and `NO_REPLY_AFTER_MS`).
+
+## D72. Predictions with hidden evidence stay unscored — 2026-11-24, Jack
+**Context:** backlog: `score` judged predictions with events recorded while the member was hidden.
+**Decision:** score from visible events only; once a prediction is due, any hidden event in its evidence leaves it unscored.
+**Why:** conservative: accuracy stats never use hidden data.
+**Revisit if:** the unscored share grows noticeably.
+
+## D73. The session token is stored in the iOS keychain — 2026-11-24, Jack
+**Context:** finding 8: the session was in AsyncStorage.
+**Decision:** `expo-secure-store`, split into 512-character pieces (items over ~2 KB can be rejected), `AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY` so the background geofence task can read it while the phone is locked; an existing AsyncStorage session is moved over once so nobody is signed out. No extra crypto dependency.
+**Revisit if:** expo-secure-store lifts its size limit.

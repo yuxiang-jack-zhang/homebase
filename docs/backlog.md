@@ -10,22 +10,21 @@ See the design doc: `docs/design.md`.
 All three fixed on 2026-11-23 (D60, D61, friendly geofence error); recheck on the next manual run.
 
 ## Found in the LLM-roommate simulation (2026-11-24)
-- **The answer writer embellishes:** Haiku added inferences from the question ("…so the kitchen should be free and it should be quiet") although ANSWER_SYSTEM says to use only the given facts. Nothing private leaked, but it states things the app doesn't know. Fix: tighten the prompt or check the line against the claim; add an eval check.
+- **The answer writer embellished** ("…so the kitchen should be free"). Fixed by D66 (facts-only writer plus output check); a paid eval run would confirm how often real lines now fall back to the template.
 
 ## After MVP (Jack's order, 2026-11-22)
 - **Any time the Apple Developer account is bought:** remote push + TestFlight → real roommates. Independent of the list below.
 
 1. **Tracing / observability** — every agent run's tool calls, latency, tokens, cost; viewable in a small dashboard. Prerequisite for serious evals.
 2. **Simulated-roommate eval harness** — an LLM plays roommates with hidden schedules; the agent is scored on outcomes across many simulated days (τ-bench style). Top portfolio priority.
-3. **Security review / threat model** — "if I were a hacker, how could I get people's sensitive info through this app?" Jack wants to think this through after the build. Known items so far:
-   - `join_household` has no rate limit; invite codes are 6 chars of 32 (~1.07e9), and a match grants presence visibility without owner approval.
-   - Raw Postgres errors (bad radius → 23514, bad timezone) instead of named codes.
-   - `supabase_admin` default privileges still grant anon EXECUTE on new functions; only matters for objects created via the dashboard/SQL editor.
-   - No per-user rate limit on `ask`: a signed-in user can run up Claude cost.
-   - `question_targets.fallback_guess` is readable by the asker immediately; the 10-minute wait is enforced only in the app UI.
-   - Unhiding reveals the timestamp of the last change made while hidden (the "since" of the revealed latest event); consecutive same-kind visible events hint that something happened while hidden.
-   - `score` judges predictions using hidden-period events (outcomes are visible only to the subject and in household aggregates).
-   - Rare race: a geofence insert concurrent with an off→on visibility change can be stamped hidden (fix: `for share` in the stamp trigger's membership read).
+3. **Security follow-ups** — the review (2026-11-24) was fixed in D66–D73. Left:
+   - Turn email confirmation back on and consider sign-up captcha (Supabase dashboard; finding 4). Free accounts make every per-user limit weaker.
+   - Invite codes don't expire (only rotation).
+   - A declined user can keep re-requesting; `join_attempts` and `ask_admissions` are never pruned (cron delete of rows older than a day).
+   - A removed member still reads the questions they asked and the replies.
+   - Household accuracy counts hint that hidden events existed (unscored rows).
+   - `supabase_admin` default privileges still grant anon EXECUTE on functions created via the dashboard/SQL editor.
+   - Rotate the database password (it was shared in a chat session).
 4. **ETAs** — opt-in, rough "~20 min" from occasional coarse location samples.
 5. **Calendar** — iPhone calendar read on device; only busy/free blocks sent to the server.
 6. **Home-screen widget** — who's home at a glance (Swift target).
