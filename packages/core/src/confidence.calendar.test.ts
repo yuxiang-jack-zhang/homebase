@@ -28,6 +28,12 @@ const away = [{ kind: 'exit', at: today(9) } as PresenceEvent];
 const calendarAway = { predictedState: 'away', confidence: 'medium', basis: 'calendar' } as const;
 
 describe('buildClaim with calendar away periods', () => {
+  it('during a trip (out for over a day) a short event\'s end is not a "back at" time', () => {
+    const onTrip = [{ kind: 'exit', at: iso(MIDNIGHT - 3 * DAY) } as PresenceEvent];
+    expect(buildClaim(until, ev(onTrip, [period(11.5, 12.5)]))).toMatchObject({ basis: 'none' });
+    expect(buildClaim(at(today(12, 15)), ev(onTrip, [period(11.5, 12.5)]))).toMatchObject(calendarAway); // away during it still holds
+  });
+
   it('future at_time inside a period -> away/medium/calendar', () =>
     expect(buildClaim(at(today(15)), ev(home, [period(14, 17)]))).toMatchObject({ kind: 'at_time', aboutTime: today(15), predictedTime: null, ...calendarAway }));
 

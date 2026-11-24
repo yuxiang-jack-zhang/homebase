@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Calendar from 'expo-calendar';
-import { AWAY_CALENDARS_KEY, syncCalendarAway, toPeriods } from './calendarAway';
+import { AWAY_CALENDARS_KEY, clearCalendarAway, loadAwayCalendars, saveAwayCalendars, syncCalendarAway, toPeriods } from './calendarAway';
 import { supabase } from './supabase';
 
 jest.mock('expo-calendar', () => ({
@@ -23,6 +23,15 @@ describe('toPeriods', () => {
     expect(toPeriods([{ ...timed(0, 24), allDay: true }, timed(2, 3)], NOW)).toEqual([{ start: t(2), end: t(3) }]);
   });
 
+  it('drops a multi-day event already under way instead of clipping it to a short period (a trip says nothing)', () => {
+    expect(toPeriods([timed(-48, 20), timed(30, 31)], NOW)).toEqual([{ start: t(30), end: t(31) }]);
+  });
+
+  it('skips events marked free and cancelled events', () => {
+    expect(toPeriods([{ ...timed(1, 2), availability: 'free' }, { ...timed(3, 4), status: 'canceled' }, { ...timed(5, 6), availability: 'busy' }], NOW))
+      .toEqual([{ start: t(5), end: t(6) }]);
+  });
+
   it('clips to the next 14 days and drops what falls outside', () => {
     expect(toPeriods([timed(-2, 1), timed(-5, -4), timed(14 * 24 - 1, 14 * 24 + 5), timed(15 * 24, 15 * 24 + 1)], NOW))
       .toEqual([{ start: t(0), end: t(1) }, { start: t(14 * 24 - 1), end: t(14 * 24) }]);
@@ -43,6 +52,24 @@ describe('toPeriods', () => {
     const out = toPeriods(many, NOW);
     expect(out).toHaveLength(200);
     expect(out[0]).toEqual({ start: t(0), end: t(0.5) });
+  });
+});
+
+describe('clearCalendarAway (sign-out)', () => {
+  beforeEach(async () => { await AsyncStorage.clear(); rpc.mockReset().mockResolvedValue({ error: null } as never); });
+
+  it("clears what was shared on the server and this device's choice", async () => {
+    await saveAwayCalendars(['work']);
+    await clearCalendarAway();
+    expect(rpc).toHaveBeenCalledWith('sync_calendar_away', { p_periods: [] });
+    expect(await loadAwayCalendars()).toBeNull();
+  });
+
+  it('still forgets the local choice when the server call fails', async () => {
+    await saveAwayCalendars(['work']);
+    rpc.mockResolvedValue({ error: { message: 'offline' } } as never);
+    await clearCalendarAway();
+    expect(await loadAwayCalendars()).toBeNull();
   });
 });
 

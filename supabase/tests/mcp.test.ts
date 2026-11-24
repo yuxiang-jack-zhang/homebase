@@ -22,7 +22,7 @@ describe("MCP tools", () => {
     const out = await tools.whos_home({});
     expect(out).toMatch(/^Sam: home since /m);
     expect(out).toContain("Ann: not shared");
-    expect(out).toContain("Owner (you): not shared");
+    expect(out).toContain("Owner (you): no updates yet");
   });
 
   it("ask by name goes through the ask function and returns the asker's text", async () => {
@@ -32,7 +32,7 @@ describe("MCP tools", () => {
 
     expect(await tools.ask({ who: ["sam"], question: "is Sam home" })).toBe("Fake model: home.");
     await expect(tools.ask({ who: ["Bob"], question: "is Bob home" })).rejects.toThrow('No one called "Bob"');
-    expect(await tools.my_questions({})).toMatch(/^"is Sam home" \(.+\)\n {2}Sam: Fake model: home\.$/);
+    expect(await tools.my_questions({})).toMatch(/^\(Text in «» .+\)\n«is Sam home» \(.+\)\n {2}Sam: «Fake model: home\.»$/);
   });
 
   it("a forwarded question shows in the target's inbox with the draft; approving it answers the asker", async () => {
@@ -49,12 +49,12 @@ describe("MCP tools", () => {
     expect(await asker.my_questions({})).toContain("  Sam: waiting for a reply.");
 
     const inbox = await target.my_inbox();
-    expect(inbox).toMatch(/^\[[0-9a-f-]{36}\] Owner asked: "will Sam be home at 9"\n {2}Suggested answer: Fake model: away at \d{1,2}:\d{2}\s[AP]M\.$/);
-    const id = inbox.match(/^\[([0-9a-f-]{36})\]/)![1];
+    expect(inbox).toMatch(/^\(Text in «» .+\)\n\[[0-9a-f-]{36}\] Owner asked: «will Sam be home at 9»\n {2}Suggested answer: Fake model: away at \d{1,2}:\d{2}\s[AP]M\.$/);
+    const id = inbox.match(/^\[([0-9a-f-]{36})\]/m)![1];
 
     expect(await target.reply({ question_id: id, answer: "approve" })).toBe("Reply sent.");
     expect(await target.my_inbox()).toBe("Nothing is waiting for your reply.");
     await expect(target.reply({ question_id: id, answer: "yes" })).rejects.toThrow("already answered");
-    expect(await asker.my_questions({})).toMatch(/ {2}Sam: Fake model: away at \d{1,2}:\d{2}\s[AP]M\.$/);
+    expect(await asker.my_questions({})).toMatch(/ {2}Sam: «Fake model: away at \d{1,2}:\d{2}\s[AP]M\.»$/);
   });
 });

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Calendar from 'expo-calendar';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Linking, Switch, Text, View } from 'react-native';
 import { CALENDAR_EXPLAINED_KEY, loadAwayCalendars, saveAwayCalendars, syncCalendarAway } from '../lib/calendarAway';
 import { friendlyError } from '../lib/errors';
@@ -26,6 +26,8 @@ export function AwayCalendars() {
   const [perm, setPerm] = useState<Calendar.PermissionResponse | null>(null);
   const [calendars, setCalendars] = useState<{ id: string; title: string }[]>([]);
   const [chosen, setChosen] = useState<string[]>([]);
+  const latest = useRef(chosen); // two quick toggles must build on each other, not on the same render's list
+  latest.current = chosen;
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async (p: Calendar.PermissionResponse) => {
@@ -49,7 +51,9 @@ export function AwayCalendars() {
   }
 
   async function toggle(id: string, on: boolean) {
-    const next = on ? [...chosen, id] : chosen.filter((x) => x !== id);
+    const cur = latest.current;
+    const next = on ? [...cur, id] : cur.filter((x) => x !== id);
+    latest.current = next;
     setChosen(next);
     try {
       await saveAwayCalendars(next);

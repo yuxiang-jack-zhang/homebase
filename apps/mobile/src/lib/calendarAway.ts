@@ -16,17 +16,19 @@ const WINDOW_MS = 14 * DAY;
 const MAX_PERIODS = 200, MIN_MS = MIN, MAX_MS = DAY;
 
 export type Period = { start: string; end: string };
-type CalEvent = Pick<Calendar.ExpoCalendarEvent, 'startDate' | 'endDate' | 'allDay'>;
+type CalEvent = Pick<Calendar.ExpoCalendarEvent, 'startDate' | 'endDate' | 'allDay'> & { availability?: string; status?: string };
 
 /**
- * Timed events -> away periods: all-day events skipped, clipped to [now, now + 14 days], overlapping or touching ones merged,
- * then anything under a minute or over 24 hours dropped (a multi-day timed event is a trip; its end would make a confident
- * but wrong "back at" time, so it says nothing), earliest 200 kept.
+ * Timed busy events -> away periods: all-day, free and cancelled events skipped; events over 24 hours (before clipping)
+ * dropped, since a multi-day event is a trip and its end would make a confident but wrong "back at" time; the rest clipped
+ * to [now, now + 14 days], overlapping or touching ones merged, anything under a minute or over 24 hours dropped, earliest
+ * 200 kept. shortcut: declined invites still count (EventKit gives no own-attendee status here).
  */
 export function toPeriods(events: CalEvent[], now: Date): Period[] {
   const lo = now.getTime(), hi = lo + WINDOW_MS;
   const spans = events
-    .filter((e) => !e.allDay)
+    .filter((e) => !e.allDay && e.availability !== 'free' && e.status !== 'canceled')
+    .filter((e) => new Date(e.endDate).getTime() - new Date(e.startDate).getTime() <= MAX_MS)
     .map((e) => [Math.max(new Date(e.startDate).getTime(), lo), Math.min(new Date(e.endDate).getTime(), hi)])
     .filter(([s, e]) => e > s)
     .sort((a, b) => a[0] - b[0]);
@@ -66,6 +68,13 @@ export async function syncCalendarAway(): Promise<void> {
   }
   const { error } = await supabase.rpc('sync_calendar_away', { p_periods: periods });
   if (error) throw error;
+}
+
+/** On sign-out: clears what was shared (best effort) and this device's choice, so nothing keeps answering for a signed-out user. */
+export async function clearCalendarAway(): Promise<void> {
+  const { error } = await supabase.rpc('sync_calendar_away', { p_periods: [] });
+  if (error) console.warn('[calendar] clear failed:', error.message);
+  await AsyncStorage.removeItem(AWAY_CALENDARS_KEY).catch(() => {});
 }
 
 /** Syncs now and on every return to the foreground. Returns the cleanup. */

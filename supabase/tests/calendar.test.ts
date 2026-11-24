@@ -8,10 +8,10 @@ const rowsOf = async (userId: string) =>
   ok(await admin.from("calendar_away").select("starts_at, ends_at").eq("user_id", userId).order("starts_at"));
 
 describe("calendar_away (0012)", () => {
-  it("sync_calendar_away replaces only the caller's future periods; past ones and other people's stay", async () => {
+  it("sync_calendar_away replaces all of the caller's periods (no history kept); other people's stay", async () => {
     const [ann, bob] = [await newUser("Ann"), await newUser("Bob")];
     ok(await admin.from("calendar_away").insert([
-      { user_id: ann.id, starts_at: fromNow(-3 * H), ends_at: fromNow(-2 * H) }, // ended: kept
+      { user_id: ann.id, starts_at: fromNow(-3 * H), ends_at: fromNow(-2 * H) }, // ended: removed too, never kept as history
       { user_id: ann.id, starts_at: fromNow(1 * H), ends_at: fromNow(2 * H) },   // future: replaced
       { user_id: bob.id, starts_at: fromNow(1 * H), ends_at: fromNow(2 * H) },   // someone else's
     ]));
@@ -19,13 +19,18 @@ describe("calendar_away (0012)", () => {
     ok(await ann.client.rpc("sync_calendar_away", { p_periods: [span(-0.5, 1), span(24, 32)] }));
 
     const rows = await rowsOf(ann.id);
-    expect(rows).toHaveLength(3);
-    expect(Date.parse(rows[0].ends_at)).toBeLessThan(Date.now());
-    expect(rows.slice(1).map((r) => Date.parse(r.ends_at) - Date.parse(r.starts_at))).toEqual([1.5 * H, 8 * H]);
+    expect(rows.map((r) => Date.parse(r.ends_at) - Date.parse(r.starts_at))).toEqual([1.5 * H, 8 * H]);
     expect(await rowsOf(bob.id)).toHaveLength(1);
 
-    ok(await ann.client.rpc("sync_calendar_away", { p_periods: [] })); // unselecting every calendar clears the future
-    expect(await rowsOf(ann.id)).toHaveLength(1);
+    ok(await ann.client.rpc("sync_calendar_away", { p_periods: [] })); // unselecting every calendar clears everything
+    expect(await rowsOf(ann.id)).toHaveLength(0);
+  });
+
+  it("a period that ends seconds after the call can't pile up rows across repeated syncs", async () => {
+    const ann = await newUser("Ann");
+    const soon = () => ({ start: fromNow(-2 * 60_000), end: fromNow(1_000) });
+    for (let i = 0; i < 3; i++) ok(await ann.client.rpc("sync_calendar_away", { p_periods: Array.from({ length: 50 }, soon) }));
+    expect((await rowsOf(ann.id)).length).toBeLessThanOrEqual(50);
   });
 
   it("rejects bad lists with invalid_periods and changes nothing", async () => {

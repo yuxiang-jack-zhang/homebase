@@ -29,8 +29,17 @@ const server = new McpServer({ name: "homebase", version: "0.1.0" });
 for (const [name, spec] of Object.entries(SPECS) as [keyof Tools, (typeof SPECS)[keyof Tools]][]) {
   // Thrown errors reach the model as isError tool results (McpServer does that).
   server.registerTool(name, spec, async (args: object) => {
-    const run = (await tools())[name] as (a: object) => Promise<string>;
-    return { content: [{ type: "text", text: await run(args) }] };
+    const run = async () => ((await tools())[name] as (a: object) => Promise<string>)(args);
+    let text: string;
+    try {
+      text = await run();
+    } catch (e) {
+      // A dead session (password changed, signed out elsewhere) shows up as an expired token or RLS denials: sign in once more.
+      if (!/session expired|permission denied|JWT/i.test((e as Error).message)) throw e;
+      session = undefined;
+      text = await run();
+    }
+    return { content: [{ type: "text", text }] };
   });
 }
 await server.connect(new StdioServerTransport());

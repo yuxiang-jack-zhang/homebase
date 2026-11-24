@@ -18,8 +18,8 @@ alter table public.calendar_away enable row level security;
 create policy "own calendar periods only" on public.calendar_away
   for select to authenticated using (user_id = auth.uid());
 
--- Replaces the caller's periods that haven't ended with p_periods: [{ "start": iso, "end": iso }, ...].
--- Past rows stay. One bare error code for any bad input, like the other RPCs.
+-- Replaces all of the caller's periods with p_periods: [{ "start": iso, "end": iso }, ...]. Nothing is kept once it ends
+-- (no busy-time history accumulates, and repeated syncs can't grow the table). One bare error code for any bad input.
 create function public.sync_calendar_away(p_periods jsonb) returns void
 language plpgsql security definer set search_path = '' as $$
 declare
@@ -49,7 +49,9 @@ begin
     raise exception 'invalid_periods';
   end if;
 
-  delete from public.calendar_away where user_id = v_user and ends_at > now();
+  -- Serialise this user's syncs (a foreground sync and a settings change can overlap), so one never keeps the other's rows.
+  perform pg_advisory_xact_lock(hashtextextended('sync_calendar_away:' || v_user::text, 0));
+  delete from public.calendar_away where user_id = v_user;
   insert into public.calendar_away (user_id, starts_at, ends_at)
   select v_user, (r->>'s')::timestamptz, (r->>'e')::timestamptz from jsonb_array_elements(v_rows) r
   where (r->>'e')::timestamptz > now(); -- one that ended in transit is dropped, not an error

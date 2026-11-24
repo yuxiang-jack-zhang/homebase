@@ -76,7 +76,8 @@ export function buildClaim(parsed: ParsedQuestion, ev: Evidence, options: Partia
     const base = { kind: 'until_when', aboutTime: null } as const;
     if (pNow === 'home') return { ...base, predictedState: 'home', predictedTime: now, confidence: 'high', basis: 'presence' };
     // Calendar: away inside an away event -> back when it ends, before habits and blocks.
-    const cal = pNow === 'away' ? periodCovering(ev.awayPeriods, now) : undefined;
+    // During a trip (out for over a day) an event's end isn't when they get home (D74's off-routine rule).
+    const cal = pNow === 'away' && !offRoutine ? periodCovering(ev.awayPeriods, now) : undefined;
     if (cal) return { ...base, predictedState: 'away', predictedTime: cal.end, confidence: 'medium', basis: 'calendar' };
 
     const block = pNow === 'away' ? blockCovering(blocks, now, timezone) : null;
