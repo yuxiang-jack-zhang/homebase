@@ -12,7 +12,7 @@ export interface Evidence { now: string; timezone: string; presence: PresenceEve
 export interface Claim {
   kind: 'now' | 'at_time' | 'until_when'; aboutTime: string | null;
   predictedState: 'home' | 'away' | null; predictedTime: string | null;
-  confidence: Confidence; basis: 'presence' | 'block' | 'block_contradicted' | 'recent_presence' | 'none';
+  confidence: Confidence; basis: 'presence' | 'block' | 'block_contradicted' | 'recent_presence' | 'pattern' | 'none';
 }
 export type Decision = { action: 'answer'; caveat: boolean } | { action: 'escalate' } | { action: 'unknown' };
 export type ReplyAction = 'approve' | 'yes' | 'no' | 'not_sure' | 'text';

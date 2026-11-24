@@ -19,7 +19,7 @@ function parts(ms: number, tz: string) {
   return { y: +p.year, mo: +p.month, d: +p.day, h: +p.hour, mi: +p.minute, weekend: p.weekday === 'Sat' || p.weekday === 'Sun' };
 }
 /** Minutes since local midnight. */
-const localMinutes = (ms: number, tz: string) => { const p = parts(ms, tz); return p.h * 60 + p.mi; };
+export const localMinutes = (ms: number, tz: string) => { const p = parts(ms, tz); return p.h * 60 + p.mi; };
 /** UTC ms of a local wall-clock time; the offset is read at the guess, then corrected once (enough outside the DST hour). */
 function wallToUtc(y: number, mo: number, d: number, h: number, mi: number, tz: string): number {
   const wall = Date.UTC(y, mo - 1, d, h, mi);
