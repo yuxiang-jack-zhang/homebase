@@ -8,6 +8,12 @@ test('maps known RPC codes', () => {
   expect(friendlyError({ message: 'invalid_location' })).toMatch(/location/i);
 });
 
+test('maps membership codes', () => {
+  expect(friendlyError({ message: 'rate_limited' })).toMatch(/too many/i);
+  expect(friendlyError({ message: 'cannot_remove_self' })).toMatch(/leave/i);
+  expect(friendlyError({ message: 'no_request' })).toMatch(/request/i);
+});
+
 test('falls back for unknown or missing errors', () => {
   expect(friendlyError({ message: 'boom' })).toBe('boom');
   expect(friendlyError(null)).toMatch(/something went wrong/i);

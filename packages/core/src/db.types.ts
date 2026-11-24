@@ -91,14 +91,14 @@ isOneToOne: false
                   ]
                 },"household_members": {
                   Row: {
-                    "answer_mode": Database["public"]['Enums']["answer_mode"],"home_confirmed_at": string | null,"household_id": string,"joined_at": string | null,"role": Database["public"]['Enums']["member_role"],"user_id": string,"visibility": boolean
+                    "answer_mode": Database["public"]['Enums']["answer_mode"],"home_confirmed_at": string | null,"household_id": string,"joined_at": string | null,"role": Database["public"]['Enums']["member_role"],"status": Database["public"]['Enums']["member_status"],"user_id": string,"visibility": boolean
                   }
                   ComputedFields: never
                   Insert: {
-                    "answer_mode"?: Database["public"]['Enums']["answer_mode"],"home_confirmed_at"?: string | null,"household_id": string,"joined_at"?: string | null,"role"?: Database["public"]['Enums']["member_role"],"user_id": string,"visibility"?: boolean
+                    "answer_mode"?: Database["public"]['Enums']["answer_mode"],"home_confirmed_at"?: string | null,"household_id": string,"joined_at"?: string | null,"role"?: Database["public"]['Enums']["member_role"],"status"?: Database["public"]['Enums']["member_status"],"user_id": string,"visibility"?: boolean
                   }
                   Update: {
-                    "answer_mode"?: Database["public"]['Enums']["answer_mode"],"home_confirmed_at"?: string | null,"household_id"?: string,"joined_at"?: string | null,"role"?: Database["public"]['Enums']["member_role"],"user_id"?: string,"visibility"?: boolean
+                    "answer_mode"?: Database["public"]['Enums']["answer_mode"],"home_confirmed_at"?: string | null,"household_id"?: string,"joined_at"?: string | null,"role"?: Database["public"]['Enums']["member_role"],"status"?: Database["public"]['Enums']["member_status"],"user_id"?: string,"visibility"?: boolean
                   }
                   Relationships: [
                     {
@@ -117,19 +117,39 @@ isOneToOne: false
                   ]
                 },"households": {
                   Row: {
-                    "created_at": string,"created_by": string,"home_lat": number,"home_lng": number,"home_radius_m": number,"id": string,"invite_code": string,"name": string,"timezone": string
+                    "created_at": string,"created_by": string | null,"home_lat": number,"home_lng": number,"home_radius_m": number,"id": string,"invite_code": string,"name": string,"timezone": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by": string,"home_lat": number,"home_lng": number,"home_radius_m"?: number,"id"?: string,"invite_code": string,"name": string,"timezone": string
+                    "created_at"?: string,"created_by"?: string | null,"home_lat": number,"home_lng": number,"home_radius_m"?: number,"id"?: string,"invite_code": string,"name": string,"timezone": string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string,"home_lat"?: number,"home_lng"?: number,"home_radius_m"?: number,"id"?: string,"invite_code"?: string,"name"?: string,"timezone"?: string
+                    "created_at"?: string,"created_by"?: string | null,"home_lat"?: number,"home_lng"?: number,"home_radius_m"?: number,"id"?: string,"invite_code"?: string,"name"?: string,"timezone"?: string
                   }
                   Relationships: [
                     {
       foreignKeyName: "households_created_by_fkey"
       columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"join_attempts": {
+                  Row: {
+                    "at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "join_attempts_user_id_fkey"
+      columns: ["user_id"]
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
@@ -287,11 +307,14 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "asked_question":
+            "approve_member":
+{ Args: { "p_household_id": string,"p_user_id": string }; Returns: undefined
+                           },
+"asked_question":
 { Args: { "p_question_id": string }; Returns: boolean
                            },
 "can_see_presence":
-{ Args: { "p_household_id": string,"p_user_id": string }; Returns: boolean
+{ Args: { "p_at": string,"p_household_id": string,"p_user_id": string }; Returns: boolean
                            },
 "confirm_home":
 { Args: { "p_household_id": string }; Returns: undefined
@@ -299,7 +322,7 @@ isOneToOne: false
 "create_household":
 { Args: { "p_lat": number,"p_lng": number,"p_name": string,"p_radius_m"?: number,"p_timezone": string }; Returns: {
               "created_at": string,
-"created_by": string,
+"created_by": string | null,
 "home_lat": number,
 "home_lng": number,
 "home_radius_m": number,
@@ -314,6 +337,12 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"decline_member":
+{ Args: { "p_household_id": string,"p_user_id": string }; Returns: undefined
+                           },
+"depart_household":
+{ Args: { "p_household_id": string,"p_user_id": string }; Returns: undefined
+                           },
 "household_accuracy":
 { Args: { "p_household_id": string }; Returns: {
               "correct": number,"incorrect": number,"kind": Database["public"]['Enums']["question_kind"],"unscored": number
@@ -322,26 +351,28 @@ isOneToOne: false
 "is_member":
 { Args: { "p_household_id": string }; Returns: boolean
                            },
+"is_owner":
+{ Args: { "p_household_id": string }; Returns: boolean
+                           },
 "join_household":
-{ Args: { "p_invite_code": string }; Returns: {
-              "created_at": string,
-"created_by": string,
-"home_lat": number,
-"home_lng": number,
-"home_radius_m": number,
-"id": string,
-"invite_code": string,
-"name": string,
-"timezone": string
-            }
-                          SetofOptions: {
-        from: "*"
-        to: "households"
-        isOneToOne: true
-        isSetofReturn: false
-      } },
+{ Args: { "p_invite_code": string }; Returns: Json
+                           },
+"leave_household":
+{ Args: { "p_household_id": string }; Returns: undefined
+                           },
+"my_pending_households":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "id": string,"name": string,"owner_name": string
+            }[]
+                           },
 "new_invite_code":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"remove_member":
+{ Args: { "p_household_id": string,"p_user_id": string }; Returns: undefined
+                           },
+"rotate_invite_code":
+{ Args: { "p_household_id": string }; Returns: string
                            },
 "shares_household":
 { Args: { "p_user_id": string }; Returns: boolean
@@ -357,7 +388,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "answer_mode": "ask_me"|"auto_when_confident"|"always_auto","confidence_level": "high"|"medium"|"low","feedback_kind": "approved"|"edited"|"rejected","member_role": "owner"|"member","outcome_kind": "correct"|"incorrect"|"unscored","presence_kind": "enter"|"exit","question_kind": "now"|"at_time"|"until_when"|"unclear","response_source": "agent"|"human","response_visibility": "draft"|"sent","target_status": "answered"|"awaiting_reply"|"replied"|"unknown"
+            "answer_mode": "ask_me"|"auto_when_confident"|"always_auto","confidence_level": "high"|"medium"|"low","feedback_kind": "approved"|"edited"|"rejected","member_role": "owner"|"member","member_status": "pending"|"active","outcome_kind": "correct"|"incorrect"|"unscored","presence_kind": "enter"|"exit","question_kind": "now"|"at_time"|"until_when"|"unclear","response_source": "agent"|"human","response_visibility": "draft"|"sent","target_status": "answered"|"awaiting_reply"|"replied"|"unknown"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -477,7 +508,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "answer_mode": ["ask_me", "auto_when_confident", "always_auto"],"confidence_level": ["high", "medium", "low"],"feedback_kind": ["approved", "edited", "rejected"],"member_role": ["owner", "member"],"outcome_kind": ["correct", "incorrect", "unscored"],"presence_kind": ["enter", "exit"],"question_kind": ["now", "at_time", "until_when", "unclear"],"response_source": ["agent", "human"],"response_visibility": ["draft", "sent"],"target_status": ["answered", "awaiting_reply", "replied", "unknown"]
+            "answer_mode": ["ask_me", "auto_when_confident", "always_auto"],"confidence_level": ["high", "medium", "low"],"feedback_kind": ["approved", "edited", "rejected"],"member_role": ["owner", "member"],"member_status": ["pending", "active"],"outcome_kind": ["correct", "incorrect", "unscored"],"presence_kind": ["enter", "exit"],"question_kind": ["now", "at_time", "until_when", "unclear"],"response_source": ["agent", "human"],"response_visibility": ["draft", "sent"],"target_status": ["answered", "awaiting_reply", "replied", "unknown"]
           }
         }
 } as const

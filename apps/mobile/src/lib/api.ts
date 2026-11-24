@@ -1,4 +1,4 @@
-import { AskResponse, ReplyResponse, type AskRequest, type ReplyRequest } from '@homebase/core/src/contracts';
+import { AskResponse, DeleteAccountResponse, ReplyResponse, type AskRequest, type ReplyRequest } from '@homebase/core/src/contracts';
 import { FunctionsFetchError, FunctionsHttpError } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 
@@ -9,7 +9,7 @@ export class ApiError extends Error {
   }
 }
 
-async function call<T>(fn: 'ask' | 'reply', body: Record<string, unknown>, schema: { parse: (v: unknown) => T }): Promise<T> {
+async function call<T>(fn: 'ask' | 'reply' | 'delete-account', body: Record<string, unknown>, schema: { parse: (v: unknown) => T }): Promise<T> {
   let { data, error } = await supabase.functions.invoke(fn, { body });
   // The request never got a response (e.g. iOS -1005 on a stale pooled connection): retry once (D61).
   if (error instanceof FunctionsFetchError) ({ data, error } = await supabase.functions.invoke(fn, { body }));
@@ -30,3 +30,4 @@ async function call<T>(fn: 'ask' | 'reply', body: Record<string, unknown>, schem
 
 export const ask = (req: AskRequest) => call('ask', req, AskResponse);
 export const reply = (req: ReplyRequest) => call('reply', req, ReplyResponse);
+export const deleteAccount = () => call('delete-account', {}, DeleteAccountResponse);

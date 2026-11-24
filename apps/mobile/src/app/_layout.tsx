@@ -16,8 +16,10 @@ const Spinner = () => (
 );
 
 function SignedInStack() {
-  const { loading, error, households, current, me, reload } = useHouseholds();
-  const state = gate({ signedIn: true, loading, error, households, current, confirmed: !!me?.home_confirmed_at });
+  const { loading, error, households, current, me, pending, reload } = useHouseholds();
+  const state = gate({
+    signedIn: true, loading, error, households, current, confirmed: !!me?.home_confirmed_at, pending: pending.length > 0,
+  });
   if (state === 'loading') return <Spinner />;
   if (state === 'error') {
     return (
@@ -35,6 +37,9 @@ function SignedInStack() {
       </Stack.Protected>
       <Stack.Protected guard={state === 'onboarding' || state === 'tabs'}>
         <Stack.Screen name="onboarding/household" />
+      </Stack.Protected>
+      <Stack.Protected guard={state === 'pending'}>
+        <Stack.Screen name="onboarding/pending" />
       </Stack.Protected>
       <Stack.Protected guard={state === 'confirm-home'}>
         <Stack.Screen name="onboarding/confirm-home" />
@@ -64,6 +69,7 @@ export default function Root() {
           <Stack.Protected guard={false} redirectTo="/sign-in">
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="onboarding/household" />
+            <Stack.Screen name="onboarding/pending" />
             <Stack.Screen name="onboarding/confirm-home" />
           </Stack.Protected>
         </Stack>

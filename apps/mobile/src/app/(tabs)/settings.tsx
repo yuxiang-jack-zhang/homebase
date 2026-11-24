@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, Share, Switch, Text } from 'react-native';
+import { ScrollView, Switch, Text } from 'react-native';
 import { AnswerModePicker } from '../../components/AnswerModePicker';
 import { AwayBlocks } from '../../components/AwayBlocks';
+import { DeleteAccount, HouseholdMembers } from '../../components/HouseholdMembers';
 import { MoveHome } from '../../components/MoveHome';
 import { Button, ErrorText, Row, ui } from '../../components/ui';
 import { useHouseholds, type Membership } from '../../hooks/useHouseholds';
@@ -12,7 +13,7 @@ import { supabase } from '../../lib/supabase';
 
 export default function Settings() {
   const router = useRouter();
-  const { current, me, members, refresh } = useHouseholds();
+  const { current, me, members, requests, refresh } = useHouseholds();
   const [error, setError] = useState<string | null>(null);
   if (!current || !me) return null;
 
@@ -30,12 +31,7 @@ export default function Settings() {
 
   return (
     <ScrollView style={ui.screen} contentContainerStyle={{ paddingBottom: 48 }}>
-      <Text style={ui.h2}>Household</Text>
-      <Text style={ui.hint}>Members: {members.map((m) => m.display_name).join(', ')}</Text>
-      <Row>
-        <Text selectable style={ui.optionTitle}>Invite code: {current.invite_code}</Text>
-        <Button title="Share" alt onPress={() => Share.share({ message: `Join ${current.name} on Homebase with code ${current.invite_code}` })} />
-      </Row>
+      <HouseholdMembers key={current.id} household={current} userId={me.user_id} members={members} requests={requests} onChanged={refresh} />
 
       <Text style={ui.h2}>Privacy</Text>
       <Row>
@@ -60,6 +56,7 @@ export default function Settings() {
       <Text style={ui.h2}>More</Text>
       <Button title="Create or join another household" alt onPress={() => router.push('/onboarding/household')} />
       <Button title="Sign out" alt onPress={signOut} />
+      <DeleteAccount />
     </ScrollView>
   );
 }
