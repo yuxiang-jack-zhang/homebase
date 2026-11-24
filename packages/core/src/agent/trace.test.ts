@@ -13,7 +13,7 @@ describe('tracedModel', () => {
     const calls: TracedCall[] = [];
     const m = tracedModel(fakeModel({ parse: { kind: 'now', aboutTime: null }, write: 'Sam is home.' }), (c) => calls.push(c));
     const parsed = await parseQuestion(m, 'is Sam home', NOW, 'UTC');
-    const r = await answerForTarget(m, { question: 'is Sam home', parsed, targetName: 'Sam', settings, evidence, householdWide: false });
+    const r = await answerForTarget(m, { parsed, targetName: 'Sam', settings, evidence, householdWide: false });
     expect(r.askerText).toBe('Sam is home.');
     expect(calls.map((c) => [c.step, c.ok, c.usage.model])).toEqual([['parse', true, 'fake'], ['answer', true, 'fake']]);
   });

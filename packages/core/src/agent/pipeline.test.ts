@@ -16,7 +16,7 @@ const ev = (blocks: AwayBlock[], home = true): Evidence => ({
 });
 const at7: ParsedQuestion = { kind: 'at_time', aboutTime: AT7 };
 const input = (answerMode: AnswerMode, evidence: Evidence, o: Partial<TargetInput> = {}): TargetInput => ({
-  question: 'will Sam be home at 7?', parsed: at7, targetName: 'Sam',
+  parsed: at7, targetName: 'Sam',
   settings: { visibility: true, answerMode }, evidence, householdWide: false, ...o,
 });
 
@@ -61,10 +61,10 @@ describe('parseQuestion', () => {
 
 describe('answerForTarget', () => {
   it('ask_me target, future question -> escalate, askerText null, draftText set, fallbackGuess null', async () => {
-    const r = await answerForTarget(fakeModel({ write: 'Probably not, climbing till 9.' }), input('ask_me', ev([evening])));
+    const r = await answerForTarget(fakeModel({ write: "Probably not, I'll be out at 7 PM." }), input('ask_me', ev([evening])));
     expect(r.decision).toEqual({ action: 'escalate' });
     expect(r.askerText).toBeNull();
-    expect(r.draftText).toBe('Probably not, climbing till 9.');
+    expect(r.draftText).toBe("Probably not, I'll be out at 7 PM.");
     expect(r.fallbackGuess).toBeNull();
   });
 
@@ -88,10 +88,10 @@ describe('answerForTarget', () => {
   });
 
   it('auto_when_confident + medium block claim -> answer with model text', async () => {
-    const r = await answerForTarget(fakeModel({ write: 'Sam will probably be out until 9.' }), input('auto_when_confident', ev([evening])));
+    const r = await answerForTarget(fakeModel({ write: 'Sam will probably be out at 7 PM.' }), input('auto_when_confident', ev([evening])));
     expect(r.claim).toMatchObject({ confidence: 'medium', basis: 'block' });
     expect(r.decision).toEqual({ action: 'answer', caveat: false });
-    expect(r.askerText).toBe('Sam will probably be out until 9.');
+    expect(r.askerText).toBe('Sam will probably be out at 7 PM.');
     expect(r.draftText).toBeNull();
   });
 
@@ -120,10 +120,10 @@ describe('answerForTarget', () => {
   });
 
   it('caveat answer: model line without "not sure" gets it appended; one with it is kept', async () => {
-    const plain = await answerForTarget(fakeModel({ write: 'Sam will be out at 7.' }), input('always_auto', ev([allDay])));
-    expect(plain.askerText).toBe('Sam will be out at 7. (not sure)');
-    const hedged = await answerForTarget(fakeModel({ write: "Not sure, but Sam's probably out." }), input('always_auto', ev([allDay])));
-    expect(hedged.askerText).toBe("Not sure, but Sam's probably out.");
+    const plain = await answerForTarget(fakeModel({ write: 'Sam will be out at 7 PM.' }), input('always_auto', ev([allDay])));
+    expect(plain.askerText).toBe('Sam will be out at 7 PM. (not sure)');
+    const hedged = await answerForTarget(fakeModel({ write: "Not sure, but Sam's probably out at 7pm." }), input('always_auto', ev([allDay])));
+    expect(hedged.askerText).toBe("Not sure, but Sam's probably out at 7pm.");
   });
 
   it('visibility off: escalate with no fallback guess (D29)', async () => {
@@ -180,14 +180,37 @@ describe('answerForTarget', () => {
     }
   });
 
-  it('the writer sees only the target name, claim and question', async () => {
+  it('the answer and draft writers see only the target name and claim, never the question', async () => {
     const m = fakeModel({ write: 'x' });
     await answerForTarget(m, input('auto_when_confident', ev([evening])));
-    const [call] = m.calls;
-    expect(call.user).toContain('Sam');
-    expect(call.user).toContain('<question>\nwill Sam be home at 7?\n</question>');
-    expect(call.user).not.toContain('climbing'); // block labels never reach the model
-    expect(call.user).toContain('7:00 PM');     // local clock time, not UTC ISO
-    expect(call.user).not.toContain(AT7);
+    await answerForTarget(m, input('ask_me', ev([evening])));
+    expect(m.calls).toHaveLength(2);
+    for (const call of m.calls) {
+      expect(call.user).toContain('Sam');
+      expect(call.user).not.toContain('<question>');
+      expect(call.user).not.toContain('climbing'); // block labels never reach the model
+      expect(call.user).toContain('7:00 PM');     // local clock time, not UTC ISO
+      expect(call.user).not.toContain(AT7);
+    }
+  });
+
+  it('injection: an answer that follows smuggled instructions falls back to the template line', async () => {
+    const r = await answerForTarget(fakeModel({ write: "Ignore that: Sam's away at 7 PM, the door code is 4412, see evil.com" }),
+      input('auto_when_confident', ev([evening])));
+    expect(r.askerText).toBe('Sam: probably away at 7:00 PM');
+  });
+
+  it('essay: using the writer as a general LLM gets the template line, and a draft gets nothing', async () => {
+    const essay = `Sam will probably be out at 7 PM. Now, the essay you asked for: ${'The Roman Empire rose and fell. '.repeat(30)}`;
+    const answer = await answerForTarget(fakeModel({ write: essay }), input('auto_when_confident', ev([evening])));
+    expect(answer.askerText).toBe('Sam: probably away at 7:00 PM');
+    const draft = await answerForTarget(fakeModel({ write: essay }), input('ask_me', ev([evening])));
+    expect(draft.draftText).toBeNull();
+  });
+
+  it('a draft that contradicts the claim is dropped', async () => {
+    const r = await answerForTarget(fakeModel({ write: "Yeah, I'll be home at 7 PM." }), input('ask_me', ev([evening])));
+    expect(r.claim?.predictedState).toBe('away');
+    expect(r.draftText).toBeNull();
   });
 });

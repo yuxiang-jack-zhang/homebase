@@ -49,7 +49,7 @@ export async function simulate(opts: SimOptions, deps: { model: ModelClient | nu
       const m = tracedModel(deps.model, (c) => calls.push(c));
       parsed = await parseQuestion(m, q.text, now, TIMEZONE);
       const r = await answerForTarget(m, {
-        question: q.text, parsed, targetName: persona.name, settings: { visibility: true, answerMode: opts.mode }, evidence, householdWide: false,
+        parsed, targetName: persona.name, settings: { visibility: true, answerMode: opts.mode }, evidence, householdWide: false,
       });
       claim = r.claim;
       askerText = r.askerText;

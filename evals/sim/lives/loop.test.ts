@@ -30,7 +30,7 @@ function world(reply: unknown) {
   });
   return { llm, seen };
 }
-const agent = () => fakeModel({ parse: { kind: 'at_time', aboutTime: iso(localMs(0, 15 * 60)) }, write: 'Bo will be away.' });
+const agent = () => fakeModel({ parse: { kind: 'at_time', aboutTime: iso(localMs(0, 15 * 60)) }, write: 'Bo will be away at 3 PM.' });
 const opts = (mode: LivesOptions['mode']): LivesOptions => ({ days: 1, warmup: 0, seed: 1, size: 5, mode, noise: false, simModel: 'sim', model: 'agent' });
 const COMEBACK = { reply: 'text', text: 'I can be back by 2:45', change: { backBy: '14:45', outings: [] } };
 
@@ -49,7 +49,7 @@ describe('runLives', () => {
     const { llm, seen } = world(COMEBACK);
     const r = await runLives(opts('always_auto'), { sim: llm, agent: agent() });
     expect(seen).not.toContain('reply');
-    expect(r.questions[0]).toMatchObject({ decision: 'answer', outcome: 'answered_correct', askerText: 'Bo will be away.' });
+    expect(r.questions[0]).toMatchObject({ decision: 'answer', outcome: 'answered_correct', askerText: 'Bo will be away at 3 PM.' });
     expect(r.needs[0]).toMatchObject({ met: false, coveredBy: [], byChange: false });
   });
 

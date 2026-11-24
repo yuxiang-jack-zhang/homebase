@@ -5,6 +5,7 @@ import type { Claim, Decision, Evidence, MemberSettings, ParsedQuestion } from '
 import type { ModelClient, ModelUsage } from './model.ts';
 import { ANSWER_SYSTEM, DRAFT_SYSTEM, PARSE_SYSTEM, answerUser, draftUser, parseUser } from './prompts.ts';
 import { templateAnswer } from './template.ts';
+import { acceptWriterText } from './writer.ts';
 
 const parseSchema = z.object({ kind: z.enum(['now', 'at_time', 'until_when', 'unclear']), aboutTime: z.string().nullable() });
 const ISO_WITH_OFFSET = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
@@ -20,7 +21,7 @@ export async function parseQuestion(m: ModelClient, text: string, now: string, t
   return aboutTime === null ? UNCLEAR : { kind, aboutTime: new Date(aboutTime).toISOString() };
 }
 
-export interface TargetInput { question: string; parsed: ParsedQuestion; targetName: string; settings: MemberSettings; evidence: Evidence; householdWide: boolean }
+export interface TargetInput { parsed: ParsedQuestion; targetName: string; settings: MemberSettings; evidence: Evidence; householdWide: boolean }
 export interface TargetResult {
   decision: Decision; claim: Claim | null;
   askerText: string | null;      // non-null only when decision.action === 'answer'
@@ -30,7 +31,7 @@ export interface TargetResult {
 }
 
 export async function answerForTarget(m: ModelClient, input: TargetInput): Promise<TargetResult> {
-  const { question, parsed, targetName, settings, evidence, householdWide } = input;
+  const { parsed, targetName, settings, evidence, householdWide } = input;
   const tz = evidence.timezone;
   const claim = buildClaim(parsed, evidence);
   const decision = decide({ claim, settings, householdWide, now: evidence.now });
@@ -39,15 +40,16 @@ export async function answerForTarget(m: ModelClient, input: TargetInput): Promi
   let draftText: string | null = null;
 
   // Guardrail (D6): asker-facing text exists only for an `answer` decision; nothing the model writes elsewhere reaches the asker.
+  // Writer text is used only if it states the claim and nothing else (acceptWriterText), so the key can't be used as a general LLM.
   if (decision.action === 'answer' && claim) {
-    const r = await m.write({ system: ANSWER_SYSTEM, user: answerUser(question, targetName, claim, decision.caveat, tz) });
+    const r = await m.write({ system: ANSWER_SYSTEM, user: answerUser(targetName, claim, decision.caveat, tz) });
     usage.push(r.usage);
-    askerText = r.text || templateAnswer(targetName, claim, decision.caveat, tz);
+    askerText = acceptWriterText(r.text, claim, tz) ?? templateAnswer(targetName, claim, decision.caveat, tz);
     if (decision.caveat && !/not sure/i.test(askerText)) askerText += ' (not sure)'; // the caveat is policy, not left to the model
   } else if (decision.action === 'escalate' && claim && (claim.predictedState !== null || claim.predictedTime !== null)) {
-    const r = await m.write({ system: DRAFT_SYSTEM, user: draftUser(question, targetName, claim, tz) });
+    const r = await m.write({ system: DRAFT_SYSTEM, user: draftUser(targetName, claim, tz) });
     usage.push(r.usage);
-    draftText = r.text || null;
+    draftText = acceptWriterText(r.text, claim, tz);
   }
 
   return {
