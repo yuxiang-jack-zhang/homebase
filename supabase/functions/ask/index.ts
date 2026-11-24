@@ -19,6 +19,7 @@ serve(async (req) => {
   const household = await data.membership(householdId, me);
   if (!household) return fail(403, 'not_member');
 
+  const askerJoinedAt = household.members.find((m) => m.userId === me)?.joinedAt ?? undefined;
   const others = household.members.filter((m) => m.userId !== me);
   let targets = others;
   if (target !== 'everyone') {
@@ -67,7 +68,8 @@ serve(async (req) => {
 
     // shortcut: writes are not one transaction, so a mid-way failure leaves a partial question; move into an RPC if that shows up.
     const results = await Promise.all(targets.map(async (t) => {
-      const evidence = await data.evidence(householdId, t.userId, now);
+      // Only presence from after the asker joined (RLS shows them the same), so answers can't reveal older routines.
+      const evidence = await data.evidence(householdId, t.userId, now, askerJoinedAt);
       const r = await answerForTarget(traced(t.userId), {
         parsed, targetName: t.name, settings: t.settings, evidence, householdWide: target === 'everyone',
       });

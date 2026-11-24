@@ -66,6 +66,23 @@ describe("supabaseHouseholdData", () => {
     expect((await data.evidence(household.id, sam.id, NOW)).presence).toEqual([{ kind: "enter", at: daysAgo(30) }]);
   });
 
+  it("evidence() with visibleFrom drops everything before it, including the state going in (pre-join history)", async () => {
+    const { household, members: [sam] } = await makeHousehold(["Sam"]);
+    ok(await admin.from("presence_events").insert([
+      { household_id: household.id, user_id: sam.id, kind: "exit", at: daysAgo(30) },
+      { household_id: household.id, user_id: sam.id, kind: "enter", at: daysAgo(5) },
+      { household_id: household.id, user_id: sam.id, kind: "exit", at: daysAgo(1) },
+    ]));
+    expect((await data.evidence(household.id, sam.id, NOW, daysAgo(3))).presence).toEqual([{ kind: "exit", at: daysAgo(1) }]);
+    expect((await data.evidence(household.id, sam.id, NOW, daysAgo(0.5))).presence).toEqual([]);
+  });
+
+  it("membership() reports each member's joinedAt", async () => {
+    const { household, owner } = await makeHousehold();
+    const m = await data.membership(household.id, owner.id);
+    expect(typeof m?.members[0].joinedAt).toBe("string");
+  });
+
   it("membership() maps names and settings, and returns null for a non-member or unknown household", async () => {
     const { household, owner, members: [sam] } = await makeHousehold(["Sam"]);
     ok(await sam.client.rpc("update_my_settings", { p_household_id: household.id, p_visibility: false, p_answer_mode: "always_auto" }));
@@ -74,8 +91,8 @@ describe("supabaseHouseholdData", () => {
     const m = await data.membership(household.id, sam.id);
     expect(m?.timezone).toBe("America/Los_Angeles");
     expect(m?.members.sort((x, y) => x.name.localeCompare(y.name))).toEqual([
-      { userId: owner.id, name: "Owner", settings: { visibility: true, answerMode: "ask_me" } },
-      { userId: sam.id, name: "Sam", settings: { visibility: false, answerMode: "always_auto" } },
+      { userId: owner.id, name: "Owner", settings: { visibility: true, answerMode: "ask_me" }, joinedAt: expect.any(String) },
+      { userId: sam.id, name: "Sam", settings: { visibility: false, answerMode: "always_auto" }, joinedAt: expect.any(String) },
     ]);
     expect(await data.membership(household.id, outsider.id)).toBeNull();
     expect(await data.membership(crypto.randomUUID(), sam.id)).toBeNull();

@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './db.types.ts';
 import type { Evidence, MemberSettings } from './types.ts';
 
-export interface Membership { timezone: string; members: { userId: string; name: string; settings: MemberSettings }[] }
+export interface Membership { timezone: string; members: { userId: string; name: string; settings: MemberSettings; joinedAt: string | null }[] }
 
 export interface HouseholdData {
   /** null = the user is not a member (or the household does not exist). */
@@ -10,8 +10,9 @@ export interface HouseholdData {
   /**
    * That household's presence for the user over the last 14 days plus the latest event before (the state going in),
    * keeping only events after the last one recorded while hidden (so a hidden window reads as unknown), and their blocks there.
+   * `visibleFrom` (the asker's join time) drops everything earlier, so answers can't reveal presence the asker can't see.
    */
-  evidence(householdId: string, userId: string, now: string): Promise<Evidence>;
+  evidence(householdId: string, userId: string, now: string, visibleFrom?: string): Promise<Evidence>;
 }
 
 const DAY = 86_400_000;
@@ -27,7 +28,7 @@ export function supabaseHouseholdData(admin: SupabaseClient<Database>): Househol
   return {
     async membership(householdId, userId) {
       const { data: h, error } = await admin.from('households')
-        .select('timezone, household_members(user_id, visibility, answer_mode, profiles(display_name))')
+        .select('timezone, household_members(user_id, visibility, answer_mode, joined_at, profiles(display_name))')
         .eq('id', householdId).eq('household_members.status', 'active').maybeSingle(); // pending requests aren't members
       if (error) throw error;
       if (!h || !h.household_members.some((m) => m.user_id === userId)) return null;
@@ -35,14 +36,17 @@ export function supabaseHouseholdData(admin: SupabaseClient<Database>): Househol
         timezone: h.timezone,
         members: h.household_members.map((m) => ({
           userId: m.user_id, name: m.profiles.display_name,
-          settings: { visibility: m.visibility, answerMode: m.answer_mode },
+          settings: { visibility: m.visibility, answerMode: m.answer_mode }, joinedAt: m.joined_at,
         })),
       };
     },
 
-    async evidence(householdId, userId, now) {
+    async evidence(householdId, userId, now, visibleFrom) {
       const since = new Date(Date.parse(now) - 14 * DAY).toISOString();
-      const events = () => admin.from('presence_events').select('kind, at, visible').eq('household_id', householdId).eq('user_id', userId);
+      const events = () => {
+        const q = admin.from('presence_events').select('kind, at, visible').eq('household_id', householdId).eq('user_id', userId);
+        return visibleFrom ? q.gte('at', visibleFrom) : q;
+      };
       const [h, before, recent, blocks] = await Promise.all([
         admin.from('households').select('timezone').eq('id', householdId).single(),
         events().lt('at', since).order('at', { ascending: false }).order('id', { ascending: false }).limit(1),

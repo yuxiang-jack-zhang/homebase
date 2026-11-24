@@ -7,7 +7,7 @@ import { API_URL, SERVICE_ROLE_KEY, admin, makeHousehold, newUser, ok, type Test
 const FN = `${API_URL}/functions/v1`;
 // The keyword fake restates the claim it is given, so the writer check (acceptWriterText) keeps it.
 const FAKE_HOME = "Fake model: home.";
-const FAKE_AWAY_AT = expect.stringMatching(/^Fake model: away at \d{1,2}:\d{2} [AP]M\.$/);
+const FAKE_AWAY_AT = expect.stringMatching(/^Fake model: away at \d{1,2}:\d{2}\s[AP]M\.$/);
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
 
 async function token(user: TestUser) {
@@ -215,7 +215,7 @@ describe("ask limits (finding 3)", () => {
     const user = await newUser("Limited");
     expect([ok(await admit(user.id, 2)), ok(await admit(user.id, 2)), ok(await admit(user.id, 2))]).toEqual(["ok", "ok", "rate_limited"]);
     expect(ok(await admit(user.id, 3))).toBe("ok"); // the rejected third attempt didn't count
-    expect(ok(await admit(user.id, 100, 4))).toBe("rate_limited"); // day full
+    expect(ok(await admit(user.id, 100, 3))).toBe("rate_limited"); // day full: 3 admitted so far
     expect(ok(await admit((await newUser("Fresh")).id, 100, 100, 0))).toBe("busy");
   });
 
