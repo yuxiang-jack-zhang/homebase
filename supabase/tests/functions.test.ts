@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
+import { ASK_LIMITS } from "../../packages/core/src/contracts.ts";
 import { isLocalUrl, modelFromEnv } from "../functions/_shared/model.ts";
 import { API_URL, SERVICE_ROLE_KEY, admin, makeHousehold, newUser, ok, type TestUser } from "./helpers.ts";
 
@@ -202,6 +203,43 @@ describe("ask", () => {
     expect((await ask(owner, "not json")).status).toBe(400);
     expect((await call("ask", await token(owner), undefined, "GET")).status).toBe(405);
     expect((await call("ask", null, { householdId: household.id, target: "everyone", text: "hi" })).status).toBe(401);
+  });
+});
+
+describe("ask limits (finding 3)", () => {
+  const admit = (userId: string, perHour: number, perDay = 1_000, globalPerDay = 1_000_000) =>
+    admin.rpc("admit_ask", { p_user_id: userId, p_per_hour: perHour, p_per_day: perDay, p_global_per_day: globalPerDay });
+
+  it("admit_ask: ok until the hour or day is full; rejected attempts are not recorded; busy past the global cap", async () => {
+    const user = await newUser("Limited");
+    expect([ok(await admit(user.id, 2)), ok(await admit(user.id, 2)), ok(await admit(user.id, 2))]).toEqual(["ok", "ok", "rate_limited"]);
+    expect(ok(await admit(user.id, 3))).toBe("ok"); // the rejected third attempt didn't count
+    expect(ok(await admit(user.id, 100, 4))).toBe("rate_limited"); // day full
+    expect(ok(await admit((await newUser("Fresh")).id, 100, 100, 0))).toBe("busy");
+  });
+
+  it("admit_ask: parallel calls can't overshoot the per-user limit", async () => {
+    const user = await newUser("Burst");
+    const verdicts = await Promise.all(Array.from({ length: 10 }, async () => ok(await admit(user.id, 3))));
+    expect(verdicts.filter((v) => v === "ok")).toHaveLength(3);
+  });
+
+  it("admit_ask: users can't call it (they could use up someone else's quota)", async () => {
+    const user = await newUser("Sneaky");
+    const res = await user.client.rpc("admit_ask", { p_user_id: user.id, p_per_hour: 1, p_per_day: 1, p_global_per_day: 1 });
+    expect(res.error?.code).toBe("42501");
+  });
+
+  it(`ask: once the asker's hour is full (${ASK_LIMITS.perHour}) -> 429 rate_limited before any model call or write`, async () => {
+    const { household, owner, members: [sam] } = await makeHousehold(["Sam"]);
+    for (let i = 0; i < ASK_LIMITS.perHour; i++) expect(ok(await admit(owner.id, ASK_LIMITS.perHour))).toBe("ok");
+
+    const r = await ask(owner, { householdId: household.id, target: { userIds: [sam.id] }, text: "is Sam home" });
+
+    expect(r).toEqual({ status: 429, body: { error: "rate_limited" } });
+    expect(ok(await admin.from("questions").select().eq("household_id", household.id))).toEqual([]);
+    // Sam's own quota is separate.
+    expect((await ask(sam, { householdId: household.id, target: { userIds: [owner.id] }, text: "is Owner home" })).status).toBe(200);
   });
 });
 

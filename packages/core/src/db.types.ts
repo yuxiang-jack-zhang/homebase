@@ -287,7 +287,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "asked_question":
+            "admit_ask":
+{ Args: { "p_global_per_day": number,"p_per_day": number,"p_per_hour": number,"p_user_id": string }; Returns: string
+                           },
+"asked_question":
 { Args: { "p_question_id": string }; Returns: boolean
                            },
 "can_see_presence":

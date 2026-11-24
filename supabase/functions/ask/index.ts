@@ -1,4 +1,4 @@
-import { AskRequest, type AskResponse, answerForTarget, parseQuestion, tracedModel } from '../../../packages/core/src/index.ts';
+import { ASK_LIMITS, AskRequest, type AskResponse, answerForTarget, parseQuestion, tracedModel } from '../../../packages/core/src/index.ts';
 import { supabaseHouseholdData } from '../../../packages/core/src/data.ts';
 import { adminClient, callerId, fail, json, readJson, serve } from '../_shared/http.ts';
 import { modelFromEnv } from '../_shared/model.ts';
@@ -28,6 +28,19 @@ serve(async (req) => {
     if (targets.length !== ids.length) return fail(400, 'target_not_member');
   }
   if (targets.length === 0) return fail(400, 'no_targets');
+  if (targets.length > ASK_LIMITS.maxTargets) return fail(400, 'too_many_targets'); // one writer call per target
+
+  // Before any model call: the asker's rolling hour/day and the global breaker (security finding 3).
+  const { data: admit, error: admitError } = await admin.rpc('admit_ask', {
+    p_user_id: me, p_per_hour: ASK_LIMITS.perHour, p_per_day: ASK_LIMITS.perDay, p_global_per_day: ASK_LIMITS.globalPerDay,
+  });
+  if (admitError) throw admitError;
+  if (admit === 'rate_limited') return fail(429, 'rate_limited');
+  if (admit === 'busy') {
+    console.error('ask circuit breaker open: global daily limit reached'); // the owner should look; nobody is answered
+    return fail(503, 'busy');
+  }
+  if (admit !== 'ok') throw new Error('admit_ask returned an unexpected verdict'); // fail closed
 
   const tz = household.timezone;
   // Everything from here reaches the model, so it is traced (D62), including runs that fail part-way.
@@ -56,7 +69,7 @@ serve(async (req) => {
     const results = await Promise.all(targets.map(async (t) => {
       const evidence = await data.evidence(householdId, t.userId, now);
       const r = await answerForTarget(traced(t.userId), {
-        question: text, parsed, targetName: t.name, settings: t.settings, evidence, householdWide: target === 'everyone',
+        parsed, targetName: t.name, settings: t.settings, evidence, householdWide: target === 'everyone',
       });
       const status = STATUS[r.decision.action];
       const qt = must(await admin.from('question_targets')
