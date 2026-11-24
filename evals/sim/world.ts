@@ -1,3 +1,4 @@
+import { EVIDENCE_DAYS } from '../../packages/core/src/patterns.ts';
 import type { PresenceEvent } from '../../packages/core/src/types.ts';
 import { chance, uniform } from './random.ts';
 
@@ -38,9 +39,9 @@ export function geofenceEvents(timeline: Interval[], r: () => number, noise: boo
   return out.sort((a, b) => a.ms - b.ms).map((e) => ({ kind: e.kind, at: iso(e.ms) }));
 }
 
-/** The presence `ask` would read at `nowMs`: the last 14 days plus the latest event before them (data.ts evidence()). */
+/** The presence `ask` would read at `nowMs`: the last EVIDENCE_DAYS plus the latest event before them (data.ts evidence()). */
 export function evidenceAt(events: PresenceEvent[], nowMs: number): PresenceEvent[] {
-  const since = nowMs - 14 * DAY;
+  const since = nowMs - EVIDENCE_DAYS * DAY;
   const past = events.filter((e) => Date.parse(e.at) <= nowMs);
   const before = past.filter((e) => Date.parse(e.at) < since).slice(-1);
   return [...before, ...past.filter((e) => Date.parse(e.at) >= since)];

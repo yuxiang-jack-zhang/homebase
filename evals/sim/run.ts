@@ -7,7 +7,8 @@ import { anthropicModel, DEFAULT_MODEL } from '../../packages/core/src/agent/ant
 import type { ModelClient } from '../../packages/core/src/agent/model.ts';
 import { answerForTarget, parseQuestion } from '../../packages/core/src/agent/pipeline.ts';
 import { tracedModel, type TracedCall } from '../../packages/core/src/agent/trace.ts';
-import { buildClaim } from '../../packages/core/src/confidence.ts';
+import { buildClaim, PATTERN_DEFAULTS, type PatternOptions } from '../../packages/core/src/confidence.ts';
+import { EVIDENCE_DAYS } from '../../packages/core/src/patterns.ts';
 import type { AnswerMode, Claim, ParsedQuestion } from '../../packages/core/src/types.ts';
 import { gradeAllModes, MODES, parseCorrect, type ModeGrade } from './grade.ts';
 import { PERSONAS, type PersonaId } from './personas.ts';
@@ -16,7 +17,7 @@ import { rng } from './random.ts';
 import { simMarkdown, summarizeSim } from './report.ts';
 import { evidenceAt, geofenceEvents, iso, TIMEZONE } from './world.ts';
 
-export interface SimOptions { days: number; seed: number; perDay: number; mode: AnswerMode; noise: boolean; llm: boolean; model: string; generator: string }
+export interface SimOptions extends PatternOptions { days: number; seed: number; perDay: number; mode: AnswerMode; noise: boolean; llm: boolean; model: string; generator: string }
 export interface SimRow {
   id: string; persona: PersonaId; kind: IntentKind; text: string; style: string; error?: string;
   intent: { kind: IntentKind; aboutTime: string | null };
@@ -26,7 +27,7 @@ export interface SimRow {
 }
 export interface SimResult { options: SimOptions; rows: SimRow[] }
 
-const WARMUP_DAYS = 14;
+const WARMUP_DAYS = EVIDENCE_DAYS; // the agent sees as much history as ask reads in production
 
 /** Builds the world from the seed, answers every question, grades it. `model: null` = code mode (oracle parse, template text). */
 export async function simulate(opts: SimOptions, deps: { model: ModelClient | null; questions?: SimQuestion[]; concurrency?: number }): Promise<SimResult> {
@@ -55,7 +56,8 @@ export async function simulate(opts: SimOptions, deps: { model: ModelClient | nu
       askerText = r.askerText;
     } else {
       parsed = intent;
-      claim = buildClaim(parsed, evidence);
+      const { matcher, nMin, pMin, spreadMax } = opts;
+      claim = buildClaim(parsed, evidence, { matcher, nMin, pMin, spreadMax });
     }
     return {
       id: q.id, persona: q.targetId, kind: q.intent.kind, text: q.text, style: q.style, ...(q.error ? { error: q.error } : {}),
@@ -79,12 +81,12 @@ const positiveInt = (flag: string, v: string) => {
 };
 
 export function parseSimArgs(args: string[]): SimOptions {
-  const o: SimOptions = { days: 14, seed: 1, perDay: 3, mode: 'auto_when_confident', noise: true, llm: false, model: DEFAULT_MODEL, generator: 'claude-sonnet-5-5' };
+  const o: SimOptions = { days: 14, seed: 1, perDay: 3, mode: 'auto_when_confident', noise: true, llm: false, model: DEFAULT_MODEL, generator: 'claude-sonnet-5-5', ...PATTERN_DEFAULTS };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === '--no-noise') { o.noise = false; continue; }
     if (a === '--llm') { o.llm = true; continue; }
-    if (!['--days', '--seed', '--per-day', '--mode', '--model', '--generator'].includes(a)) throw new Error(`unknown argument ${a}`);
+    if (!['--days', '--seed', '--per-day', '--mode', '--model', '--generator', '--patterns', '--n-min', '--p-min', '--spread-max'].includes(a)) throw new Error(`unknown argument ${a}`);
     const v = args[++i];
     if (v === undefined || v.startsWith('--')) throw new Error(`${a} needs a value`);
     if (a === '--days') o.days = positiveInt(a, v);
@@ -93,7 +95,15 @@ export function parseSimArgs(args: string[]): SimOptions {
     else if (a === '--mode') {
       if (!MODES.includes(v as AnswerMode)) throw new Error(`--mode must be one of ${MODES.join(', ')}`);
       o.mode = v as AnswerMode;
-    } else if (a === '--model') o.model = v;
+    } else if (a === '--patterns') {
+      if (!['off', 'weekday', 'daytype'].includes(v)) throw new Error('--patterns must be off, weekday or daytype');
+      o.matcher = v as SimOptions['matcher'];
+    } else if (a === '--n-min') o.nMin = positiveInt(a, v);
+    else if (a === '--p-min') {
+      o.pMin = Number(v);
+      if (!(o.pMin > 0.5 && o.pMin <= 1)) throw new Error('--p-min must be in (0.5, 1]');
+    } else if (a === '--spread-max') o.spreadMax = positiveInt(a, v);
+    else if (a === '--model') o.model = v;
     else o.generator = v;
   }
   return o;

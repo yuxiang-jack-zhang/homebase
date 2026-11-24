@@ -1,0 +1,2202 @@
+{
+  "seeds": [
+    2,
+    3,
+    4
+  ],
+  "days": 14,
+  "baseline": {
+    "correct": 0.6216931216931216,
+    "wrongConfident": 0.03968253968253968,
+    "asked": 0.3386243386243386
+  },
+  "best": {
+    "matcher": "weekday",
+    "nMin": 6,
+    "pMin": 0.9,
+    "spreadMax": 90,
+    "correct": 0.8029100529100529,
+    "wrongConfident": 0.037037037037037035,
+    "asked": 0.16005291005291003
+  },
+  "bestWeekday": {
+    "matcher": "weekday",
+    "nMin": 6,
+    "pMin": 0.9,
+    "spreadMax": 90,
+    "correct": 0.8029100529100529,
+    "wrongConfident": 0.037037037037037035,
+    "asked": 0.16005291005291003
+  },
+  "bestDaytype": {
+    "matcher": "daytype",
+    "nMin": 6,
+    "pMin": 0.9,
+    "spreadMax": 20,
+    "correct": 0.7777777777777778,
+    "wrongConfident": 0.03968253968253968,
+    "asked": 0.18253968253968256
+  },
+  "rows": [
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.7,
+      "spreadMax": 20,
+      "correct": 0.8756613756613757,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07539682539682539
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.7,
+      "spreadMax": 30,
+      "correct": 0.876984126984127,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.07275132275132275
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.7,
+      "spreadMax": 45,
+      "correct": 0.8783068783068783,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.07142857142857144
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.7,
+      "spreadMax": 60,
+      "correct": 0.8783068783068783,
+      "wrongConfident": 0.05291005291005291,
+      "asked": 0.06878306878306878
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.7,
+      "spreadMax": 90,
+      "correct": 0.8809523809523809,
+      "wrongConfident": 0.05423280423280422,
+      "asked": 0.06481481481481481
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.75,
+      "spreadMax": 20,
+      "correct": 0.8743386243386243,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07671957671957672
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.75,
+      "spreadMax": 30,
+      "correct": 0.8756613756613757,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.07407407407407407
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.75,
+      "spreadMax": 45,
+      "correct": 0.876984126984127,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.07275132275132275
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.75,
+      "spreadMax": 60,
+      "correct": 0.876984126984127,
+      "wrongConfident": 0.05291005291005291,
+      "asked": 0.0701058201058201
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.75,
+      "spreadMax": 90,
+      "correct": 0.8796296296296297,
+      "wrongConfident": 0.05423280423280422,
+      "asked": 0.06613756613756613
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.8,
+      "spreadMax": 20,
+      "correct": 0.8571428571428571,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.09920634920634919
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.8,
+      "spreadMax": 30,
+      "correct": 0.8584656084656085,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.8,
+      "spreadMax": 45,
+      "correct": 0.8597883597883599,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.09523809523809523
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.8,
+      "spreadMax": 60,
+      "correct": 0.8597883597883599,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.09259259259259257
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.8,
+      "spreadMax": 90,
+      "correct": 0.8624338624338624,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.08862433862433862
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.85,
+      "spreadMax": 20,
+      "correct": 0.8571428571428571,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.09920634920634919
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.85,
+      "spreadMax": 30,
+      "correct": 0.8584656084656085,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.85,
+      "spreadMax": 45,
+      "correct": 0.8597883597883599,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.09523809523809523
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.85,
+      "spreadMax": 60,
+      "correct": 0.8597883597883599,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.09259259259259257
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.85,
+      "spreadMax": 90,
+      "correct": 0.8624338624338624,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.08862433862433862
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.9,
+      "spreadMax": 20,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.16137566137566137
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.9,
+      "spreadMax": 30,
+      "correct": 0.8015873015873015,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.15873015873015872
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.9,
+      "spreadMax": 45,
+      "correct": 0.8029100529100529,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.1574074074074074
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.9,
+      "spreadMax": 60,
+      "correct": 0.8029100529100529,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.15476190476190477
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.9,
+      "spreadMax": 90,
+      "correct": 0.8055555555555555,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.15079365079365079
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.95,
+      "spreadMax": 20,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.16137566137566137
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.95,
+      "spreadMax": 30,
+      "correct": 0.8015873015873015,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.15873015873015872
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.95,
+      "spreadMax": 45,
+      "correct": 0.8029100529100529,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.1574074074074074
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.95,
+      "spreadMax": 60,
+      "correct": 0.8029100529100529,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.15476190476190477
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 3,
+      "pMin": 0.95,
+      "spreadMax": 90,
+      "correct": 0.8055555555555555,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.15079365079365079
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.7,
+      "spreadMax": 20,
+      "correct": 0.8743386243386243,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07671957671957672
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.7,
+      "spreadMax": 30,
+      "correct": 0.8756613756613757,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.07407407407407407
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.7,
+      "spreadMax": 45,
+      "correct": 0.876984126984127,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.07275132275132275
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.7,
+      "spreadMax": 60,
+      "correct": 0.876984126984127,
+      "wrongConfident": 0.05291005291005291,
+      "asked": 0.0701058201058201
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.7,
+      "spreadMax": 90,
+      "correct": 0.8796296296296297,
+      "wrongConfident": 0.05291005291005291,
+      "asked": 0.06746031746031746
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.75,
+      "spreadMax": 20,
+      "correct": 0.873015873015873,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07804232804232804
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.75,
+      "spreadMax": 30,
+      "correct": 0.8743386243386243,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.07539682539682539
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.75,
+      "spreadMax": 45,
+      "correct": 0.8756613756613757,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.07407407407407407
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.75,
+      "spreadMax": 60,
+      "correct": 0.8756613756613757,
+      "wrongConfident": 0.05291005291005291,
+      "asked": 0.07142857142857144
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.75,
+      "spreadMax": 90,
+      "correct": 0.8783068783068783,
+      "wrongConfident": 0.05291005291005291,
+      "asked": 0.06878306878306878
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.8,
+      "spreadMax": 20,
+      "correct": 0.8558201058201057,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.10052910052910052
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.8,
+      "spreadMax": 30,
+      "correct": 0.8571428571428572,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.8,
+      "spreadMax": 45,
+      "correct": 0.8584656084656085,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.8,
+      "spreadMax": 60,
+      "correct": 0.8584656084656085,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.09391534391534391
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.8,
+      "spreadMax": 90,
+      "correct": 0.8611111111111112,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.09126984126984126
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.85,
+      "spreadMax": 20,
+      "correct": 0.8558201058201057,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.10052910052910052
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.85,
+      "spreadMax": 30,
+      "correct": 0.8571428571428572,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.85,
+      "spreadMax": 45,
+      "correct": 0.8584656084656085,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.85,
+      "spreadMax": 60,
+      "correct": 0.8584656084656085,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.09391534391534391
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.85,
+      "spreadMax": 90,
+      "correct": 0.8611111111111112,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.09126984126984126
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.9,
+      "spreadMax": 20,
+      "correct": 0.798941798941799,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.1626984126984127
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.9,
+      "spreadMax": 30,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.16005291005291003
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.9,
+      "spreadMax": 45,
+      "correct": 0.8015873015873015,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.15873015873015872
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.9,
+      "spreadMax": 60,
+      "correct": 0.8015873015873015,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.15608465608465608
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.9,
+      "spreadMax": 90,
+      "correct": 0.8042328042328042,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.15343915343915346
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.95,
+      "spreadMax": 20,
+      "correct": 0.798941798941799,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.1626984126984127
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.95,
+      "spreadMax": 30,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.16005291005291003
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.95,
+      "spreadMax": 45,
+      "correct": 0.8015873015873015,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.15873015873015872
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.95,
+      "spreadMax": 60,
+      "correct": 0.8015873015873015,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.15608465608465608
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 4,
+      "pMin": 0.95,
+      "spreadMax": 90,
+      "correct": 0.8042328042328042,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.15343915343915346
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.7,
+      "spreadMax": 20,
+      "correct": 0.8743386243386243,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07671957671957672
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.7,
+      "spreadMax": 30,
+      "correct": 0.8743386243386243,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.07539682539682539
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.7,
+      "spreadMax": 45,
+      "correct": 0.8756613756613757,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07539682539682539
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.7,
+      "spreadMax": 60,
+      "correct": 0.8756613756613757,
+      "wrongConfident": 0.05158730158730159,
+      "asked": 0.07275132275132275
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.7,
+      "spreadMax": 90,
+      "correct": 0.8783068783068783,
+      "wrongConfident": 0.05158730158730159,
+      "asked": 0.0701058201058201
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.75,
+      "spreadMax": 20,
+      "correct": 0.873015873015873,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07804232804232804
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.75,
+      "spreadMax": 30,
+      "correct": 0.873015873015873,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.07671957671957672
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.75,
+      "spreadMax": 45,
+      "correct": 0.8743386243386243,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07671957671957672
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.75,
+      "spreadMax": 60,
+      "correct": 0.8743386243386243,
+      "wrongConfident": 0.05158730158730159,
+      "asked": 0.07407407407407407
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.75,
+      "spreadMax": 90,
+      "correct": 0.876984126984127,
+      "wrongConfident": 0.05158730158730159,
+      "asked": 0.07142857142857144
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.8,
+      "spreadMax": 20,
+      "correct": 0.8558201058201057,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.10052910052910052
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.8,
+      "spreadMax": 30,
+      "correct": 0.8558201058201059,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.09920634920634919
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.8,
+      "spreadMax": 45,
+      "correct": 0.8571428571428572,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.09920634920634919
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.8,
+      "spreadMax": 60,
+      "correct": 0.8571428571428572,
+      "wrongConfident": 0.0462962962962963,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.8,
+      "spreadMax": 90,
+      "correct": 0.8597883597883599,
+      "wrongConfident": 0.0462962962962963,
+      "asked": 0.09391534391534391
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.85,
+      "spreadMax": 20,
+      "correct": 0.8558201058201057,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.10052910052910052
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.85,
+      "spreadMax": 30,
+      "correct": 0.8558201058201059,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.09920634920634919
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.85,
+      "spreadMax": 45,
+      "correct": 0.8571428571428572,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.09920634920634919
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.85,
+      "spreadMax": 60,
+      "correct": 0.8571428571428572,
+      "wrongConfident": 0.0462962962962963,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.85,
+      "spreadMax": 90,
+      "correct": 0.8597883597883599,
+      "wrongConfident": 0.0462962962962963,
+      "asked": 0.09391534391534391
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.9,
+      "spreadMax": 20,
+      "correct": 0.798941798941799,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.1626984126984127
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.9,
+      "spreadMax": 30,
+      "correct": 0.798941798941799,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.16137566137566137
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.9,
+      "spreadMax": 45,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.16137566137566137
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.9,
+      "spreadMax": 60,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.15873015873015872
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.9,
+      "spreadMax": 90,
+      "correct": 0.8029100529100529,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.15608465608465608
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.95,
+      "spreadMax": 20,
+      "correct": 0.798941798941799,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.1626984126984127
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.95,
+      "spreadMax": 30,
+      "correct": 0.798941798941799,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.16137566137566137
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.95,
+      "spreadMax": 45,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.16137566137566137
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.95,
+      "spreadMax": 60,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.15873015873015872
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 5,
+      "pMin": 0.95,
+      "spreadMax": 90,
+      "correct": 0.8029100529100529,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.15608465608465608
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.7,
+      "spreadMax": 20,
+      "correct": 0.8743386243386243,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07671957671957672
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.7,
+      "spreadMax": 30,
+      "correct": 0.8743386243386243,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07671957671957672
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.7,
+      "spreadMax": 45,
+      "correct": 0.8756613756613757,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.07671957671957672
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.7,
+      "spreadMax": 60,
+      "correct": 0.8756613756613757,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07539682539682539
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.7,
+      "spreadMax": 90,
+      "correct": 0.8783068783068783,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.07407407407407407
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.75,
+      "spreadMax": 20,
+      "correct": 0.873015873015873,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07804232804232804
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.75,
+      "spreadMax": 30,
+      "correct": 0.873015873015873,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07804232804232804
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.75,
+      "spreadMax": 45,
+      "correct": 0.8743386243386243,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.07804232804232804
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.75,
+      "spreadMax": 60,
+      "correct": 0.8743386243386243,
+      "wrongConfident": 0.04894179894179893,
+      "asked": 0.07671957671957672
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.75,
+      "spreadMax": 90,
+      "correct": 0.876984126984127,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.07539682539682539
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.8,
+      "spreadMax": 20,
+      "correct": 0.8558201058201057,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.10052910052910052
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.8,
+      "spreadMax": 30,
+      "correct": 0.8558201058201059,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.10052910052910052
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.8,
+      "spreadMax": 45,
+      "correct": 0.8571428571428572,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.10052910052910052
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.8,
+      "spreadMax": 60,
+      "correct": 0.8571428571428572,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.09920634920634919
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.8,
+      "spreadMax": 90,
+      "correct": 0.8597883597883599,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.85,
+      "spreadMax": 20,
+      "correct": 0.8558201058201057,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.10052910052910052
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.85,
+      "spreadMax": 30,
+      "correct": 0.8558201058201059,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.10052910052910052
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.85,
+      "spreadMax": 45,
+      "correct": 0.8571428571428572,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.10052910052910052
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.85,
+      "spreadMax": 60,
+      "correct": 0.8571428571428572,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.09920634920634919
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.85,
+      "spreadMax": 90,
+      "correct": 0.8597883597883599,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.9,
+      "spreadMax": 20,
+      "correct": 0.798941798941799,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.1626984126984127
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.9,
+      "spreadMax": 30,
+      "correct": 0.798941798941799,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.1626984126984127
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.9,
+      "spreadMax": 45,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.037037037037037035,
+      "asked": 0.1626984126984127
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.9,
+      "spreadMax": 60,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.16137566137566137
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.9,
+      "spreadMax": 90,
+      "correct": 0.8029100529100529,
+      "wrongConfident": 0.037037037037037035,
+      "asked": 0.16005291005291003
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.95,
+      "spreadMax": 20,
+      "correct": 0.798941798941799,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.1626984126984127
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.95,
+      "spreadMax": 30,
+      "correct": 0.798941798941799,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.1626984126984127
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.95,
+      "spreadMax": 45,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.037037037037037035,
+      "asked": 0.1626984126984127
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.95,
+      "spreadMax": 60,
+      "correct": 0.8002645502645502,
+      "wrongConfident": 0.03835978835978836,
+      "asked": 0.16137566137566137
+    },
+    {
+      "matcher": "weekday",
+      "nMin": 6,
+      "pMin": 0.95,
+      "spreadMax": 90,
+      "correct": 0.8029100529100529,
+      "wrongConfident": 0.037037037037037035,
+      "asked": 0.16005291005291003
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.7,
+      "spreadMax": 20,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.7,
+      "spreadMax": 30,
+      "correct": 0.8492063492063492,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09391534391534391
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.7,
+      "spreadMax": 45,
+      "correct": 0.8492063492063492,
+      "wrongConfident": 0.06084656084656084,
+      "asked": 0.08994708994708994
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.7,
+      "spreadMax": 60,
+      "correct": 0.8518518518518517,
+      "wrongConfident": 0.06084656084656084,
+      "asked": 0.08730158730158728
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.7,
+      "spreadMax": 90,
+      "correct": 0.8531746031746033,
+      "wrongConfident": 0.06481481481481481,
+      "asked": 0.082010582010582
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.75,
+      "spreadMax": 20,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.75,
+      "spreadMax": 30,
+      "correct": 0.8492063492063492,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09391534391534391
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.75,
+      "spreadMax": 45,
+      "correct": 0.8492063492063492,
+      "wrongConfident": 0.06084656084656084,
+      "asked": 0.08994708994708994
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.75,
+      "spreadMax": 60,
+      "correct": 0.8518518518518517,
+      "wrongConfident": 0.06084656084656084,
+      "asked": 0.08730158730158728
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.75,
+      "spreadMax": 90,
+      "correct": 0.8531746031746033,
+      "wrongConfident": 0.06481481481481481,
+      "asked": 0.082010582010582
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.8,
+      "spreadMax": 20,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.13095238095238096
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.8,
+      "spreadMax": 30,
+      "correct": 0.828042328042328,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.12830687830687829
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.8,
+      "spreadMax": 45,
+      "correct": 0.828042328042328,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.12433862433862435
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.8,
+      "spreadMax": 60,
+      "correct": 0.8306878306878307,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.12169312169312169
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.8,
+      "spreadMax": 90,
+      "correct": 0.832010582010582,
+      "wrongConfident": 0.05158730158730159,
+      "asked": 0.1164021164021164
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.85,
+      "spreadMax": 20,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.13095238095238096
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.85,
+      "spreadMax": 30,
+      "correct": 0.828042328042328,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.12830687830687829
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.85,
+      "spreadMax": 45,
+      "correct": 0.828042328042328,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.12433862433862435
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.85,
+      "spreadMax": 60,
+      "correct": 0.8306878306878307,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.12169312169312169
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.85,
+      "spreadMax": 90,
+      "correct": 0.832010582010582,
+      "wrongConfident": 0.05158730158730159,
+      "asked": 0.1164021164021164
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.9,
+      "spreadMax": 20,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17989417989417988
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.9,
+      "spreadMax": 30,
+      "correct": 0.7804232804232805,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17724867724867724
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.9,
+      "spreadMax": 45,
+      "correct": 0.7804232804232805,
+      "wrongConfident": 0.0462962962962963,
+      "asked": 0.17328042328042328
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.9,
+      "spreadMax": 60,
+      "correct": 0.7830687830687831,
+      "wrongConfident": 0.0462962962962963,
+      "asked": 0.1706349206349206
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.9,
+      "spreadMax": 90,
+      "correct": 0.7843915343915344,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.16534391534391532
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.95,
+      "spreadMax": 20,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17989417989417988
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.95,
+      "spreadMax": 30,
+      "correct": 0.7804232804232805,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17724867724867724
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.95,
+      "spreadMax": 45,
+      "correct": 0.7804232804232805,
+      "wrongConfident": 0.0462962962962963,
+      "asked": 0.17328042328042328
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.95,
+      "spreadMax": 60,
+      "correct": 0.7830687830687831,
+      "wrongConfident": 0.0462962962962963,
+      "asked": 0.1706349206349206
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 3,
+      "pMin": 0.95,
+      "spreadMax": 90,
+      "correct": 0.7843915343915344,
+      "wrongConfident": 0.05026455026455026,
+      "asked": 0.16534391534391532
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.7,
+      "spreadMax": 20,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05555555555555555,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.7,
+      "spreadMax": 30,
+      "correct": 0.8478835978835978,
+      "wrongConfident": 0.05555555555555555,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.7,
+      "spreadMax": 45,
+      "correct": 0.8478835978835978,
+      "wrongConfident": 0.0582010582010582,
+      "asked": 0.09391534391534391
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.7,
+      "spreadMax": 60,
+      "correct": 0.8492063492063492,
+      "wrongConfident": 0.0582010582010582,
+      "asked": 0.0925925925925926
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.7,
+      "spreadMax": 90,
+      "correct": 0.8505291005291006,
+      "wrongConfident": 0.06084656084656084,
+      "asked": 0.08862433862433862
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.75,
+      "spreadMax": 20,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05555555555555555,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.75,
+      "spreadMax": 30,
+      "correct": 0.8478835978835978,
+      "wrongConfident": 0.05555555555555555,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.75,
+      "spreadMax": 45,
+      "correct": 0.8478835978835978,
+      "wrongConfident": 0.0582010582010582,
+      "asked": 0.09391534391534391
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.75,
+      "spreadMax": 60,
+      "correct": 0.8492063492063492,
+      "wrongConfident": 0.0582010582010582,
+      "asked": 0.0925925925925926
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.75,
+      "spreadMax": 90,
+      "correct": 0.8505291005291006,
+      "wrongConfident": 0.06084656084656084,
+      "asked": 0.08862433862433862
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.8,
+      "spreadMax": 20,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.1322751322751323
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.8,
+      "spreadMax": 30,
+      "correct": 0.8267195767195767,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.13095238095238096
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.8,
+      "spreadMax": 45,
+      "correct": 0.8267195767195767,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.12830687830687829
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.8,
+      "spreadMax": 60,
+      "correct": 0.828042328042328,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.12698412698412698
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.8,
+      "spreadMax": 90,
+      "correct": 0.8293650793650794,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.12301587301587302
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.85,
+      "spreadMax": 20,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.1322751322751323
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.85,
+      "spreadMax": 30,
+      "correct": 0.8267195767195767,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.13095238095238096
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.85,
+      "spreadMax": 45,
+      "correct": 0.8267195767195767,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.12830687830687829
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.85,
+      "spreadMax": 60,
+      "correct": 0.828042328042328,
+      "wrongConfident": 0.04497354497354497,
+      "asked": 0.12698412698412698
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.85,
+      "spreadMax": 90,
+      "correct": 0.8293650793650794,
+      "wrongConfident": 0.047619047619047616,
+      "asked": 0.12301587301587302
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.9,
+      "spreadMax": 20,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.1812169312169312
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.9,
+      "spreadMax": 30,
+      "correct": 0.7791005291005292,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.17989417989417988
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.9,
+      "spreadMax": 45,
+      "correct": 0.7791005291005292,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.17724867724867724
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.9,
+      "spreadMax": 60,
+      "correct": 0.7804232804232805,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.17592592592592593
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.9,
+      "spreadMax": 90,
+      "correct": 0.7817460317460317,
+      "wrongConfident": 0.0462962962962963,
+      "asked": 0.17195767195767198
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.95,
+      "spreadMax": 20,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.1812169312169312
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.95,
+      "spreadMax": 30,
+      "correct": 0.7791005291005292,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.17989417989417988
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.95,
+      "spreadMax": 45,
+      "correct": 0.7791005291005292,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.17724867724867724
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.95,
+      "spreadMax": 60,
+      "correct": 0.7804232804232805,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.17592592592592593
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 4,
+      "pMin": 0.95,
+      "spreadMax": 90,
+      "correct": 0.7817460317460317,
+      "wrongConfident": 0.0462962962962963,
+      "asked": 0.17195767195767198
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.7,
+      "spreadMax": 20,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05555555555555555,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.7,
+      "spreadMax": 30,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.7,
+      "spreadMax": 45,
+      "correct": 0.8478835978835978,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09523809523809523
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.7,
+      "spreadMax": 60,
+      "correct": 0.8492063492063492,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09391534391534391
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.7,
+      "spreadMax": 90,
+      "correct": 0.8505291005291006,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.0925925925925926
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.75,
+      "spreadMax": 20,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05555555555555555,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.75,
+      "spreadMax": 30,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.75,
+      "spreadMax": 45,
+      "correct": 0.8478835978835978,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09523809523809523
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.75,
+      "spreadMax": 60,
+      "correct": 0.8492063492063492,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09391534391534391
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.75,
+      "spreadMax": 90,
+      "correct": 0.8505291005291006,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.0925925925925926
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.8,
+      "spreadMax": 20,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.1322751322751323
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.8,
+      "spreadMax": 30,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.13095238095238096
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.8,
+      "spreadMax": 45,
+      "correct": 0.8267195767195767,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.12962962962962962
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.8,
+      "spreadMax": 60,
+      "correct": 0.828042328042328,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.12830687830687829
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.8,
+      "spreadMax": 90,
+      "correct": 0.8293650793650794,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.12698412698412698
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.85,
+      "spreadMax": 20,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.1322751322751323
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.85,
+      "spreadMax": 30,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.13095238095238096
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.85,
+      "spreadMax": 45,
+      "correct": 0.8267195767195767,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.12962962962962962
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.85,
+      "spreadMax": 60,
+      "correct": 0.828042328042328,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.12830687830687829
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.85,
+      "spreadMax": 90,
+      "correct": 0.8293650793650794,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.12698412698412698
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.9,
+      "spreadMax": 20,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.1812169312169312
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.9,
+      "spreadMax": 30,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17989417989417988
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.9,
+      "spreadMax": 45,
+      "correct": 0.7791005291005292,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17857142857142858
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.9,
+      "spreadMax": 60,
+      "correct": 0.7804232804232805,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17724867724867724
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.9,
+      "spreadMax": 90,
+      "correct": 0.7817460317460317,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17592592592592593
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.95,
+      "spreadMax": 20,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.1812169312169312
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.95,
+      "spreadMax": 30,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17989417989417988
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.95,
+      "spreadMax": 45,
+      "correct": 0.7791005291005292,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17857142857142858
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.95,
+      "spreadMax": 60,
+      "correct": 0.7804232804232805,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17724867724867724
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 5,
+      "pMin": 0.95,
+      "spreadMax": 90,
+      "correct": 0.7817460317460317,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17592592592592593
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.7,
+      "spreadMax": 20,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05423280423280422,
+      "asked": 0.09920634920634919
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.7,
+      "spreadMax": 30,
+      "correct": 0.8452380952380952,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.7,
+      "spreadMax": 45,
+      "correct": 0.8452380952380952,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.7,
+      "spreadMax": 60,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05555555555555555,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.7,
+      "spreadMax": 90,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.75,
+      "spreadMax": 20,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05423280423280422,
+      "asked": 0.09920634920634919
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.75,
+      "spreadMax": 30,
+      "correct": 0.8452380952380952,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.75,
+      "spreadMax": 45,
+      "correct": 0.8452380952380952,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.75,
+      "spreadMax": 60,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05555555555555555,
+      "asked": 0.09788359788359786
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.75,
+      "spreadMax": 90,
+      "correct": 0.8465608465608465,
+      "wrongConfident": 0.05687830687830688,
+      "asked": 0.09656084656084656
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.8,
+      "spreadMax": 20,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.1335978835978836
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.8,
+      "spreadMax": 30,
+      "correct": 0.8240740740740741,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.1322751322751323
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.8,
+      "spreadMax": 45,
+      "correct": 0.8240740740740741,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.1322751322751323
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.8,
+      "spreadMax": 60,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.1322751322751323
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.8,
+      "spreadMax": 90,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.13095238095238096
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.85,
+      "spreadMax": 20,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.1335978835978836
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.85,
+      "spreadMax": 30,
+      "correct": 0.8240740740740741,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.1322751322751323
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.85,
+      "spreadMax": 45,
+      "correct": 0.8240740740740741,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.1322751322751323
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.85,
+      "spreadMax": 60,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.1322751322751323
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.85,
+      "spreadMax": 90,
+      "correct": 0.8253968253968255,
+      "wrongConfident": 0.04365079365079364,
+      "asked": 0.13095238095238096
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.9,
+      "spreadMax": 20,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.18253968253968256
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.9,
+      "spreadMax": 30,
+      "correct": 0.7764550264550265,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.1812169312169312
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.9,
+      "spreadMax": 45,
+      "correct": 0.7764550264550265,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.1812169312169312
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.9,
+      "spreadMax": 60,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.1812169312169312
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.9,
+      "spreadMax": 90,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17989417989417988
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.95,
+      "spreadMax": 20,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.03968253968253968,
+      "asked": 0.18253968253968256
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.95,
+      "spreadMax": 30,
+      "correct": 0.7764550264550265,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.1812169312169312
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.95,
+      "spreadMax": 45,
+      "correct": 0.7764550264550265,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.1812169312169312
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.95,
+      "spreadMax": 60,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.041005291005291,
+      "asked": 0.1812169312169312
+    },
+    {
+      "matcher": "daytype",
+      "nMin": 6,
+      "pMin": 0.95,
+      "spreadMax": 90,
+      "correct": 0.7777777777777778,
+      "wrongConfident": 0.042328042328042326,
+      "asked": 0.17989417989417988
+    }
+  ]
+}

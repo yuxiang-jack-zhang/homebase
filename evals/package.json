@@ -7,7 +7,8 @@
     "evals": "tsx run.ts",
     "traces": "tsx traces.ts",
     "sim": "tsx sim/run.ts",
-    "lives": "tsx sim/lives/run.ts"
+    "lives": "tsx sim/lives/run.ts",
+    "sim:tune": "tsx sim/tune.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.6"

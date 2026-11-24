@@ -11,7 +11,7 @@ const row = (o: Partial<SimRow>, all: ModeGrade): SimRow => ({
 });
 
 const result: SimResult = {
-  options: { days: 1, seed: 1, perDay: 3, mode: 'auto_when_confident', noise: true, llm: false, model: 'x', generator: 'y' },
+  options: { days: 1, seed: 1, perDay: 3, mode: 'auto_when_confident', noise: true, llm: false, model: 'x', generator: 'y', matcher: 'off', nMin: 4, pMin: 0.8, spreadMax: 45 },
   rows: [
     row({ persona: 'student' }, g('answered_correct')),
     row({ persona: 'student', kind: 'at_time' }, g('answered_wrong_confident')),

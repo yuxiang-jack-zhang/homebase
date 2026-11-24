@@ -99,12 +99,12 @@ describe('geofenceEvents', () => {
 describe('evidenceAt', () => {
   const DAY = 24 * H;
   const now = START_MS + 20 * DAY;
-  const old = { kind: 'enter' as const, at: iso(now - 15 * DAY) };
-  const older = { kind: 'exit' as const, at: iso(now - 16 * DAY) };
+  const old = { kind: 'enter' as const, at: iso(now - 57 * DAY) }; // just outside the 56-day window
+  const older = { kind: 'exit' as const, at: iso(now - 58 * DAY) };
   const recent = { kind: 'exit' as const, at: iso(now - 2 * DAY) };
   const future = { kind: 'enter' as const, at: iso(now + H) };
 
-  it('keeps the 14-day window plus the latest event before it, and nothing after now', () => {
+  it('keeps the 56-day window plus the latest event before it, and nothing after now', () => {
     expect(evidenceAt([older, old, recent, future], now)).toEqual([old, recent]);
   });
 

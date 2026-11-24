@@ -12,12 +12,17 @@ export interface PatternOptions { matcher: 'off' | Matcher; nMin: number; pMin: 
 export const PATTERN_DEFAULTS: PatternOptions = { matcher: 'off', nMin: 4, pMin: 0.8, spreadMax: 45 };
 // A weak habit (low confidence) still improves drafts, fallback guesses and always_auto answers.
 const WEAK_N = 2, WEAK_P = 0.6;
+// Out for longer than this means they're off their routine (a trip), so habits say nothing.
+const OFF_ROUTINE_MS = 24 * HOUR;
 
 export function buildClaim(parsed: ParsedQuestion, ev: Evidence, options: Partial<PatternOptions> = {}): Claim | null {
   const { now, timezone, presence, blocks } = ev;
   const o = { ...PATTERN_DEFAULTS, ...options };
   const pNow = presenceAt(presence, now);
   const known = pNow !== 'unknown';
+  const lastAt = presence.map((e) => Date.parse(e.at)).filter((t) => t <= Date.parse(now)).reduce((a, b) => Math.max(a, b), -Infinity);
+  const offRoutine = pNow === 'away' && Date.parse(now) - lastAt > OFF_ROUTINE_MS;
+  const usePatterns = o.matcher !== 'off' && !offRoutine;
 
   if (parsed.kind === 'now') {
     const base = { kind: 'now', aboutTime: null, predictedTime: null } as const;
@@ -35,7 +40,7 @@ export function buildClaim(parsed: ParsedQuestion, ev: Evidence, options: Partia
       return p === 'unknown' ? { ...base, ...NONE } : { ...base, predictedState: p, confidence: 'high', basis: 'presence' };
     }
     let weak: Claim | null = null;
-    if (o.matcher !== 'off') {
+    if (usePatterns && o.matcher !== 'off') {
       // A strong habit wins over an away block that disagrees: that disagreement is how stale blocks show up.
       const { n, home } = homeShareAt(presence, t, timezone, o.matcher, now);
       const state = home * 2 >= n ? 'home' : 'away';
@@ -58,7 +63,7 @@ export function buildClaim(parsed: ParsedQuestion, ev: Evidence, options: Partia
     const base = { kind: 'until_when', aboutTime: null } as const;
     if (pNow === 'home') return { ...base, predictedState: 'home', predictedTime: now, confidence: 'high', basis: 'presence' };
     let weak: Claim | null = null;
-    if (pNow === 'away' && o.matcher !== 'off') {
+    if (pNow === 'away' && usePatterns && o.matcher !== 'off') {
       // When they usually got back on comparable days they were out at this hour; only a time still ahead counts.
       const r = typicalReturn(presence, now, timezone, o.matcher);
       const nowMin = localMinutes(Date.parse(now), timezone);

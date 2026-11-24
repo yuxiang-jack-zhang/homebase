@@ -64,6 +64,12 @@ describe('buildClaim with patterns', () => {
     expect(buildClaim(until, ev(early, [block]), on)).toMatchObject({ basis: 'block', predictedTime: today(17) });
   });
 
+  it('habits are ignored while someone has been away for over a day (a trip): no pattern claim at all', () => {
+    const onTrip = [...nineToSix.filter((e) => Date.parse(e.at) < MIDNIGHT - 3 * DAY), { kind: 'exit', at: iso(MIDNIGHT - 3 * DAY + 9 * H) } as PresenceEvent];
+    expect(buildClaim(at(today(19)), ev(onTrip), on)).toMatchObject({ basis: 'none', predictedState: null });
+    expect(buildClaim(until, ev(onTrip), on)).toMatchObject({ basis: 'none' });
+  });
+
   it('now and past questions still come from presence', () => {
     expect(buildClaim({ kind: 'now', aboutTime: null }, ev(outNow), on)).toMatchObject({ predictedState: 'away', confidence: 'high', basis: 'presence' });
     expect(buildClaim(at(today(10)), ev(outNow), on)).toMatchObject({ predictedState: 'away', confidence: 'high', basis: 'presence' });

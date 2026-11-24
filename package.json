@@ -13,7 +13,8 @@
     "evals": "npm run evals -w evals --if-present --",
     "traces": "npm run traces -w evals --",
     "sim": "npm run sim -w evals --",
-    "lives": "npm run lives -w evals --"
+    "lives": "npm run lives -w evals --",
+    "sim:tune": "npm run sim:tune -w evals --"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.119.0",

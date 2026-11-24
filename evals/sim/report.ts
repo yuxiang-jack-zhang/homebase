@@ -60,7 +60,7 @@ const cells = (t: Tally) => `${p(t.answered_correct)} | ${p(t.answered_wrong_con
 export function simMarkdown(label: string, date: string, s: SimSummary): string {
   const o = s.options;
   const lines = [
-    `\n### Simulated roommates ${date}: ${label} (seed ${o.seed}, ${o.days} days, ${o.perDay}/roommate/day, noise ${o.noise ? 'on' : 'off'})\n`,
+    `\n### Simulated roommates ${date}: ${label} (seed ${o.seed}, ${o.days} days, ${o.perDay}/roommate/day, noise ${o.noise ? 'on' : 'off'}, patterns ${o.matcher === 'off' ? 'off' : `${o.matcher} n≥${o.nMin} p≥${o.pMin} spread≤${o.spreadMax}m`})\n`,
     `| answer mode | n ${HEAD} draft right | guess right |`,
     '|---|---|---|---|---|---|---|---|---|',
     ...MODES.map((m) => `| ${m} | ${s.modes[m].n} | ${cells(s.modes[m])} | ${frac(s.modes[m].draftAccuracy, s.modes[m].draftGraded)} | ${frac(s.modes[m].fallbackAccuracy, s.modes[m].fallbackGraded)} |`),

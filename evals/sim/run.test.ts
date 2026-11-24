@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { fakeModel } from '../../packages/core/src/agent/model.ts';
+import { PATTERN_DEFAULTS } from '../../packages/core/src/confidence.ts';
 import { MODES } from './grade.ts';
 import { parseSimArgs, simulate, type SimOptions } from './run.ts';
 
-const base: SimOptions = { days: 2, seed: 1, perDay: 3, mode: 'auto_when_confident', noise: true, llm: false, model: 'claude-haiku-5-5', generator: 'claude-sonnet-5-5' };
+const base: SimOptions = { days: 2, seed: 1, perDay: 3, mode: 'auto_when_confident', noise: true, llm: false, model: 'claude-haiku-5-5', generator: 'claude-sonnet-5-5', ...PATTERN_DEFAULTS };
 
 describe('parseSimArgs', () => {
   it('has the spec defaults', () => {
@@ -12,7 +13,14 @@ describe('parseSimArgs', () => {
 
   it('reads every flag', () => {
     expect(parseSimArgs(['--days', '3', '--seed', '9', '--per-day', '2', '--mode', 'always_auto', '--no-noise', '--llm', '--model', 'claude-haiku-5-5', '--generator', 'g']))
-      .toEqual({ days: 3, seed: 9, perDay: 2, mode: 'always_auto', noise: false, llm: true, model: 'claude-haiku-5-5', generator: 'g' });
+      .toEqual({ ...PATTERN_DEFAULTS, days: 3, seed: 9, perDay: 2, mode: 'always_auto', noise: false, llm: true, model: 'claude-haiku-5-5', generator: 'g' });
+  });
+
+  it('reads the pattern options', () => {
+    expect(parseSimArgs(['--patterns', 'daytype', '--n-min', '5', '--p-min', '0.85', '--spread-max', '30']))
+      .toMatchObject({ matcher: 'daytype', nMin: 5, pMin: 0.85, spreadMax: 30 });
+    expect(() => parseSimArgs(['--patterns', 'sometimes'])).toThrow(/patterns/);
+    expect(() => parseSimArgs(['--p-min', '2'])).toThrow(/p-min/);
   });
 
   it('rejects unknown flags, missing values, bad numbers and bad modes', () => {
@@ -39,6 +47,17 @@ describe('simulate (code mode)', () => {
     const a = await simulate(base, { model: null });
     const b = await simulate({ ...base, seed: 2 }, { model: null });
     expect(b.rows.map((r) => r.id)).not.toEqual(a.rows.map((r) => r.id));
+  });
+});
+
+describe('simulate with patterns', () => {
+  it('uses habits from the warm-up: more future questions answered than with patterns off, deterministically', async () => {
+    const off = await simulate({ ...base, days: 3, matcher: 'off' }, { model: null });
+    const on = await simulate({ ...base, days: 3, matcher: 'weekday' }, { model: null });
+    const basis = (r: typeof on) => r.rows.filter((x) => x.claim?.basis === 'pattern').length;
+    expect(basis(off)).toBe(0);
+    expect(basis(on)).toBeGreaterThan(0);
+    expect(await simulate({ ...base, days: 3, matcher: 'weekday' }, { model: null })).toEqual(on);
   });
 });
 
