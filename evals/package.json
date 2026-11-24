@@ -6,7 +6,8 @@
   "scripts": {
     "evals": "tsx run.ts",
     "traces": "tsx traces.ts",
-    "sim": "tsx sim/run.ts"
+    "sim": "tsx sim/run.ts",
+    "lives": "tsx sim/lives/run.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.6"
