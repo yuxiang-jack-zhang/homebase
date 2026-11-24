@@ -32,6 +32,9 @@ test('maps every edge-function error code', () => {
   expect(friendlyError({ message: 'unauthorized' })).toMatch(/sign in/i);
   expect(friendlyError({ message: 'forbidden' })).toMatch(/access/i);
   expect(friendlyError({ message: 'method_not_allowed' })).toMatch(/update the app/i);
+  expect(friendlyError({ message: 'rate_limited' })).toMatch(/try again in a little while/i);
+  expect(friendlyError({ message: 'busy' })).toMatch(/busy/i);
+  expect(friendlyError({ message: 'too_many_targets' })).toMatch(/at most 20/i);
 });
 
 test('maps a request that never reached the server', () => {

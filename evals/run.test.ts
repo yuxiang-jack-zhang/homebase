@@ -26,14 +26,15 @@ describe('runFixture', () => {
 
   it('flags a wrong predictedState and a leaked substring', async () => {
     const f: Fixture = { ...base, expect: { kind: 'now', decision: 'answer', predictedState: 'away', askerTextMustNotContain: ['climbing'] } };
-    const r = await runFixture(fakeModel({ parse: nowParse, write: 'He is at climbing.' }), f);
+    const r = await runFixture(fakeModel({ parse: nowParse, write: 'Sam is home from climbing.' }), f);
     expect(r).toMatchObject({ wrongConfident: true, leaked: true });
   });
 
   it('an answer whose text misses a required word (case-insensitive) is wrong-confident', async () => {
-    const f: Fixture = { ...base, expect: { ...base.expect, askerTextMustContain: ['HOME'] } };
+    // Writer lines that pass acceptWriterText (which already enforces the state word), one without the name.
+    const f: Fixture = { ...base, expect: { ...base.expect, askerTextMustContain: ['SAM'] } };
     const good = await runFixture(fakeModel({ parse: nowParse, write: 'Yes, Sam is home.' }), f);
-    const bad = await runFixture(fakeModel({ parse: nowParse, write: 'Sam is out.' }), f);
+    const bad = await runFixture(fakeModel({ parse: nowParse, write: 'Yes, they are home.' }), f);
     expect(good).toMatchObject({ decisionOk: true, wrongConfident: false });
     expect(bad).toMatchObject({ decisionOk: true, wrongConfident: true });
     expect(passed(good)).toBe(true);
@@ -41,9 +42,9 @@ describe('runFixture', () => {
   });
 
   it('askerTextMustContain accepts any of "|"-separated wordings', async () => {
-    const f: Fixture = { ...base, expect: { ...base.expect, askerTextMustContain: ['home|back'] } };
-    const alt = await runFixture(fakeModel({ parse: nowParse, write: 'Sam is back.' }), f);
-    const none = await runFixture(fakeModel({ parse: nowParse, write: 'Sam is around.' }), f);
+    const f: Fixture = { ...base, expect: { ...base.expect, askerTextMustContain: ['sam|they'] } };
+    const alt = await runFixture(fakeModel({ parse: nowParse, write: 'They are home.' }), f);
+    const none = await runFixture(fakeModel({ parse: nowParse, write: 'Yep, home.' }), f);
     expect(alt.wrongConfident).toBe(false);
     expect(none.wrongConfident).toBe(true);
   });
@@ -128,7 +129,7 @@ describe('error handling', () => {
 describe('leak check on the answer path', () => {
   it('marks an answered fixture whose text contains a forbidden string as leaked', async () => {
     const f: Fixture = { ...base, expect: { ...base.expect, askerTextMustNotContain: ['climbing'] } };
-    const leaky = await runFixture(fakeModel({ parse: nowParse, write: 'Sam is home; Wed 6pm: Climbing.' }), f);
+    const leaky = await runFixture(fakeModel({ parse: nowParse, write: 'Sam is home from Climbing.' }), f);
     const clean = await runFixture(fakeModel({ parse: nowParse, write: 'Sam is home.' }), f);
     expect(leaky).toMatchObject({ decision: 'answer', leaked: true });
     expect(clean.leaked).toBe(false);

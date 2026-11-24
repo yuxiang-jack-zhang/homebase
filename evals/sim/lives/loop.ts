@@ -131,7 +131,7 @@ export async function runLives(opts: LivesOptions, deps: { sim: Llm; agent: Mode
     const m = tracedModel(deps.agent, (c) => agentCalls.push(c));
     const parsed = await parseQuestion(m, phrased.text, now, TIMEZONE);
     const r = await answerForTarget(m, {
-      question: phrased.text, parsed, targetName: target.r.name, settings: { visibility: true, answerMode: opts.mode },
+      parsed, targetName: target.r.name, settings: { visibility: true, answerMode: opts.mode },
       evidence: { now, timezone: TIMEZONE, presence, blocks: target.r.blocks }, householdWide: false,
     });
 

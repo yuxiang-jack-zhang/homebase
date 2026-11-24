@@ -33,7 +33,7 @@ async function score(model: ModelClient, f: Fixture, usage: ModelUsage[]): Promi
   const m = tracedModel(model, (c) => usage.push(c.usage)); // parseQuestion doesn't return usage
   const parsed = await parseQuestion(m, f.question, f.now, f.timezone);
   const evidence = { now: f.now, timezone: f.timezone, presence: f.target.presence, blocks: f.target.blocks };
-  const r = await answerForTarget(m, { question: f.question, parsed, targetName: f.target.name, settings: f.target.settings, evidence, householdWide: f.householdWide });
+  const r = await answerForTarget(m, { parsed, targetName: f.target.name, settings: f.target.settings, evidence, householdWide: f.householdWide });
 
   const w = f.expect.aboutTimeWithinMin;
   const parseOk = parsed.kind === f.expect.kind &&

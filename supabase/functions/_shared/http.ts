@@ -22,6 +22,16 @@ export async function readJson(req: Request): Promise<unknown> {
   return await req.json().catch(() => undefined);
 }
 
+/**
+ * What may be logged about an error: name, code and message only. Postgres errors carry the failing row in
+ * `details` ("Failing row contains (…)"), which can hold question or reply text, so that and `hint` are dropped.
+ */
+export function errorSummary(e: unknown): { name?: string; code?: string; message?: string } {
+  const x = (e ?? {}) as { name?: unknown; code?: unknown; message?: unknown };
+  const str = (v: unknown) => (typeof v === 'string' ? v : undefined);
+  return { name: str(x.name), code: str(x.code), message: typeof e === 'string' ? e : str(x.message) };
+}
+
 /** Wraps a handler: wrong method -> 405, uncaught error -> logged 500 without details. */
 export function serve(handler: (req: Request) => Promise<Response>) {
   Deno.serve(async (req) => {
@@ -29,7 +39,7 @@ export function serve(handler: (req: Request) => Promise<Response>) {
     try {
       return await handler(req);
     } catch (e) {
-      console.error(e);
+      console.error('unhandled error', errorSummary(e));
       return fail(500, 'internal_error');
     }
   });

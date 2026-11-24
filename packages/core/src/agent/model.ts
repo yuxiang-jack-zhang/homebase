@@ -29,7 +29,8 @@ export function fakeModel(script: { parse?: unknown; write?: string | null }) {
 
 /**
  * Deterministic stand-in for served edge-function tests (ANTHROPIC_FAKE=1). Classifies the fenced question by
- * keyword; at_time questions are about two hours from the real clock (two hours ago for was/were). `write` always returns the same sentence.
+ * keyword; at_time questions are about two hours from the real clock (two hours ago for was/were). `write` restates the
+ * state and times from the facts it is given, so acceptWriterText keeps it.
  */
 export function keywordFakeModel(): ModelClient {
   const usage: ModelUsage = { inputTokens: 0, outputTokens: 0, model: 'keyword-fake', latencyMs: 0 };
@@ -44,8 +45,10 @@ export function keywordFakeModel(): ModelClient {
         : { kind: 'unclear', aboutTime: null };
       return { value: value as T, usage };
     },
-    async write() {
-      return { text: 'Fake model sentence.', usage };
+    async write({ user }) {
+      const fact = (k: string) => new RegExp(`^${k}: (.*)$`, 'm').exec(user)?.[1] ?? 'n/a';
+      const [about, until] = [fact('About time'), fact('Predicted time')];
+      return { text: `Fake model: ${fact('Predicted state')}${about === 'n/a' ? '' : ` at ${about}`}${until === 'n/a' ? '' : ` until ${until}`}.`, usage };
     },
   };
 }

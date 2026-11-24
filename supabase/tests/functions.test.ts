@@ -1,10 +1,13 @@
 import { beforeAll, describe, expect, it } from "vitest";
+import { ASK_LIMITS } from "../../packages/core/src/contracts.ts";
 import { isLocalUrl, modelFromEnv } from "../functions/_shared/model.ts";
 import { API_URL, SERVICE_ROLE_KEY, admin, makeHousehold, newUser, ok, type TestUser } from "./helpers.ts";
 
 // Needs the functions served with the fake model; see supabase/tests/README.md.
 const FN = `${API_URL}/functions/v1`;
-const FAKE_SENTENCE = "Fake model sentence.";
+// The keyword fake restates the claim it is given, so the writer check (acceptWriterText) keeps it.
+const FAKE_HOME = "Fake model: home.";
+const FAKE_AWAY_AT = expect.stringMatching(/^Fake model: away at \d{1,2}:\d{2} [AP]M\.$/);
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
 
 async function token(user: TestUser) {
@@ -77,10 +80,10 @@ describe("ask", () => {
     const r = await ask(owner, { householdId: household.id, target: { userIds: [sam.id] }, text: "is Sam home" });
 
     expect(r.status).toBe(200);
-    expect(r.body.targets).toEqual([{ userId: sam.id, status: "answered", text: FAKE_SENTENCE }]);
+    expect(r.body.targets).toEqual([{ userId: sam.id, status: "answered", text: FAKE_HOME }]);
     const q = ok(await owner.client.from("questions").select("kind, question_targets(status, responses(visibility, text, source))")
       .eq("id", r.body.questionId).single());
-    expect(q).toEqual({ kind: "now", question_targets: [{ status: "answered", responses: [{ visibility: "sent", text: FAKE_SENTENCE, source: "agent" }] }] });
+    expect(q).toEqual({ kind: "now", question_targets: [{ status: "answered", responses: [{ visibility: "sent", text: FAKE_HOME, source: "agent" }] }] });
   });
 
   it("writes a trace: one run linked to the question, a parse call and one answer call; users can't read traces (D62)", async () => {
@@ -111,7 +114,7 @@ describe("ask", () => {
     expect(ok(await owner.client.from("responses").select().eq("question_target_id", qt.id))).toEqual([]);
     const drafts = ok(await sam.client.from("responses").select().eq("question_target_id", qt.id));
     expect(drafts).toHaveLength(1);
-    expect(drafts[0]).toMatchObject({ visibility: "draft", text: FAKE_SENTENCE, draft_claim: { kind: "at_time", predictedState: "away" } });
+    expect(drafts[0]).toMatchObject({ visibility: "draft", text: FAKE_AWAY_AT, draft_claim: { kind: "at_time", predictedState: "away" } });
     // An unapproved draft is not a prediction yet.
     expect(ok(await admin.from("predictions").select().eq("question_target_id", qt.id))).toEqual([]);
   });
@@ -168,7 +171,7 @@ describe("ask", () => {
     const byUser = Object.fromEntries(r.body.targets.map((t: { userId: string; status: string; text: string }) => [t.userId, t]));
     expect(byUser[ann.id]).toEqual({ userId: ann.id, status: "unknown", text: "Ann: unknown" });
     expect(byUser[bo.id]).toEqual({ userId: bo.id, status: "awaiting_reply", text: "Asked Bo — waiting for a reply." });
-    expect(byUser[cy.id]).toEqual({ userId: cy.id, status: "answered", text: FAKE_SENTENCE });
+    expect(byUser[cy.id]).toEqual({ userId: cy.id, status: "answered", text: FAKE_AWAY_AT });
     const statuses = ok(await admin.from("question_targets").select("user_id, status").eq("question_id", r.body.questionId));
     expect(statuses).toHaveLength(3);
   });
@@ -204,6 +207,43 @@ describe("ask", () => {
   });
 });
 
+describe("ask limits (finding 3)", () => {
+  const admit = (userId: string, perHour: number, perDay = 1_000, globalPerDay = 1_000_000) =>
+    admin.rpc("admit_ask", { p_user_id: userId, p_per_hour: perHour, p_per_day: perDay, p_global_per_day: globalPerDay });
+
+  it("admit_ask: ok until the hour or day is full; rejected attempts are not recorded; busy past the global cap", async () => {
+    const user = await newUser("Limited");
+    expect([ok(await admit(user.id, 2)), ok(await admit(user.id, 2)), ok(await admit(user.id, 2))]).toEqual(["ok", "ok", "rate_limited"]);
+    expect(ok(await admit(user.id, 3))).toBe("ok"); // the rejected third attempt didn't count
+    expect(ok(await admit(user.id, 100, 4))).toBe("rate_limited"); // day full
+    expect(ok(await admit((await newUser("Fresh")).id, 100, 100, 0))).toBe("busy");
+  });
+
+  it("admit_ask: parallel calls can't overshoot the per-user limit", async () => {
+    const user = await newUser("Burst");
+    const verdicts = await Promise.all(Array.from({ length: 10 }, async () => ok(await admit(user.id, 3))));
+    expect(verdicts.filter((v) => v === "ok")).toHaveLength(3);
+  });
+
+  it("admit_ask: users can't call it (they could use up someone else's quota)", async () => {
+    const user = await newUser("Sneaky");
+    const res = await user.client.rpc("admit_ask", { p_user_id: user.id, p_per_hour: 1, p_per_day: 1, p_global_per_day: 1 });
+    expect(res.error?.code).toBe("42501");
+  });
+
+  it(`ask: once the asker's hour is full (${ASK_LIMITS.perHour}) -> 429 rate_limited before any model call or write`, async () => {
+    const { household, owner, members: [sam] } = await makeHousehold(["Sam"]);
+    for (let i = 0; i < ASK_LIMITS.perHour; i++) expect(ok(await admit(owner.id, ASK_LIMITS.perHour))).toBe("ok");
+
+    const r = await ask(owner, { householdId: household.id, target: { userIds: [sam.id] }, text: "is Sam home" });
+
+    expect(r).toEqual({ status: 429, body: { error: "rate_limited" } });
+    expect(ok(await admin.from("questions").select().eq("household_id", household.id))).toEqual([]);
+    // Sam's own quota is separate.
+    expect((await ask(sam, { householdId: household.id, target: { userIds: [owner.id] }, text: "is Owner home" })).status).toBe(200);
+  });
+});
+
 describe("reply", () => {
   it("approve -> sent response with feedback approved, status replied, prediction agent_approved; a second reply -> 409", async () => {
     const { owner, sam, qt } = await escalatedQuestion();
@@ -213,7 +253,7 @@ describe("reply", () => {
     expect(r).toEqual({ status: 200, body: { status: "replied" } });
     const sent = ok(await owner.client.from("responses").select().eq("question_target_id", qt.id));
     expect(sent).toHaveLength(1);
-    expect(sent[0]).toMatchObject({ visibility: "sent", source: "human", text: FAKE_SENTENCE, feedback: "approved" });
+    expect(sent[0]).toMatchObject({ visibility: "sent", source: "human", text: FAKE_AWAY_AT, feedback: "approved" });
     expect(ok(await owner.client.from("question_targets").select("status").eq("id", qt.id).single()).status).toBe("replied");
     const pred = ok(await admin.from("predictions").select().eq("question_target_id", qt.id).single());
     expect(pred).toMatchObject({ user_id: sam.id, kind: "at_time", predicted_state: "away", source: "agent_approved", outcome: null });

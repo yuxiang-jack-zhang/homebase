@@ -69,6 +69,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"ask_admissions": {
+                  Row: {
+                    "created_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ask_admissions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"away_blocks": {
                   Row: {
                     "days_of_week": (number)[],"end_local": string,"household_id": string,"id": string,"label": string | null,"start_local": string,"user_id": string
@@ -327,7 +347,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "approve_member":
+            "admit_ask":
+{ Args: { "p_global_per_day": number,"p_per_day": number,"p_per_hour": number,"p_user_id": string }; Returns: string
+                           },
+"approve_member":
 { Args: { "p_household_id": string,"p_user_id": string }; Returns: undefined
                            },
 "asked_question":

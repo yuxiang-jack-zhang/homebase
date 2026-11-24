@@ -40,11 +40,11 @@ describe('keywordFakeModel', () => {
     expect(r.value).toEqual({ kind: 'unclear', aboutTime: null });
   });
 
-  it('write returns a fixed sentence', async () => {
+  it('write states the facts it was given, so the writer check accepts it', async () => {
     const m = keywordFakeModel();
-    const a = await m.write({ system: 'A', user: 'x' });
-    const b = await m.write({ system: 'B', user: 'y' });
-    expect(a.text).toBeTruthy();
-    expect(a.text).toBe(b.text);
+    const at = await m.write({ system: 'A', user: 'Roommate: Sam\nAbout time: 7:00 PM\nPredicted state: away\nPredicted time: n/a' });
+    const now = await m.write({ system: 'B', user: 'Roommate: Sam\nAbout time: n/a\nPredicted state: home\nPredicted time: n/a' });
+    expect(at.text).toBe('Fake model: away at 7:00 PM.');
+    expect(now.text).toBe('Fake model: home.');
   });
 });

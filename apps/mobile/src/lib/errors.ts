@@ -3,7 +3,7 @@ const MESSAGES: Record<string, string> = {
   already_member: "You're already in that household.",
   not_owner: 'Only the household owner can do that.',
   not_member: "You're not a member of that household.",
-  rate_limited: 'Too many tries. Wait an hour and try again.',
+  rate_limited: 'Too many tries. Try again in a little while.', // joins and asks share it
   cannot_remove_self: 'To go, use Leave household instead.',
   no_request: 'That join request is no longer waiting.',
   invalid_name:'Give the household a name (up to 60 characters).',
@@ -13,6 +13,8 @@ const MESSAGES: Record<string, string> = {
   cannot_target_self: "You can't ask yourself.",
   target_not_member: 'One of those people is not in this household.',
   no_targets: 'There is nobody to ask.',
+  too_many_targets: 'Ask at most 20 people at a time.',
+  busy: 'Homebase is busy right now. Try again later.',
   bad_response: 'Got an unexpected answer from the server. Try again.',
   invalid_location: "That location isn't valid. Try again.",
   invalid_radius: 'The home radius must be between 50 and 500 meters.',

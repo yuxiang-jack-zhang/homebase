@@ -1,5 +1,5 @@
 import { type Claim, ReplyRequest, classifyFeedback, shouldLogPrediction } from '../../../packages/core/src/index.ts';
-import { adminClient, callerId, fail, json, readJson, serve } from '../_shared/http.ts';
+import { adminClient, callerId, errorSummary, fail, json, readJson, serve } from '../_shared/http.ts';
 
 const QUICK = { yes: 'Yes', no: 'No', not_sure: 'Not sure' } as const;
 
@@ -42,7 +42,7 @@ serve(async (req) => {
       question_target_id: questionTargetId, user_id: me, kind: claim.kind as 'at_time' | 'until_when', about_time: claim.aboutTime,
       predicted_state: claim.predictedState, predicted_time: claim.predictedTime, confidence: claim.confidence, source: 'agent_approved',
     });
-    if (e3) console.error(e3); // the reply is already sent; a missing prediction only costs one stats sample
+    if (e3) console.error('prediction insert failed', errorSummary(e3)); // the reply is already sent; a missing prediction only costs one stats sample
   }
 
   return json({ status: 'replied' });
