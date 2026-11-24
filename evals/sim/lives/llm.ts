@@ -68,13 +68,13 @@ export function makeLlm(opts: { client: Anthropic; model: string; cachePath: str
   return llm;
 }
 
-/** Test double: answers from `handler(name, user)`, validated like the real one. */
-export function scriptedLlm(handler: (name: string, user: string) => unknown): Llm {
+/** Test double: answers from `handler(name, prompt)` (prompt = system + user), validated like the real one. */
+export function scriptedLlm(handler: (name: string, prompt: string) => unknown): Llm {
   const llm: Llm = {
     usage: [], calls: 0,
     async call<T>(req: LlmRequest<T>) {
       llm.calls++;
-      const ok = req.schema.safeParse(handler(req.name, req.user));
+      const ok = req.schema.safeParse(handler(req.name, `${req.system}\n${req.user}`));
       return ok.success ? ok.data : null;
     },
   };
