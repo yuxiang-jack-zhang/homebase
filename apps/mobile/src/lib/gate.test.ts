@@ -1,6 +1,6 @@
 import { gate, type GateInput } from './gate';
 
-const base: GateInput = { signedIn: true, loading: false, error: null, households: [{ id: 'h1' }], current: { id: 'h1' }, confirmed: true };
+const base: GateInput = { signedIn: true, loading: false, error: null, households: [{ id: 'h1' }], current: { id: 'h1' }, confirmed: true, pending: false };
 
 test.each<[string, Partial<GateInput> & { signedIn?: boolean | undefined }, string]>([
   ['session still loading', { signedIn: undefined }, 'loading'],
@@ -9,6 +9,8 @@ test.each<[string, Partial<GateInput> & { signedIn?: boolean | undefined }, stri
   ['load error with no data never goes to onboarding', { error: 'offline', households: [], current: null }, 'error'],
   ['load error wins over loading=false data', { error: 'offline' }, 'error'],
   ['no households', { households: [], current: null }, 'onboarding'],
+  ['no households, a join request waiting for approval', { households: [], current: null, pending: true }, 'pending'],
+  ['a pending request never hides households I am in', { pending: true }, 'tabs'],
   ['current unconfirmed', { confirmed: false }, 'confirm-home'],
   ['multi-household with unconfirmed current', { households: [{ id: 'h1' }, { id: 'h2' }], confirmed: false }, 'confirm-home'],
   ['confirmed', {}, 'tabs'],

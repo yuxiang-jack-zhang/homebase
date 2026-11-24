@@ -1,5 +1,5 @@
 import { FunctionsFetchError, FunctionsHttpError } from '@supabase/supabase-js';
-import { ask } from './api';
+import { ask, deleteAccount } from './api';
 import { supabase } from './supabase';
 
 jest.mock('./supabase', () => ({ supabase: { functions: { invoke: jest.fn() } } }));
@@ -29,4 +29,12 @@ test('does not retry a server error', async () => {
   invoke.mockResolvedValue({ data: null, error: new FunctionsHttpError(res) } as never);
   await expect(ask(req as never)).rejects.toThrow('internal_error');
   expect(invoke).toHaveBeenCalledTimes(1);
+});
+
+test('deleteAccount calls delete-account and checks the reply', async () => {
+  invoke.mockResolvedValue({ data: { status: 'deleted' }, error: null } as never);
+  await expect(deleteAccount()).resolves.toEqual({ status: 'deleted' });
+  expect(invoke).toHaveBeenCalledWith('delete-account', { body: {} });
+  invoke.mockResolvedValue({ data: { status: 'nope' }, error: null } as never);
+  await expect(deleteAccount()).rejects.toThrow('bad_response');
 });

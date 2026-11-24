@@ -10,15 +10,22 @@ const CURRENT_KEY = 'homebase.currentHousehold';
 export type Household = Tables<'households'>;
 export type Membership = Tables<'household_members'>;
 export type Member = Membership & { display_name: string };
+/** A household I've asked to join: all a pending member may see. */
+export type PendingHousehold = { id: string; name: string; owner_name: string };
 
 interface Value {
   households: Household[];
   current: Household | null;
   setCurrent: (id: string) => void;
+  /** Active members of the current household. */
   members: Member[];
+  /** Pending join requests to the current household (the owner approves them). */
+  requests: Member[];
   me: Membership | null;
   /** My membership in every household (for geofencing across households). */
   myMemberships: Membership[];
+  /** Households waiting to approve me. */
+  pending: PendingHousehold[];
   loading: boolean;
   error: string | null;
   /** Re-run the initial load after a failure. */
@@ -32,19 +39,22 @@ export function HouseholdsProvider({ userId, children }: { userId: string; child
   const [households, setHouseholds] = useState<Household[]>([]);
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
+  const [pending, setPending] = useState<PendingHousehold[]>([]);
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    // RLS limits all three to my households and their members.
-    const [h, m, p] = await Promise.all([
+    // RLS limits these to households I'm active in, their members (incl. requests), and my own pending rows.
+    const [h, m, p, w] = await Promise.all([
       supabase.from('households').select('*').order('created_at'),
       supabase.from('household_members').select('*'),
       supabase.from('profiles').select('id, display_name'),
+      supabase.rpc('my_pending_households'),
     ]);
-    const err = h.error ?? m.error ?? p.error;
+    const err = h.error ?? m.error ?? p.error ?? w.error;
     if (err) throw err;
+    setPending(w.data ?? []);
     setHouseholds(h.data ?? []);
     setMemberships(m.data ?? []);
     setNames(Object.fromEntries((p.data ?? []).map((r) => [r.id, r.display_name])));
@@ -80,20 +90,23 @@ export function HouseholdsProvider({ userId, children }: { userId: string; child
 
   const value = useMemo<Value>(() => {
     const current = households.find((x) => x.id === currentId) ?? households[0] ?? null;
-    const inCurrent = memberships.filter((x) => x.household_id === current?.id);
+    const inCurrent = memberships.filter((x) => x.household_id === current?.id)
+      .map((x) => ({ ...x, display_name: names[x.user_id] ?? 'Roommate' }));
     return {
       households,
       current,
       setCurrent,
-      members: inCurrent.map((x) => ({ ...x, display_name: names[x.user_id] ?? 'Roommate' })),
-      me: inCurrent.find((x) => x.user_id === userId) ?? null,
-      myMemberships: memberships.filter((x) => x.user_id === userId),
+      members: inCurrent.filter((x) => x.status === 'active'),
+      requests: inCurrent.filter((x) => x.status === 'pending'),
+      me: inCurrent.find((x) => x.user_id === userId && x.status === 'active') ?? null,
+      myMemberships: memberships.filter((x) => x.user_id === userId && x.status === 'active'),
+      pending,
       loading,
       error,
       reload,
       refresh,
     };
-  }, [households, memberships, names, currentId, userId, loading, error, reload, setCurrent, refresh]);
+  }, [households, memberships, names, pending, currentId, userId, loading, error, reload, setCurrent, refresh]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

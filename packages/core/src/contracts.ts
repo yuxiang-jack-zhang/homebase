@@ -33,3 +33,5 @@ export type ReplyRequest = z.infer<typeof ReplyRequest>;
 
 export const ReplyResponse = z.object({ status: z.literal("replied") });
 export type ReplyResponse = z.infer<typeof ReplyResponse>;
+
+export const DeleteAccountResponse = z.object({ status: z.literal("deleted") });

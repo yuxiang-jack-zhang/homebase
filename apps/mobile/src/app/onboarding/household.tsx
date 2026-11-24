@@ -16,6 +16,7 @@ export default function HouseholdScreen() {
   const [busy, setBusy] = useState<'create' | 'join' | null>(null);
   const [createdId, setCreatedId] = useState<string | null>(null); // household exists; only the refresh may be pending
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const r = Number(radius);
   const radiusOk = Number.isInteger(r) && r >= 50 && r <= 500;
@@ -55,11 +56,16 @@ export default function HouseholdScreen() {
   async function join() {
     setBusy('join');
     setError(null);
+    setNotice(null);
     try {
       const { data, error: e } = await supabase.rpc('join_household', { p_invite_code: code });
       if (e) throw e;
-      await refresh();
-      setCurrent(data.id); // the gate now sends us to confirm-home
+      // A bad code comes back as { error } (not raised) so the server can count it toward the rate limit.
+      const res = data as { id?: string; name?: string; error?: string };
+      if (res.error) throw new Error(res.error);
+      setCode('');
+      setNotice(`Asked to join ${res.name}. You'll get in once the owner approves you.`);
+      await refresh(); // with no other household, the gate now shows the waiting screen
     } catch (e) {
       setError(friendlyError(e as Error));
     }
@@ -83,6 +89,7 @@ export default function HouseholdScreen() {
       <Field placeholder="Invite code" value={code} onChangeText={(t) => setCode(t.toUpperCase())} autoCapitalize="characters" autoCorrect={false} maxLength={12} />
       <Button title="Join" onPress={join} busy={busy === 'join'} disabled={!code.trim() || busy === 'create'} alt />
       <ErrorText text={error} />
+      {notice && <Text style={ui.hint}>{notice}</Text>}
       {households.length > 0 && <Button title="Cancel" alt onPress={() => router.back()} />}
     </ScrollView>
   );

@@ -5,8 +5,9 @@ export interface GateInput {
   households: { id: string }[];
   current: { id: string } | null;
   confirmed: boolean; // current membership has home_confirmed_at
+  pending: boolean; // a join request awaits the owner's approval
 }
-export type GateState = 'loading' | 'auth' | 'error' | 'onboarding' | 'confirm-home' | 'tabs';
+export type GateState = 'loading' | 'auth' | 'error' | 'onboarding' | 'pending' | 'confirm-home' | 'tabs';
 
 /** Where the signed-in flow belongs. A load error must never look like "no household". */
 export function gate(i: GateInput): GateState {
@@ -14,6 +15,6 @@ export function gate(i: GateInput): GateState {
   if (!i.signedIn) return 'auth';
   if (i.error) return 'error';
   if (i.loading) return 'loading';
-  if (i.households.length === 0 || !i.current) return 'onboarding';
+  if (i.households.length === 0 || !i.current) return i.pending ? 'pending' : 'onboarding';
   return i.confirmed ? 'tabs' : 'confirm-home';
 }
