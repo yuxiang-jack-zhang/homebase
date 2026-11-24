@@ -57,6 +57,6 @@ end $$;
 
 -- Grants (D59, 0006 style): no direct client writes; anon gets nothing.
 grant select on public.calendar_away to authenticated;
-grant select on public.calendar_away to service_role; -- the ask edge function reads the target's periods
+grant select, insert, update, delete on public.calendar_away to service_role; -- edge functions read it (ask); full DML like every table (0006)
 revoke execute on function public.sync_calendar_away(jsonb) from public, anon;
 grant execute on function public.sync_calendar_away(jsonb) to authenticated;
