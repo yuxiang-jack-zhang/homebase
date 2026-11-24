@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './db.types.ts';
+import { EVIDENCE_DAYS } from './patterns.ts';
 import type { Evidence, MemberSettings } from './types.ts';
 
 export interface Membership { timezone: string; members: { userId: string; name: string; settings: MemberSettings; joinedAt: string | null }[] }
@@ -8,7 +9,7 @@ export interface HouseholdData {
   /** null = the user is not a member (or the household does not exist). */
   membership(householdId: string, userId: string): Promise<Membership | null>;
   /**
-   * That household's presence for the user over the last 14 days plus the latest event before (the state going in),
+   * That household's presence for the user over the last EVIDENCE_DAYS (56) days plus the latest event before (the state going in),
    * keeping only events after the last one recorded while hidden (so a hidden window reads as unknown), and their blocks there.
    * `visibleFrom` (the asker's join time) drops everything earlier, so answers can't reveal presence the asker can't see.
    */
@@ -42,7 +43,7 @@ export function supabaseHouseholdData(admin: SupabaseClient<Database>): Househol
     },
 
     async evidence(householdId, userId, now, visibleFrom) {
-      const since = new Date(Date.parse(now) - 14 * DAY).toISOString();
+      const since = new Date(Date.parse(now) - EVIDENCE_DAYS * DAY).toISOString();
       const events = () => {
         const q = admin.from('presence_events').select('kind, at, visible').eq('household_id', householdId).eq('user_id', userId);
         return visibleFrom ? q.gte('at', visibleFrom) : q;

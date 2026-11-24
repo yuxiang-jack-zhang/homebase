@@ -7,15 +7,17 @@ const daysAgo = (d: number) => new Date(Date.parse(NOW) - d * 86_400_000).toISOS
 const data = supabaseHouseholdData(admin);
 
 describe("supabaseHouseholdData", () => {
-  it("evidence() returns that user's presence in that household from the last 14 days plus the latest event before, and their blocks there", async () => {
+  it("evidence() returns that user's presence in that household from the last 56 days (EVIDENCE_DAYS) plus the latest event before, and their blocks there", async () => {
     const a = await makeHousehold(["Sam"]);
     const b = await makeHousehold();
     const [sam] = a.members;
     await joinHousehold(sam, b.household.invite_code);
     const hid = a.household.id;
     ok(await admin.from("presence_events").insert([
-      { household_id: hid, user_id: sam.id, kind: "enter", at: daysAgo(20) },         // too old
-      { household_id: hid, user_id: sam.id, kind: "exit", at: daysAgo(15) },          // latest before the window: the state going in
+      { household_id: hid, user_id: sam.id, kind: "enter", at: daysAgo(70) },         // too old
+      { household_id: hid, user_id: sam.id, kind: "exit", at: daysAgo(60) },          // latest before the window: the state going in
+      { household_id: hid, user_id: sam.id, kind: "enter", at: daysAgo(40) },          // inside 56 days, outside the old 14
+      { household_id: hid, user_id: sam.id, kind: "exit", at: daysAgo(3) },
       { household_id: hid, user_id: sam.id, kind: "enter", at: daysAgo(2) },
       { household_id: hid, user_id: sam.id, kind: "exit", at: daysAgo(1) },
       { household_id: b.household.id, user_id: sam.id, kind: "enter", at: daysAgo(1) }, // other household
@@ -32,7 +34,7 @@ describe("supabaseHouseholdData", () => {
     expect(ev).toEqual({
       now: NOW,
       timezone: "America/Los_Angeles",
-      presence: [{ kind: "exit", at: daysAgo(15) }, { kind: "enter", at: daysAgo(2) }, { kind: "exit", at: daysAgo(1) }],
+      presence: [{ kind: "exit", at: daysAgo(60) }, { kind: "enter", at: daysAgo(40) }, { kind: "exit", at: daysAgo(3) }, { kind: "enter", at: daysAgo(2) }, { kind: "exit", at: daysAgo(1) }],
       blocks: [{ daysOfWeek: [1, 3], startLocal: "18:00", endLocal: "21:30", label: "climbing" }],
     });
   });
