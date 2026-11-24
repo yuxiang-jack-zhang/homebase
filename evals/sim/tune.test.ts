@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { pickBest, type TuneRow } from './tune.ts';
+import { pickBest, pickSafest, type TuneRow } from './tune.ts';
 
 const row = (correct: number, wrong: number, nMin = 4): TuneRow =>
   ({ matcher: 'weekday', nMin, pMin: 0.8, correct, wrongConfident: wrong, asked: 1 - correct - wrong });
@@ -16,5 +16,15 @@ describe('pickBest', () => {
 
   it('breaks ties on fewer confident errors', () => {
     expect(pickBest([row(0.8, 0.05, 3), row(0.8, 0.03, 6)], { correct: 0.6, wrongConfident: 0.05 })?.nMin).toBe(6);
+  });
+});
+
+describe('pickSafest', () => {
+  it('takes the fewest confident errors among configs that beat the baseline on correct answers; ties: more correct', () => {
+    const rows = [row(0.9, 0.04, 3), row(0.8, 0.02, 4), row(0.85, 0.02, 5), row(0.55, 0.01, 6)];
+    expect(pickSafest(rows, { correct: 0.6, wrongConfident: 0.05 })?.nMin).toBe(5);
+  });
+  it('null when nothing beats the baseline on correct answers', () => {
+    expect(pickSafest([row(0.5, 0.01)], { correct: 0.6, wrongConfident: 0.05 })).toBeNull();
   });
 });
