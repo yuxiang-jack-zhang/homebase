@@ -18,13 +18,12 @@ All three fixed on 2026-11-23 (D60, D61, friendly geofence error); recheck on th
 1. **Tracing / observability** — every agent run's tool calls, latency, tokens, cost; viewable in a small dashboard. Prerequisite for serious evals.
 2. **Simulated-roommate eval harness** — an LLM plays roommates with hidden schedules; the agent is scored on outcomes across many simulated days (τ-bench style). Top portfolio priority.
 3. **Security follow-ups** — the review (2026-11-24) was fixed in D66–D73. Left:
-   - Turn email confirmation back on and consider sign-up captcha (Supabase dashboard; finding 4). Free accounts make every per-user limit weaker.
+   - Sign-up captcha (Supabase dashboard). Email confirmation is back on (2026-11-24); free accounts still make per-user limits weaker.
    - Invite codes don't expire (only rotation).
    - A declined user can keep re-requesting; `join_attempts` and `ask_admissions` are never pruned (cron delete of rows older than a day).
    - A removed member still reads the questions they asked and the replies.
    - Household accuracy counts hint that hidden events existed (unscored rows).
    - `supabase_admin` default privileges still grant anon EXECUTE on functions created via the dashboard/SQL editor.
-   - Rotate the database password (it was shared in a chat session).
 4. **ETAs** — opt-in, rough "~20 min" from occasional coarse location samples.
 5. **Calendar** — iPhone calendar read on device; only busy/free blocks sent to the server.
 6. **Home-screen widget** — who's home at a glance (Swift target).

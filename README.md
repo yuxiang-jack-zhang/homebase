@@ -9,7 +9,7 @@ Each phone reports only **home or away**. It never sends a location. Anyone in t
 ## Why it's interesting
 
 - **An agent with guardrails in code, not in the prompt.** Claude parses the question and words the reply. Whether an answer may be sent at all is decided by deterministic, unit-tested policy code, using the roommate's settings and a confidence level computed from the evidence.
-- **Privacy by construction.** Geofencing runs on the phone, and only `enter`/`exit` events reach the server. Row-level security limits every read to your own households, hides members who turned visibility off, and keeps an agent's draft private to the roommate it's for.
+- **Privacy by construction.** Geofencing runs on the phone, and only `enter`/`exit` events reach the server. Row-level security limits every read to your own households, hides members who turned visibility off, and keeps an agent's draft private to the roommate it's for. A threat model and the fixes it led to (approved joins, rate limits, a writer that only ever sees facts) are in [`docs/security.md`](docs/security.md).
 - **Measured, not vibes.** An offline eval set runs the real pipeline against the model. The app also logs every prediction the agent makes ("Sam will be home at 7") and scores it later against what actually happened.
 
 ## How it works
@@ -38,7 +38,7 @@ Each phone reports only **home or away**. It never sends a location. Anyone in t
    - **`ask_me`:** never answer for them.
    - **`auto_when_confident`:** answer only at high confidence.
    - **`always_auto`:** answer, and say so when unsure.
-3. **Write.** Claude words either the reply to the asker or a suggested reply for the roommate to approve. A refusal, truncated output or model error never produces a guess; the question goes to the roommate instead.
+3. **Write.** Claude words either the reply to the asker or a suggested reply for the roommate to approve. The writer sees only the structured facts, never the question, and its line is kept only if it states those facts and nothing else; otherwise a plain template line is used. A refusal, truncated output or model error never produces a guess; the question goes to the roommate instead.
 
 Each roommate is handled in a separate run that only sees that roommate's data, so a household-wide question ("anyone home?") can't leak one member's schedule into another's answer. The roommate can approve the suggested reply, answer Yes/No/Not sure, or type their own; that choice is stored as feedback.
 
@@ -108,12 +108,12 @@ Every `ask` run is traced in Postgres ([D62](docs/decisions.md)): one row per ru
 
 | suite | what | count |
 |---|---|---|
-| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner, trace report, simulation | 270 |
-| `npm run test:db` | Postgres RLS, RPCs, triggers and edge functions against a local Supabase stack, signed in as real test users | 60 |
-| `apps/mobile`: `npx jest` | screens, hooks, routing gate, geofence logic, realtime resync, retry | 61 |
+| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner, trace report, simulation | 335 |
+| `npm run test:db` | Postgres RLS, RPCs, triggers and edge functions against a local Supabase stack, signed in as real test users | 85 |
+| `apps/mobile`: `npx jest` | screens, hooks, routing gate, geofence logic, realtime resync, retry | 78 |
 | [manual checklist](docs/manual-test-checklist.md) | two simulators against the hosted project, including a background relaunch after force-quit | 4 sections |
 
-Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (65 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
+Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (73 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
 
 ## Stack
 
@@ -161,7 +161,6 @@ ANTHROPIC_API_KEY=... npm run evals        # billed run against Claude (--model,
 
 Next, in order:
 1. scripted conflicts in the LLM-roommate simulation, to measure when an answer gets someone to change plans
-2. a security review / threat model
 
 After that:
 - rough ETAs
