@@ -60,8 +60,10 @@ serve(async (req) => {
       });
       const status = STATUS[r.decision.action];
       const qt = must(await admin.from('question_targets')
-        .insert({ question_id: question.id, user_id: t.userId, status, fallback_guess: r.fallbackGuess })
+        .insert({ question_id: question.id, user_id: t.userId, status })
         .select('id').single());
+      // Its own table so the asker can read it only after the 10-minute wait (0009).
+      if (r.fallbackGuess) must(await admin.from('target_guesses').insert({ question_target_id: qt.id, guess: r.fallbackGuess }));
 
       if (status === 'answered') {
         must(await admin.from('responses')

@@ -3,8 +3,9 @@ import { admin, anon, joinHousehold, makeHousehold, makeQuestion, newUser, ok, t
 
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
 
-async function addPresence(user: TestUser, householdId: string, kind: "enter" | "exit" = "enter", at = minutesAgo(5)) {
-  ok(await user.client.from("presence_events").insert({ household_id: householdId, user_id: user.id, kind, at }));
+/** With `at`, inserts as the service role: the server stamps a member's own insert with now() (0009). */
+async function addPresence(user: TestUser, householdId: string, kind: "enter" | "exit" = "enter", at?: string) {
+  ok(await (at ? admin : user.client).from("presence_events").insert({ household_id: householdId, user_id: user.id, kind, at }));
 }
 
 describe("RLS", () => {
@@ -85,7 +86,7 @@ describe("RLS", () => {
     expect(rows[0]).toMatchObject({ user_id: vis.id, kind: "enter" });
   });
 
-  it("turning visibility back on shows only the latest event; presence recorded while hidden stays hidden (C1)", async () => {
+  it("turning visibility back on shows the current state as of the unhide; presence recorded while hidden stays hidden (C1)", async () => {
     const h = await makeHousehold(["Sam"]);
     const [sam] = h.members;
     const hid = h.household.id;
@@ -98,15 +99,18 @@ describe("RLS", () => {
     await addPresence(sam, hid, "exit", latest);   // hidden, latest
     expect(ok(await h.owner.client.from("presence_events").select().eq("user_id", sam.id))).toEqual([]);
 
+    const unhidAt = Date.now();
     await setVisible(true);
 
+    // The hidden "enter" never surfaces, and the revealed state carries the unhide time, not when it happened.
     const seen = ok(await h.owner.client.from("presence_events").select("kind, at").eq("user_id", sam.id).order("at"));
-    const ms = (rows: { kind: string; at: string }[]) => rows.map((e) => [e.kind, Date.parse(e.at)]);
-    expect(ms(seen)).toEqual([["exit", Date.parse(before)], ["exit", Date.parse(latest)]]); // the hidden "enter" never surfaces
+    expect(seen.map((e) => e.kind)).toEqual(["exit", "exit"]);
+    expect(Date.parse(seen[0].at)).toBe(Date.parse(before));
+    expect(Math.abs(Date.parse(seen[1].at) - unhidAt)).toBeLessThan(60_000);
     const current = ok(await h.owner.client.from("current_presence").select("kind, at").eq("user_id", sam.id));
-    expect(ms(current)).toEqual([["exit", Date.parse(latest)]]);
-    // Sam still sees all of their own history.
-    expect(ok(await sam.client.from("presence_events").select().eq("user_id", sam.id))).toHaveLength(3);
+    expect(current).toEqual([seen[1]]);
+    // Sam still sees all of their own history, plus the reveal.
+    expect(ok(await sam.client.from("presence_events").select().eq("user_id", sam.id))).toHaveLength(4);
 
     // Toggling again without new events changes nothing for the roommate.
     await setVisible(false);
@@ -211,6 +215,25 @@ describe("RLS", () => {
     expect(ok(await zed.client.from("questions").select().eq("id", questionId))).toEqual([]);
     expect(ok(await zed.client.from("question_targets").select().eq("id", questionTargetId))).toEqual([]);
     expect(ok(await zed.client.from("responses").select().eq("question_target_id", questionTargetId))).toEqual([]);
+  });
+
+  it("the asker reads a fallback guess only after the 10-minute wait; the target and others never; nobody writes it", async () => {
+    const h = await makeHousehold(["Mia", "Zed"]);
+    const [mia, zed] = h.members;
+    const { questionTargetId } = await makeQuestion(h.household.id, h.owner, mia);
+    const guess = ok(await admin.from("target_guesses")
+      .insert({ question_target_id: questionTargetId, guess: "Mia: probably home" }).select().single());
+    expect(Date.parse(guess.visible_after) - Date.now()).toBeGreaterThan(9 * 60_000);
+    const read = (u: TestUser) => u.client.from("target_guesses").select("guess").eq("question_target_id", questionTargetId);
+
+    expect(ok(await read(h.owner))).toEqual([]);
+    ok(await admin.from("target_guesses").update({ visible_after: minutesAgo(0.1) }).eq("question_target_id", questionTargetId));
+    expect(ok(await read(h.owner))).toEqual([{ guess: "Mia: probably home" }]);
+    expect(ok(await read(mia))).toEqual([]);
+    expect(ok(await read(zed))).toEqual([]);
+    expect((await h.owner.client.from("target_guesses").update({ visible_after: minutesAgo(1) })
+      .eq("question_target_id", questionTargetId).select()).error?.code).toBe("42501");
+    expect((await anon.from("target_guesses").select()).error?.code).toBe("42501");
   });
 
   it("asker cannot read predictions about the target", async () => {

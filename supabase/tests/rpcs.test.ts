@@ -110,7 +110,7 @@ describe("RPCs", () => {
     }
   });
 
-  it("create_household defaults radius to 100, trims the name, and rejects bad names and locations", async () => {
+  it("create_household defaults radius to 100, trims the name, and rejects bad names, locations, radii and time zones", async () => {
     const owner = await newUser("Rae");
     const base = { p_name: "  Flat 9  ", p_lat: 10, p_lng: 20, p_timezone: "UTC" };
     const h = ok(await owner.client.rpc("create_household", base));
@@ -123,16 +123,23 @@ describe("RPCs", () => {
     for (const bad of [{ p_lat: 90.1 }, { p_lat: -91 }, { p_lng: 180.5 }, { p_lng: -181 }]) {
       expect((await owner.client.rpc("create_household", { ...base, ...bad })).error?.message).toBe("invalid_location");
     }
-    expect((await owner.client.rpc("create_household", { ...base, p_radius_m: 501 })).error).not.toBeNull();
+    for (const p_radius_m of [49, 501]) {
+      expect((await owner.client.rpc("create_household", { ...base, p_radius_m })).error?.message).toBe("invalid_radius");
+    }
+    for (const p_timezone of ["Mars/Base", ""]) {
+      expect((await owner.client.rpc("create_household", { ...base, p_timezone })).error?.message).toBe("invalid_timezone");
+    }
   });
 
-  it("update_home rejects out-of-range locations with invalid_location and leaves the home unchanged", async () => {
+  it("update_home rejects out-of-range locations and radii with named errors and leaves the home unchanged", async () => {
     const h = await makeHousehold(["Mia"]);
     const hid = h.household.id;
     for (const bad of [{ p_lat: 95, p_lng: 0 }, { p_lat: 0, p_lng: -200 }]) {
       const res = await h.owner.client.rpc("update_home", { p_household_id: hid, p_radius_m: 100, ...bad });
       expect(res.error?.message).toBe("invalid_location");
     }
+    const radius = await h.owner.client.rpc("update_home", { p_household_id: hid, p_lat: 0, p_lng: 0, p_radius_m: 900 });
+    expect(radius.error?.message).toBe("invalid_radius");
     expect(ok(await admin.from("households").select("home_lat, home_lng").eq("id", hid).single()))
       .toEqual({ home_lat: 37.4275, home_lng: -122.1697 });
     expect((await memberRow(hid, h.members[0].id)).home_confirmed_at).not.toBeNull();

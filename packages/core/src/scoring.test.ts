@@ -46,3 +46,15 @@ describe('scoreClaim until_when', () => {
     expect(scoreClaim(until, [], T('18:29'))).toBe('pending'));
   it('null predictedTime unscored', () => expect(scoreClaim({ ...until, predictedTime: null }, recent, T('19:00'))).toBe('unscored'));
 });
+
+describe('scoreClaim with presence recorded while hidden', () => {
+  const hidden = (kind: 'enter' | 'exit', at: string) => ({ ...ev(kind, at), visible: false });
+  it('unscored once due: the outcome would rest on hidden presence', () => {
+    expect(scoreClaim(base, [ev('enter', T('17:00')), hidden('exit', T('18:00'))], T('20:00'))).toBe('unscored');
+    expect(scoreClaim(until, [...recent, hidden('enter', T('18:20'))], T('19:00'))).toBe('unscored');
+  });
+  it('a hidden arrival does not end the wait early: pending until the deadline passes', () =>
+    expect(scoreClaim(until, [...recent, hidden('enter', T('17:00'))], T('18:00'))).toBe('pending'));
+  it('visible: true is scored as before', () =>
+    expect(scoreClaim(base, [{ ...ev('enter', T('17:00')), visible: true }], T('20:00'))).toBe('correct'));
+});
