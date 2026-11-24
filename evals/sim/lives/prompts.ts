@@ -27,7 +27,7 @@ export function planPrompt(p: { me: Roommate; housemates: string[]; dow: number;
 You live with ${p.housemates.join(', ')}. You plan your own day realistically, including spontaneous or lazy days. ${TIMES}`,
     user: `It is ${DAYS[p.dow]} morning. ${mem(p.memory)}${p.promises.length ? `\nYou promised: ${p.promises.join('; ')}.` : ''}
 Plan today: "outings" when you will be away from home (sorted, not overlapping, first leave no earlier than ${p.earliest}, last back by 29:00), each with why.
-${p.warmup ? 'Leave "needs" and "questions" empty today.' : `"needs": 0-2 times today when you need someone at home (a delivery, a repair, a guest, letting someone in), only if it fits your life.
+${p.warmup ? 'Leave "needs" and "questions" empty today.' : `"needs": 0-2 times today when something needs someone at home (a delivery to sign for, a repair visit, a guest or pet sitter to let in) while you are out yourself, only if it fits your life. If you'll be home then, it isn't a need.
 "questions": 0-3 moments you would ask the house app about a housemate's whereabouts (about = their name), including one shortly before each need. Most days have none or one.`}`,
   };
 }

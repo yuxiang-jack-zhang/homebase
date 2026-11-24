@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Plan } from './day.ts';
 import { generateHousehold, normalizePlan, type Roommate } from './household.ts';
 import { scriptedLlm } from './llm.ts';
-import { reactPrompt, replyPrompt } from './prompts.ts';
+import { planPrompt, reactPrompt, replyPrompt } from './prompts.ts';
 
 const mate = (name: string): Roommate => ({ name, age: 27, job: 'nurse', routine: 'nights', habits: 'gym', social: 'quiet', blocks: [] });
 const raw = (names: string[]) => ({
@@ -55,6 +55,12 @@ describe('normalizePlan', () => {
 });
 
 describe('prompts', () => {
+  it('asks for needs only at times you will be out yourself, and keeps the warm-up prompt free of needs', () => {
+    const base = { me: mate('Bo'), housemates: ['Ana'], dow: 1, memory: [], promises: [], earliest: '05:00' };
+    expect(planPrompt({ ...base, warmup: false }).user).toMatch(/while you are out/);
+    expect(planPrompt({ ...base, warmup: true }).user).toContain('Leave "needs" and "questions" empty today.');
+  });
+
   it('a reply or reaction prompt shows only your own plan, never the agent internals', () => {
     const me = mate('Bo');
     const p1 = replyPrompt({ me, asker: 'Ana', question: 'u home at 3?', draft: 'Yes, back by 3.', now: '13:00', myOutings: [{ leave: '12:00', back: '18:00', why: 'work' }], outNow: true, memory: ['busy week'] });
