@@ -9,6 +9,9 @@ See the design doc: `docs/design.md`.
 ## Found in manual testing (2026-11-22)
 All three fixed on 2026-11-23 (D60, D61, friendly geofence error); recheck on the next manual run.
 
+## Found in the LLM-roommate simulation (2026-11-24)
+- **The answer writer embellishes:** Haiku added inferences from the question ("…so the kitchen should be free and it should be quiet") although ANSWER_SYSTEM says to use only the given facts. Nothing private leaked, but it states things the app doesn't know. Fix: tighten the prompt or check the line against the claim; add an eval check.
+
 ## After MVP (Jack's order, 2026-11-22)
 - **Any time the Apple Developer account is bought:** remote push + TestFlight → real roommates. Independent of the list below.
 

@@ -54,11 +54,11 @@ describe('makeLlm', () => {
     expect(replay.calls).toHaveLength(0);
   });
 
-  it('a thrown API error counts as invalid output (retried once, never cached)', async () => {
+  it('an API error is retried once, never cached, and then stops the run instead of faking a result', async () => {
     let n = 0;
-    const client = { beta: { messages: { parse: async () => { n++; throw new Error('overloaded'); } } } } as unknown as Anthropic;
+    const client = { beta: { messages: { parse: async () => { n++; throw new Error('You have reached your specified API usage limits.'); } } } } as unknown as Anthropic;
     const cachePath = tmp();
-    expect(await makeLlm({ client, model: 'm', cachePath }).call({ name: 'x', system: 'S', user: 'U', schema })).toBeNull();
+    await expect(makeLlm({ client, model: 'm', cachePath }).call({ name: 'x', system: 'S', user: 'U', schema })).rejects.toThrow(/usage limits/);
     expect(n).toBe(2);
     expect(() => readFileSync(cachePath, 'utf8')).toThrow(); // nothing written
   });
@@ -73,6 +73,14 @@ describe('scriptedLlm', () => {
 });
 
 describe('cachedModel', () => {
+  it('does not cache a call that errored, so a replay retries it', async () => {
+    const cachePath = tmp();
+    const failing = { ...fakeModel({}), write: async () => ({ text: null, usage: { model: 'm', inputTokens: 0, outputTokens: 0, latencyMs: 0, error: 'invalid_request_error' } }) };
+    await cachedModel(failing, 'm', cachePath).write({ system: 'S', user: 'U' });
+    const ok = fakeModel({ write: 'fine' });
+    expect((await cachedModel(ok, 'm', cachePath).write({ system: 'S', user: 'U' })).text).toBe('fine');
+  });
+
   it('replays parse and write results with their usage', async () => {
     const cachePath = tmp();
     const inner = fakeModel({ parse: { kind: 'now', aboutTime: null }, write: 'Sam is home.' });

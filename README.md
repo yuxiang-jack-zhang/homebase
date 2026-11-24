@@ -86,6 +86,20 @@ What it shows ([D64](docs/decisions.md)):
 - Most confident errors are "when are you back?" answered from the end of an away block: gym days, a stale schedule, an undeclared trip.
 - The model isn't the bottleneck: every system-level number is the same across models, so the app now runs on Haiku 5.5, at about 1/48 of Opus's cost and a second faster. Learned arrival patterns (roadmap) are the next lever, and this harness is how they'll be judged.
 
+### LLM-driven roommates
+
+The code simulation can't capture one thing: an answer can change what happens. `npm run lives` has Sonnet invent a household and play every roommate day by day ([D65](docs/decisions.md)). Each morning they plan their day, including needs ("the plumber comes at 3, someone has to be home"). They ask the app about each other, reply when the agent routes a question to them ("I can be back by 2:45"), react to answers, and any of that can change their plans from that moment on. Answers are graded against what actually happened, and each answer mode is scored on **needs met vs how often people get bothered**. Every LLM call is cached, so runs replay for free.
+
+First run, five roommates over 14 days, agent Haiku 5.5:
+
+| mode | needs met | asked per roommate-day | answered correctly | confidently wrong |
+|---|---|---|---|---|
+| Ask me first | 9/9 | 0.17 | 77% | 2% |
+| Answer if confident | 5/5 | 0.07 | 88% | 4% |
+| Always answer | 4/4 | 0.01 | 75% | 10% |
+
+With five people someone is nearly always home, so every need was met without anyone changing plans. The interaction this harness is built to measure needs a smaller household; `--size 2` is next.
+
 ## Tracing
 
 Every `ask` run is traced in Postgres ([D62](docs/decisions.md)): one row per run (total latency, success) and one per model call (step, model, tokens, latency, stop reason or error type). Only counts and outcomes are stored, never question text or model output, and only the service role can read them. `npm run traces -- --days 7` prints the run count and failures, p50/p95 run latency, total and per-run cost, and per step (parse, answer, draft): calls, calls with no output, p50/p95 latency, tokens and cost, plus why any call produced nothing (refusal, truncation, timeout, overload).
@@ -99,7 +113,7 @@ Every `ask` run is traced in Postgres ([D62](docs/decisions.md)): one row per ru
 | `apps/mobile`: `npx jest` | screens, hooks, routing gate, geofence logic, realtime resync, retry | 61 |
 | [manual checklist](docs/manual-test-checklist.md) | two simulators against the hosted project, including a background relaunch after force-quit | 4 sections |
 
-Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (64 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
+Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (65 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
 
 ## Stack
 
@@ -146,7 +160,7 @@ ANTHROPIC_API_KEY=... npm run evals        # billed run against Claude (--model,
 ## Roadmap
 
 Next, in order:
-1. LLM-driven roommates (τ-bench style) on top of the simulation
+1. LLM-driven roommates in a two-person household, where plan changes should matter
 2. a security review / threat model
 
 After that:

@@ -1,0 +1,5572 @@
+{
+  "date": "2026-11-24",
+  "summary": {
+    "mode": "always_auto",
+    "model": "claude-haiku-5-5",
+    "days": 14,
+    "questions": 52,
+    "needs": 4,
+    "needsMet": 4,
+    "metByChange": 0,
+    "escalations": 1,
+    "botherPerRoommateDay": 0.014285714285714285,
+    "commitments": 0,
+    "askerChanges": 2,
+    "outcomes": {
+      "answered_correct": 0.75,
+      "answered_wrong_confident": 0.09615384615384616,
+      "answered_wrong_caveated": 0,
+      "escalated": 0.019230769230769232,
+      "unknown": 0.1346153846153846
+    },
+    "parseAccuracy": 0.9423076923076923,
+    "agentUsd": 0.0028713000000000015,
+    "simUsd": 1.2006259999999997,
+    "p50AgentMs": 1482,
+    "p95AgentMs": 1967,
+    "errors": 0
+  },
+  "stories": [
+    "Day 0 16:50: Marisol asks about Devon: \"hey, is Devon home right now? Want to know if he's in the kitchen before I start settling in to cook and grade at the table\" → agent answered: \"Devon is home right now.\". Graded: answered wrong confident.",
+    "Day 7 17:00: Tobias asks about Marisol: \"hey is Marisol home right now? made way too much food after the job paid, and I restocked the coffee and shared stuff before heading out, wanna make sure she's got enough\" → agent answered: \"Marisol is home right now.\"; Tobias changed plans. Graded: answered correct."
+  ],
+  "simCallsMade": 57,
+  "options": {
+    "days": 14,
+    "warmup": 7,
+    "seed": 1,
+    "mode": "always_auto",
+    "noise": true,
+    "simModel": "claude-sonnet-5-5",
+    "model": "claude-haiku-5-5"
+  },
+  "household": [
+    {
+      "name": "Marisol",
+      "age": 29,
+      "job": "Elementary school teacher, 7:30am-4:00pm Mon-Fri, plus grading at home in the evenings",
+      "routine": "Up at 5:45, gym-free mornings, leaves by 7:00 to beat traffic on the 10. Home around 4:45pm, cooks dinner at 6:30, grades papers at the kitchen table until 9, in bed by 10:00.",
+      "habits": "Tidy and quiet, does dishes right after eating, labels her food in the fridge. Does laundry Sunday afternoon. Hates loud noise after 10pm.",
+      "social": "Sees her sister in Pasadena most Saturdays, occasional dinner with coworkers on Fridays. Rarely hosts people at the house.",
+      "blocks": [
+        {
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "startLocal": "07:00",
+          "endLocal": "16:45",
+          "label": "School"
+        },
+        {
+          "daysOfWeek": [
+            6
+          ],
+          "startLocal": "11:00",
+          "endLocal": "18:00",
+          "label": "Pasadena with family"
+        }
+      ]
+    },
+    {
+      "name": "Devon",
+      "age": 34,
+      "job": "Line cook at a restaurant in Silver Lake, roughly 2:00pm-11:30pm Wed-Sun",
+      "routine": "Sleeps until 10 or 11am, makes coffee and plays guitar quietly, leaves for work around 1:15pm. Gets home near midnight, eats a late snack, winds down with TV until 2am. Mondays and Tuesdays off.",
+      "habits": "Messy in the kitchen when tired but cleans on his days off. Keeps odd hours so he runs the dishwasher late. Smokes on the back patio, never inside.",
+      "social": "Hangs out with restaurant crew after shifts on Saturdays. Mondays he often has friends over to play video games or cook.",
+      "blocks": [
+        {
+          "daysOfWeek": [
+            3,
+            4,
+            5,
+            6,
+            0
+          ],
+          "startLocal": "13:15",
+          "endLocal": "23:59",
+          "label": "Work"
+        }
+      ]
+    },
+    {
+      "name": "Priya",
+      "age": 26,
+      "job": "Junior software engineer, hybrid: in office in Santa Monica Tue/Wed/Thu 9:30am-6:00pm, remote Mon and Fri",
+      "routine": "Wakes at 7:30, remote days she works from her bedroom desk with headphones and calls in the kitchen occasionally. Runs 3 mornings a week at 6:45. Dinner usually takeout or meal prep at 7pm.",
+      "habits": "Moderately tidy, leaves mugs in her room until they pile up. Takes long showers in the evening. Keeps a plant collection in the living room window.",
+      "social": "Climbing gym with friends Monday and Thursday nights, brunch on Sundays. Boyfriend stays over about twice a week, usually weekends.",
+      "blocks": [
+        {
+          "daysOfWeek": [
+            2,
+            3,
+            4
+          ],
+          "startLocal": "08:45",
+          "endLocal": "18:30",
+          "label": "Office commute"
+        },
+        {
+          "daysOfWeek": [
+            1
+          ],
+          "startLocal": "19:00",
+          "endLocal": "22:00"
+        }
+      ]
+    },
+    {
+      "name": "Tobias",
+      "age": 41,
+      "job": "Freelance photographer and video editor, irregular shoots (weddings, commercial gigs), no fixed hours",
+      "routine": "Highly variable: some days he's out at 5am for a sunrise shoot, other days he edits at home until 3am in the living room corner. Weeks with weddings are mostly weekends; slow weeks he's home most of the day.",
+      "habits": "Leaves camera gear and cables around common areas, drinks a lot of coffee, often forgets to restock shared supplies. Generous about cooking big meals when a job pays well.",
+      "social": "Large network of creative friends, occasionally hosts small gatherings with little notice. Travels out of town a couple of weekends a month for jobs.",
+      "blocks": [
+        {
+          "daysOfWeek": [
+            6
+          ],
+          "startLocal": "09:00",
+          "endLocal": "23:00",
+          "label": "Wedding season shoots (maybe)"
+        }
+      ]
+    },
+    {
+      "name": "Imani",
+      "age": 23,
+      "job": "Part-time barista (6:00am-1:00pm Mon/Tue/Fri) and full-time grad student at UCLA with classes Wed/Thu evenings",
+      "routine": "Barista days she's up at 4:45 and gone by 5:30, naps in the afternoon. Wed/Thu she has classes 5:00pm-9:30pm and studies at the library until late. Weekends are for studying and laundry.",
+      "habits": "Quiet and considerate but forgets to take trash out. Keeps her room door closed, uses earbuds. Stores a lot of oat milk and leftovers in the fridge.",
+      "social": "Close with her cohort, sometimes studies with them on weekends. Calls her family in Atlanta Sunday evenings, usually in her room. Rarely has guests.",
+      "blocks": []
+    }
+  ],
+  "days": [
+    {
+      "day": -7,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teach at the elementary school (7:30-4:00), leaving early to beat traffic on the 10, then drive home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teach at the elementary school (7:30-4:00), leaving early to beat traffic on the 10, then drive home"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:00",
+              "back": "14:30",
+              "why": "Grocery run for tonight's cook-and-games night with friends, plus a quick stop at the hardware store for a new guitar string"
+            },
+            {
+              "leave": "16:15",
+              "back": "16:45",
+              "why": "Pick up beer and a few last-minute items before friends come over"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:00",
+              "back": "14:30",
+              "why": "Grocery run for tonight's cook-and-games night with friends, plus a quick stop at the hardware store for a new guitar string"
+            },
+            {
+              "leave": "16:15",
+              "back": "16:45",
+              "why": "Pick up beer and a few last-minute items before friends come over"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "12:30",
+              "back": "13:15",
+              "why": "Walk to grab lunch and pick up a few groceries for meal prep"
+            },
+            {
+              "leave": "18:30",
+              "back": "21:30",
+              "why": "Climbing gym with friends"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:30",
+              "back": "13:15",
+              "why": "Walk to grab lunch and pick up a few groceries for meal prep"
+            },
+            {
+              "leave": "18:30",
+              "back": "21:30",
+              "why": "Climbing gym with friends"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "09:45",
+              "back": "10:50",
+              "why": "Pick up coffee beans and restock shared household supplies at the grocery store"
+            },
+            {
+              "leave": "13:30",
+              "back": "16:00",
+              "why": "Client meeting about a commercial gig, then a stop at the camera shop for a spare memory card and cables"
+            },
+            {
+              "leave": "19:30",
+              "back": "22:15",
+              "why": "Drinks and dinner with creative friends to talk about upcoming projects"
+            }
+          ],
+          "final": [
+            {
+              "leave": "09:45",
+              "back": "10:50",
+              "why": "Pick up coffee beans and restock shared household supplies at the grocery store"
+            },
+            {
+              "leave": "13:30",
+              "back": "16:00",
+              "why": "Client meeting about a commercial gig, then a stop at the camera shop for a spare memory card and cables"
+            },
+            {
+              "leave": "19:30",
+              "back": "22:15",
+              "why": "Drinks and dinner with creative friends to talk about upcoming projects"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift at the coffee shop (6:00am-1:00pm), then the commute home"
+            },
+            {
+              "leave": "18:30",
+              "back": "21:00",
+              "why": "Study session at the UCLA library after an afternoon nap, plus a quick grocery stop for oat milk on the way home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift at the coffee shop (6:00am-1:00pm), then the commute home"
+            },
+            {
+              "leave": "18:30",
+              "back": "21:00",
+              "why": "Study session at the UCLA library after an afternoon nap, plus a quick grocery stop for oat milk on the way home"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Marisol": "Long day at school, but the early start meant I missed the worst traffic on the 10 and got home around 4:45. I still need to cook dinner at 6:30, finish grading at the kitchen table by 9, and get to bed by 10 so I'm rested tomorrow.",
+        "Devon": "Hosted cook-and-games night with friends after stocking up on groceries and beer, and I need to restring my guitar with the new string I picked up. Feeling good and relaxed, but I have to clean the kitchen and run the dishwasher before work on Wednesday.",
+        "Priya": "Grabbed lunch and picked up groceries for meal prep, so I should cook tomorrow instead of ordering takeout. Climbing night with friends was fun and left me tired but in a good mood, so I want an easy morning and to skip the run if I'm sore.",
+        "Tobias": "Restocked the coffee and shared supplies for once, and the client meeting went well, so I need to send the quote and follow up on the commercial gig tomorrow. Got a spare memory card and cables, and after the dinner I'm feeling energized about the projects my friends and I talked about, so I should text them a couple of ideas.",
+        "Imani": "Long barista shift then a nap and a decent library session; I'm tired but glad I got oat milk restocked. Tomorrow I have classes 5-9:30pm and need to remember to take the trash out before I leave."
+      }
+    },
+    {
+      "day": -6,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Commute to the elementary school, teach from 7:30 to 4:00, then drive home on the 10"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Commute to the elementary school, teach from 7:30 to 4:00, then drive home on the 10"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:30",
+              "back": "15:00",
+              "why": "Grab a late lunch and pick up a few household odds and ends since it's a relaxed day off"
+            },
+            {
+              "leave": "17:30",
+              "back": "18:30",
+              "why": "Quick walk around Silver Lake and a smoke-free stretch to unwind before settling in for the evening"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:30",
+              "back": "15:00",
+              "why": "Grab a late lunch and pick up a few household odds and ends since it's a relaxed day off"
+            },
+            {
+              "leave": "17:30",
+              "back": "18:30",
+              "why": "Quick walk around Silver Lake and a smoke-free stretch to unwind before settling in for the evening"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "08:50",
+              "back": "18:40",
+              "why": "Office day in Santa Monica (9:30-18:00), including the commute each way"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:50",
+              "back": "18:40",
+              "why": "Office day in Santa Monica (9:30-18:00), including the commute each way"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "10:30",
+              "back": "12:00",
+              "why": "Grab coffee and a quick lunch at a cafe, and use the laptop there to finish and send the quote for the commercial gig"
+            },
+            {
+              "leave": "14:30",
+              "back": "16:00",
+              "why": "Scout the location for tomorrow's commercial gig and test a few camera angles with the spare memory card"
+            },
+            {
+              "leave": "19:00",
+              "back": "22:00",
+              "why": "Meet creative friends for drinks to pitch the project ideas we talked about at dinner"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:30",
+              "back": "12:00",
+              "why": "Grab coffee and a quick lunch at a cafe, and use the laptop there to finish and send the quote for the commercial gig"
+            },
+            {
+              "leave": "14:30",
+              "back": "16:00",
+              "why": "Scout the location for tomorrow's commercial gig and test a few camera angles with the spare memory card"
+            },
+            {
+              "leave": "19:00",
+              "back": "22:00",
+              "why": "Meet creative friends for drinks to pitch the project ideas we talked about at dinner"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift at the cafe, 6:00am to 1:00pm, plus the commute home"
+            },
+            {
+              "leave": "17:30",
+              "back": "20:30",
+              "why": "Library study session for grad school after her afternoon nap, since she has classes tomorrow evening"
+            }
+          ],
+          "final": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift at the cafe, 6:00am to 1:00pm, plus the commute home"
+            },
+            {
+              "leave": "17:30",
+              "back": "20:30",
+              "why": "Library study session for grad school after her afternoon nap, since she has classes tomorrow evening"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Marisol": "Long day at school, then the 10 was slow on the drive home; I got in around 4:45 and still need to cook dinner at 6:30 and grade papers until 9. Aiming for lights out by 10 and a quieter, earlier start tomorrow.",
+        "Devon": "Had a relaxed day off: grabbed a late lunch, picked up some household odds and ends, then took a quiet walk around Silver Lake to unwind. Feeling mellow and rested, and I should clean the kitchen and get ready for my next shift.",
+        "Priya": "Long office day in Santa Monica, got home around 6:40 and was pretty drained, so I'll probably do takeout or reheat meal prep and take a long shower. Tomorrow's another office day (Wed), and I need to remember to water the plants in the living room window.",
+        "Tobias": "Sent the quote for the commercial gig from the cafe, scouted the location this afternoon, and the angle tests with the spare card looked promising, so tomorrow's shoot should go smoothly. Pitched the project ideas to my friends over drinks and felt energized; I need to follow up with them and restock the coffee and charge my batteries before an early start.",
+        "Imani": "Long barista shift, then napped and got in a solid 3 hours at the library; tired but good about being prepared for tomorrow's evening class. Need to take the trash out before I forget again, and pack my laptop and notes for class."
+      }
+    },
+    {
+      "day": -5,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Commute to school on the 10, teach 7:30-4:00, then drive home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Commute to school on the 10, teach 7:30-4:00, then drive home"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Work shift as line cook at the restaurant in Silver Lake"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Work shift as line cook at the restaurant in Silver Lake"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "08:50",
+              "back": "18:40",
+              "why": "Office day in Santa Monica (9:30-18:00) including the commute"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:50",
+              "back": "18:40",
+              "why": "Office day in Santa Monica (9:30-18:00) including the commute"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "09:30",
+              "back": "11:00",
+              "why": "Grab coffee beans and restock shared supplies (coffee, filters) at the shop before the shoot tomorrow"
+            },
+            {
+              "leave": "13:00",
+              "back": "15:00",
+              "why": "Meet a friend over lunch to follow up on the project ideas and get feedback"
+            },
+            {
+              "leave": "19:30",
+              "back": "22:00",
+              "why": "Drinks with creative friends to keep project momentum going, then home early to charge batteries before tomorrow's early start"
+            }
+          ],
+          "final": [
+            {
+              "leave": "09:30",
+              "back": "11:00",
+              "why": "Grab coffee beans and restock shared supplies (coffee, filters) at the shop before the shoot tomorrow"
+            },
+            {
+              "leave": "13:00",
+              "back": "15:00",
+              "why": "Meet a friend over lunch to follow up on the project ideas and get feedback"
+            },
+            {
+              "leave": "19:30",
+              "back": "22:00",
+              "why": "Drinks with creative friends to keep project momentum going, then home early to charge batteries before tomorrow's early start"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "09:30",
+              "back": "13:00",
+              "why": "Library study session in the morning, then home for lunch"
+            },
+            {
+              "leave": "16:15",
+              "back": "24:30",
+              "why": "Evening class 5:00-9:30pm at UCLA, then studying at the library until late"
+            }
+          ],
+          "final": [
+            {
+              "leave": "09:30",
+              "back": "13:00",
+              "why": "Library study session in the morning, then home for lunch"
+            },
+            {
+              "leave": "16:15",
+              "back": "24:30",
+              "why": "Evening class 5:00-9:30pm at UCLA, then studying at the library until late"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Marisol": "Long but ordinary school day, out the door at 7:00 and home by 4:45, so tonight is dinner at 6:30, grading at the kitchen table until 9, and bed by 10. Feeling tired but steady; I want to keep the evening quiet and remember to pack up tomorrow's materials before heading out early to beat the 10 traffic.",
+        "Devon": "Long shift on the line today and I'm wiped, got home past midnight and left the kitchen a bit of a mess, so I need to clean it up and run the dishwasher. Tomorrow I'll sleep in, play some guitar over coffee, and head back in around 1:15pm.",
+        "Priya": "Long office day in Santa Monica, got home around 6:40pm and felt a bit drained, so I'll likely do takeout or quick meal prep tonight and take a long shower. Tomorrow is another office day, and I should water the plants and bring my mugs back to the kitchen before they pile up.",
+        "Tobias": "Restocked the coffee beans and filters this morning, so I'm set for the early shoot tomorrow, and I need to make sure the batteries stay charged and the gear is packed before I head out. Lunch feedback and drinks with the crew got me fired up about the project ideas, so I should follow up with a few of them this week.",
+        "Imani": "Long day: library in the morning, then class and more studying until after midnight, so I'm pretty tired. I need to take the trash out and get some sleep before tomorrow."
+      }
+    },
+    {
+      "day": -4,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Commute on the 10 and a full day teaching at the elementary school"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Commute on the 10 and a full day teaching at the elementary school"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "23:50",
+              "why": "Work the line shift at the restaurant in Silver Lake"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "23:50",
+              "why": "Work the line shift at the restaurant in Silver Lake"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "08:50",
+              "back": "18:40",
+              "why": "Commute to and from the Santa Monica office for my in-office day (9:30-6:00)"
+            },
+            {
+              "leave": "19:15",
+              "back": "21:30",
+              "why": "Thursday night climbing at the gym with friends"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:50",
+              "back": "18:40",
+              "why": "Commute to and from the Santa Monica office for my in-office day (9:30-6:00)"
+            },
+            {
+              "leave": "19:15",
+              "back": "21:30",
+              "why": "Thursday night climbing at the gym with friends"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "10:00",
+              "back": "11:30",
+              "why": "Grab coffee at the cafe and follow up in person with a friend about the project ideas"
+            },
+            {
+              "leave": "14:00",
+              "back": "16:00",
+              "why": "Final quick check of the commercial shoot location and pick up any last-minute supplies like gaffer tape before tomorrow's early start"
+            },
+            {
+              "leave": "19:30",
+              "back": "22:00",
+              "why": "Drinks with a few creative friends to follow up on the project ideas"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:00",
+              "back": "11:30",
+              "why": "Grab coffee at the cafe and follow up in person with a friend about the project ideas"
+            },
+            {
+              "leave": "14:00",
+              "back": "16:00",
+              "why": "Final quick check of the commercial shoot location and pick up any last-minute supplies like gaffer tape before tomorrow's early start"
+            },
+            {
+              "leave": "19:30",
+              "back": "22:00",
+              "why": "Drinks with a few creative friends to follow up on the project ideas"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "09:00",
+              "back": "12:30",
+              "why": "Morning study session at the UCLA library"
+            },
+            {
+              "leave": "16:15",
+              "back": "24:30",
+              "why": "Evening class 5:00-9:30pm, then studying at the library until late"
+            }
+          ],
+          "final": [
+            {
+              "leave": "09:00",
+              "back": "12:30",
+              "why": "Morning study session at the UCLA library"
+            },
+            {
+              "leave": "16:15",
+              "back": "24:30",
+              "why": "Evening class 5:00-9:30pm, then studying at the library until late"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Marisol": "Long day teaching, left at 7:00 and got home around 4:45 pm, so I'm tired but have a stack of papers to grade after cooking dinner at 6:30. Aiming for lights out by 10 so I'm rested for tomorrow's commute on the 10.",
+        "Devon": "Long, busy shift on the line today and I'm wiped, got home near midnight so I'll sleep in and play guitar with coffee tomorrow before work. Need to run the dishwasher and clean up the kitchen mess I left, and I'll do a proper cleanup on my days off.",
+        "Priya": "Long Thursday: office day in Santa Monica, then climbing with friends that night, so I'm pretty tired and my forearms are sore. Tomorrow is a remote Friday, so I can sleep in until 7:30, and I should gather the mugs piling up in my room and take them to the kitchen.",
+        "Tobias": "Early start tomorrow for the commercial shoot: location's checked and I've got the gaffer tape, so I just need to pack the gear and get to bed. Good, energized mood after talking project ideas with friends over coffee and drinks, and I need to follow up on those ideas soon.",
+        "Imani": "Long day: studied at the library in the morning, then class and more studying until after midnight, so I'm wiped but got a lot done. Need to remember to take the trash out and get to bed early, since I'm up at 4:45 for my next barista shift."
+      }
+    },
+    {
+      "day": -3,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teaching at school (7:30-4:00), then the slow drive home on the 10"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teaching at school (7:30-4:00), then the slow drive home on the 10"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "23:45",
+              "why": "Work the line at the restaurant in Silver Lake (shift roughly 14:00 to 23:30)"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "23:45",
+              "why": "Work the line at the restaurant in Silver Lake (shift roughly 14:00 to 23:30)"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "12:30",
+              "back": "13:15",
+              "why": "Grab lunch and a short walk to stretch out sore forearms and get fresh air on a remote day"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:30",
+              "back": "13:15",
+              "why": "Grab lunch and a short walk to stretch out sore forearms and get fresh air on a remote day"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Meet a couple of friends for lunch and coffee to follow up on the project ideas I pitched"
+            },
+            {
+              "leave": "16:00",
+              "back": "17:00",
+              "why": "Quick errand to pick up spare batteries and a card reader and grab some snacks for the early shoot tomorrow"
+            }
+          ],
+          "final": [
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Meet a couple of friends for lunch and coffee to follow up on the project ideas I pitched"
+            },
+            {
+              "leave": "16:00",
+              "back": "17:00",
+              "why": "Quick errand to pick up spare batteries and a card reader and grab some snacks for the early shoot tomorrow"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift at the cafe (6:00am-1:00pm), commuting there and back"
+            },
+            {
+              "leave": "16:30",
+              "back": "19:00",
+              "why": "Library study session to prep for next class, then pick up some groceries on the way home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift at the cafe (6:00am-1:00pm), commuting there and back"
+            },
+            {
+              "leave": "16:30",
+              "back": "19:00",
+              "why": "Library study session to prep for next class, then pick up some groceries on the way home"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Marisol": "Long day at school, then the slow crawl home on the 10 got me back around 4:45, so I'm tired and need to cook dinner at 6:30 and grade papers until 9. Tomorrow I'll leave by 7:00 again to beat traffic and aim for lights out by 10.",
+        "Devon": "Long Silver Lake line shift today, got home late and pretty tired, so the kitchen's probably a mess until I clean it on my days off. Need to run the dishwasher, grab a late snack, and keep the patio smoke outside; Saturday's after-shift hangout with the crew and Monday video games/cooking with friends are still on my mind.",
+        "Priya": "Took a lunch break and short walk 12:30-1:15 on my remote day to stretch out my sore forearms (probably from climbing) and it felt good to get fresh air. I should go easy on the forearms at the gym and keep stretching, and remember to get outside on remote days more often.",
+        "Tobias": "Lunch with friends went well and they seemed interested in my project pitches, so I need to follow up with details soon. Picked up spare batteries, a card reader, and snacks, so tomorrow's early shoot gear is almost ready and I just have to pack the bag tonight and get to bed early.",
+        "Imani": "Long barista shift today, then a library session to prep for Wednesday's class, and I picked up groceries on the way home. Tomorrow: class 5-9:30pm, so I need to put the groceries away (oat milk in the fridge!) and remember to take the trash out before I leave."
+      }
+    },
+    {
+      "day": -2,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "10:30",
+              "back": "16:30",
+              "why": "Visit my sister in Pasadena, with lunch together and a quick grocery stop on the way home so I can have a quiet evening and get to bed by 10"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:30",
+              "back": "16:30",
+              "why": "Visit my sister in Pasadena, with lunch together and a quick grocery stop on the way home so I can have a quiet evening and get to bed by 10"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "25:30",
+              "why": "Work the line shift in Silver Lake (2:00pm-11:30pm), then hang out with the restaurant crew after close like every Saturday"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "25:30",
+              "why": "Work the line shift in Silver Lake (2:00pm-11:30pm), then hang out with the restaurant crew after close like every Saturday"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "09:15",
+              "back": "10:00",
+              "why": "Easy morning walk outside to loosen up sore forearms and get fresh air"
+            },
+            {
+              "leave": "12:30",
+              "back": "14:30",
+              "why": "Grab lunch and run weekend errands (groceries, a few household items)"
+            },
+            {
+              "leave": "16:30",
+              "back": "18:30",
+              "why": "Meet friends for a casual hangout and coffee on the weekend"
+            }
+          ],
+          "final": [
+            {
+              "leave": "09:15",
+              "back": "10:00",
+              "why": "Easy morning walk outside to loosen up sore forearms and get fresh air"
+            },
+            {
+              "leave": "12:30",
+              "back": "14:30",
+              "why": "Grab lunch and run weekend errands (groceries, a few household items)"
+            },
+            {
+              "leave": "16:30",
+              "back": "18:30",
+              "why": "Meet friends for a casual hangout and coffee on the weekend"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Quick errand run and a walk to clear my head before the afternoon of follow-ups and packing"
+            },
+            {
+              "leave": "16:00",
+              "back": "17:30",
+              "why": "Coffee with a friend to follow up on my project pitch and share details while they're still interested"
+            }
+          ],
+          "final": [
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Quick errand run and a walk to clear my head before the afternoon of follow-ups and packing"
+            },
+            {
+              "leave": "16:00",
+              "back": "17:30",
+              "why": "Coffee with a friend to follow up on my project pitch and share details while they're still interested"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "10:30",
+              "back": "15:00",
+              "why": "Study session with cohort at the UCLA library"
+            },
+            {
+              "leave": "17:30",
+              "back": "19:00",
+              "why": "Pick up dinner and a few errands nearby"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:30",
+              "back": "15:00",
+              "why": "Study session with cohort at the UCLA library"
+            },
+            {
+              "leave": "17:30",
+              "back": "19:00",
+              "why": "Pick up dinner and a few errands nearby"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Marisol": "Spent a nice day with my sister in Pasadena, had lunch together, and grabbed groceries on the way home. Felt relaxed and want to keep the evening quiet and be in bed by 10.",
+        "Devon": "Worked the line all night, then hung out with the crew after close like every Saturday and didn't get home until the small hours, so I'm running on fumes. Tomorrow is Sunday and I still have a shift, so I need to sleep in, grab coffee, and head out by 1:15pm; Monday is my day off to clean the kitchen and maybe have friends over.",
+        "Priya": "Easy walk this morning helped my sore forearms, and I got groceries and household stuff done at lunch, so the week feels set up. Coffee with friends was a nice, relaxed way to end the weekend, and I should take it easy on my forearms before climbing.",
+        "Tobias": "Coffee with my friend went well, they're still interested in the project pitch, so I need to send the details and follow up tomorrow. Still have to finish packing for the next job, and the walk earlier left me feeling clearer and more upbeat.",
+        "Imani": "Had a solid study session with my cohort at the library from 10:30 to 3, then picked up dinner and ran a few errands in the evening. Feeling tired but productive, and I need to remember to take the trash out and get to bed early since I'm up at 4:45 for the barista shift."
+      }
+    },
+    {
+      "day": -1,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "09:30",
+              "back": "10:45",
+              "why": "Easy walk at the park and a coffee, a slow start to the day before laundry and grading"
+            },
+            {
+              "leave": "13:00",
+              "back": "14:00",
+              "why": "Quick run to the craft store for classroom supplies for the week, then home to switch laundry"
+            }
+          ],
+          "final": [
+            {
+              "leave": "09:30",
+              "back": "10:45",
+              "why": "Easy walk at the park and a coffee, a slow start to the day before laundry and grading"
+            },
+            {
+              "leave": "13:00",
+              "back": "14:00",
+              "why": "Quick run to the craft store for classroom supplies for the week, then home to switch laundry"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Line shift at the restaurant in Silver Lake (2:00pm to 11:30pm), then home to eat a late snack."
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Line shift at the restaurant in Silver Lake (2:00pm to 11:30pm), then home to eat a late snack."
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "08:30",
+              "back": "09:15",
+              "why": "Easy walk to loosen up sore forearms and get fresh air"
+            },
+            {
+              "leave": "12:15",
+              "back": "13:30",
+              "why": "Groceries and household supplies to set up the week"
+            },
+            {
+              "leave": "16:30",
+              "back": "18:00",
+              "why": "Relaxed coffee with friends to end the weekend"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:30",
+              "back": "09:15",
+              "why": "Easy walk to loosen up sore forearms and get fresh air"
+            },
+            {
+              "leave": "12:15",
+              "back": "13:30",
+              "why": "Groceries and household supplies to set up the week"
+            },
+            {
+              "leave": "16:30",
+              "back": "18:00",
+              "why": "Relaxed coffee with friends to end the weekend"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "10:30",
+              "back": "12:00",
+              "why": "Grab coffee and a short walk to clear my head before packing"
+            },
+            {
+              "leave": "15:00",
+              "back": "17:30",
+              "why": "Meet a friend to go over project ideas and hand over pitch details in person"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:30",
+              "back": "12:00",
+              "why": "Grab coffee and a short walk to clear my head before packing"
+            },
+            {
+              "leave": "15:00",
+              "back": "17:30",
+              "why": "Meet a friend to go over project ideas and hand over pitch details in person"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "10:15",
+              "back": "15:00",
+              "why": "Study session with cohort at the library"
+            },
+            {
+              "leave": "16:30",
+              "back": "17:15",
+              "why": "Pick up dinner and a quick errand on the way home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:15",
+              "back": "15:00",
+              "why": "Study session with cohort at the library"
+            },
+            {
+              "leave": "16:30",
+              "back": "17:15",
+              "why": "Pick up dinner and a quick errand on the way home"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Marisol": "Had a slow, easy morning with a park walk and coffee, then picked up classroom supplies at the craft store and switched the laundry. Still need to get through the grading tonight so I'm ready for Monday, and I'm feeling calm and mostly prepared for the week.",
+        "Devon": "Long shift on the line today, feet are wrecked, but service ran smooth and I got home around midnight to a late snack. Need to run the dishwasher and sleep in tomorrow before coffee and guitar, then head back in by 1:15pm.",
+        "Priya": "Sunday was a nice, relaxed day: morning walk to loosen my sore forearms (from climbing), groceries and supplies stocked for the week, and coffee with friends to wrap up the weekend. Tomorrow is Monday, so I'm working remote from my bedroom desk, and I'm feeling rested and ready, though I should check my forearms before climbing night.",
+        "Tobias": "The morning coffee and walk cleared my head, so I felt calmer going into packing. I handed over the pitch details to my friend this afternoon and we agreed to keep developing the project ideas, so I should follow up and finish packing my gear.",
+        "Imani": "Had a productive study session with my cohort at the library and picked up dinner and ran a quick errand after. Feeling tired but good; I need to remember to take the trash out tomorrow and prep for my early barista shift if it's Mon/Tue/Fri."
+      }
+    },
+    {
+      "day": 0,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Drive to school on the 10, teach 7:30-4:00, then slow commute home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Drive to school on the 10, teach 7:30-4:00, then slow commute home"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "15:30",
+              "back": "17:00",
+              "why": "Grocery run for tonight's cooking with friends and picking up a few snacks"
+            }
+          ],
+          "final": [
+            {
+              "leave": "15:30",
+              "back": "17:00",
+              "why": "Grocery run for tonight's cooking with friends and picking up a few snacks"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "12:30",
+              "back": "13:15",
+              "why": "Lunch break walk outside to stretch sore forearms and get fresh air on a remote day"
+            },
+            {
+              "leave": "18:30",
+              "back": "21:30",
+              "why": "Climbing gym with friends, taking it easy on the forearms"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:30",
+              "back": "13:15",
+              "why": "Lunch break walk outside to stretch sore forearms and get fresh air on a remote day"
+            },
+            {
+              "leave": "18:30",
+              "back": "21:30",
+              "why": "Climbing gym with friends, taking it easy on the forearms"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Grab lunch and a coffee near the co-working cafe, and pick up a couple of last-minute items (gaffer tape, memory card) for tomorrow's shoot"
+            },
+            {
+              "leave": "16:30",
+              "back": "17:30",
+              "why": "Quick walk to clear my head and stop by the shop to restock coffee and shared supplies"
+            }
+          ],
+          "final": [
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Grab lunch and a coffee near the co-working cafe, and pick up a couple of last-minute items (gaffer tape, memory card) for tomorrow's shoot"
+            },
+            {
+              "leave": "16:30",
+              "back": "17:30",
+              "why": "Quick walk to clear my head and stop by the shop to restock coffee and shared supplies"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "05:30",
+              "back": "13:45",
+              "why": "Barista shift 6:00-1:00, then picked up groceries on the way home"
+            },
+            {
+              "leave": "16:00",
+              "back": "19:30",
+              "why": "Library session to prep for Wednesday's class, then picking up dinner on the way back"
+            }
+          ],
+          "final": [
+            {
+              "leave": "05:30",
+              "back": "13:45",
+              "why": "Barista shift 6:00-1:00, then picked up groceries on the way home"
+            },
+            {
+              "leave": "16:00",
+              "back": "19:30",
+              "why": "Library session to prep for Wednesday's class, then picking up dinner on the way back"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Got groceries and snacks this afternoon for tonight's cook-and-hang with friends, so I need to get the kitchen cleaned up and prepped before they come over. Feeling relaxed and looking forward to it, and I'll probably run the dishwasher late again.",
+        "Priya": "Forearms were sore today, so I walked at lunch and took it easy at the climbing gym tonight. I should rest them tomorrow and skip anything strenuous, but the walk and the evening with friends left me in a good mood.",
+        "Tobias": "Gear's set for tomorrow's shoot (gaffer tape and memory card bought), and I finally restocked the coffee and shared supplies, so I need to charge batteries and pack the bag tonight. Felt calmer after the walk, and since I'm out early I should keep the cables off the living room floor.",
+        "Imani": "Long barista shift then library prep for Wednesday's class went fine; I'm tired but on track, and I need to remember to take the trash out and make room in the fridge for the groceries and oat milk. Tomorrow I'll be up at 4:45 for my 6:00 shift, so early bedtime.",
+        "Marisol": "Long day of teaching and a slow commute home on the 10, so I was wiped by 4:45. Tonight I'll cook around 6:30, grade papers at the kitchen table until 9, and get to bed by 10 for an early start tomorrow."
+      }
+    },
+    {
+      "day": 1,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Work at the elementary school, teaching 7:30-4:00, then slow commute home on the 10"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Work at the elementary school, teaching 7:30-4:00, then slow commute home on the 10"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "14:30",
+              "back": "15:50",
+              "why": "Grocery run and snacks for tonight's cook-and-hang with friends"
+            }
+          ],
+          "final": [
+            {
+              "leave": "14:30",
+              "back": "15:50",
+              "why": "Grocery run and snacks for tonight's cook-and-hang with friends"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "08:40",
+              "back": "18:40",
+              "why": "Commute to the Santa Monica office and work the in-office day (9:30-6:00), then travel home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:40",
+              "back": "18:40",
+              "why": "Commute to the Santa Monica office and work the in-office day (9:30-6:00), then travel home"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "10:30",
+              "back": "12:00",
+              "why": "Walk and coffee to clear my head before sending the pitch follow-up"
+            },
+            {
+              "leave": "15:30",
+              "back": "16:30",
+              "why": "Quick errand for last bits of gear: spare cable ties and a snack for the shoot"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:30",
+              "back": "12:00",
+              "why": "Walk and coffee to clear my head before sending the pitch follow-up"
+            },
+            {
+              "leave": "15:30",
+              "back": "16:30",
+              "why": "Quick errand for last bits of gear: spare cable ties and a snack for the shoot"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift at the cafe (6:00-1:00), plus walking home"
+            },
+            {
+              "leave": "16:30",
+              "back": "18:00",
+              "why": "Library to prep for Wednesday's class and pick up a few groceries on the way home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift at the cafe (6:00-1:00), plus walking home"
+            },
+            {
+              "leave": "16:30",
+              "back": "18:00",
+              "why": "Library to prep for Wednesday's class and pick up a few groceries on the way home"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Got groceries and snacks this afternoon for tonight's cook-and-hang, so the kitchen's stocked and I'm in a good, relaxed mood. I need to clean up the kitchen and dishes tomorrow, since I'll still be off.",
+        "Priya": "Got home around 18:40 after the office day. Told Devon his friends can cook and play games tonight and asked him to save me a bit of counter space; I plan to grab food and settle into my room, so I should check the kitchen is okay tomorrow and thank him.",
+        "Tobias": "Went for a long walk and coffee this morning to clear my head before sending the pitch follow-up, and picked up cable ties and a snack for the shoot. Feeling cautiously hopeful about the pitch, but I need to pack the gear tonight and check whether we're out of coffee.",
+        "Imani": "Long barista shift today, then the library to prep for Wednesday's evening class and grabbed groceries on the way home; I'm tired but on track. Tomorrow I need to be ready for class (5:00-9:30pm) and I should remember to take the trash out before I leave.",
+        "Marisol": "Long day at school, then the commute home on the 10 was slow and left me tired. Tonight I need to cook dinner around 6:30, grade papers until 9, and get to bed by 10 for the early morning."
+      }
+    },
+    {
+      "day": 2,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teaching at school (7:30-4:00) plus the commute on the 10 each way"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teaching at school (7:30-4:00) plus the commute on the 10 each way"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Work shift on the line at the restaurant in Silver Lake (2:00pm-11:30pm), then home for a late snack"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Work shift on the line at the restaurant in Silver Lake (2:00pm-11:30pm), then home for a late snack"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "08:50",
+              "back": "18:40",
+              "why": "Office day in Santa Monica (9:30-18:00), with a lunchtime walk to loosen sore forearms, then picking up takeout on the way home to eat in my room while Devon's friends use the kitchen"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:50",
+              "back": "18:40",
+              "why": "Office day in Santa Monica (9:30-18:00), with a lunchtime walk to loosen sore forearms, then picking up takeout on the way home to eat in my room while Devon's friends use the kitchen"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "10:30",
+              "back": "12:15",
+              "why": "Walk and coffee to clear my head, plus picking up a few last bits for tomorrow's shoot"
+            },
+            {
+              "leave": "16:00",
+              "back": "17:00",
+              "why": "Quick errand to grab a snack and spare cable ties before packing the bag tonight"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:30",
+              "back": "12:15",
+              "why": "Walk and coffee to clear my head, plus picking up a few last bits for tomorrow's shoot"
+            },
+            {
+              "leave": "16:00",
+              "back": "17:00",
+              "why": "Quick errand to grab a snack and spare cable ties before packing the bag tonight"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "15:30",
+              "back": "24:00",
+              "why": "Head to UCLA early to prep at the library, go to class 5:00-9:30pm, then study at the library until late"
+            }
+          ],
+          "final": [
+            {
+              "leave": "15:30",
+              "back": "24:00",
+              "why": "Head to UCLA early to prep at the library, go to class 5:00-9:30pm, then study at the library until late"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Long shift on the line today and I'm wiped, but the late snack helped and I'll wind down with some TV. Tomorrow I should sleep in, play a little guitar, and head back to work by 1:15pm.",
+        "Priya": "Long office day, forearms sore so the lunchtime walk helped; need to ease up on typing and maybe skip hard climbing Thursday night. Ate takeout in my room to avoid Devon's friends in the kitchen, so I should be considerate about kitchen noise and the mugs piling up in my room tomorrow.",
+        "Tobias": "Felt clearer after the morning walk and coffee, and I've got most of what I need for tomorrow's shoot. Still have to pack the bag tonight with the cable ties, and I should restock the shared coffee and supplies before I head out.",
+        "Imani": "Spent the evening at UCLA, prepping at the library, then class 5:00-9:30pm, then studying late. I'm tired but feeling productive, and I need to remember to take the trash out and that I have to be up at 4:45am for my 6:00 barista shift.",
+        "Marisol": "Long day at school and the 10 was slow again, so I'm tired; I still have papers to grade at the kitchen table tonight and need to be in bed by 10. Tomorrow I'll leave by 7:00 sharp to beat traffic and remember to label tonight's leftovers in the fridge."
+      }
+    },
+    {
+      "day": 3,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teaching at the elementary school (7:30-4:00), with the commute on the 10 each way"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teaching at the elementary school (7:30-4:00), with the commute on the 10 each way"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Work shift on the line in Silver Lake (2:00pm-11:30pm), then the commute home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Work shift on the line in Silver Lake (2:00pm-11:30pm), then the commute home"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "08:50",
+              "back": "18:40",
+              "why": "Office day in Santa Monica, with a lunchtime walk to loosen up sore forearms"
+            },
+            {
+              "leave": "19:30",
+              "back": "21:45",
+              "why": "Climbing gym with friends, taking it easy on the forearms"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:50",
+              "back": "18:40",
+              "why": "Office day in Santa Monica, with a lunchtime walk to loosen up sore forearms"
+            },
+            {
+              "leave": "19:30",
+              "back": "21:45",
+              "why": "Climbing gym with friends, taking it easy on the forearms"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "11:30",
+              "back": "12:45",
+              "why": "Grab coffee and shared household supplies, plus a quick lunch, before the shoot tomorrow"
+            },
+            {
+              "leave": "19:30",
+              "back": "21:00",
+              "why": "Meet a friend for a drink and talk through the pitch follow-up"
+            }
+          ],
+          "final": [
+            {
+              "leave": "11:30",
+              "back": "12:45",
+              "why": "Grab coffee and shared household supplies, plus a quick lunch, before the shoot tomorrow"
+            },
+            {
+              "leave": "19:30",
+              "back": "21:00",
+              "why": "Meet a friend for a drink and talk through the pitch follow-up"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "12:15",
+              "back": "23:15",
+              "why": "Library to prep and study, then evening class 5:00-9:30pm, then more studying at the library before heading home to get to bed early for the 4:45am wake-up"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:15",
+              "back": "23:15",
+              "why": "Library to prep and study, then evening class 5:00-9:30pm, then more studying at the library before heading home to get to bed early for the 4:45am wake-up"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Long shift on the line today and I'm wiped, got home near midnight and ran the dishwasher late again. Tomorrow's one of my days off, so I need to clean the kitchen properly and maybe text the guys about coming over Monday to play games or cook.",
+        "Priya": "Long office day, forearms were sore so I walked at lunch and took it easy at the climbing gym tonight; need to rest them and not overdo it tomorrow. Feeling tired but good after seeing friends, and I should grab a mug or two from my room before they pile up.",
+        "Tobias": "Finally restocked coffee and the shared household stuff (for once), grabbed a quick lunch, and got my head straight for tomorrow's shoot. Had a drink with my friend tonight and promised to send the pitch follow-up soon, feeling pretty good about it, but I need to charge batteries and pack the gear before an early start.",
+        "Imani": "Long Thursday: library from 12:15, class 5-9:30pm, then more studying until 11:15pm, so I'm exhausted but got a lot done. I have to be up at 4:45 for my Friday shift, and I should remember to take the trash out.",
+        "Marisol": "Long day at school and the drive on the 10 wore me out, but I got home by 4:45 and still have papers to grade tonight. Tomorrow I need to be up at 5:45 and out the door by 7:00 again to beat traffic."
+      }
+    },
+    {
+      "day": 4,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teaching at the elementary school, with the commute on the 10 both ways"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teaching at the elementary school, with the commute on the 10 both ways"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Work the dinner shift on the line at the restaurant in Silver Lake"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Work the dinner shift on the line at the restaurant in Silver Lake"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "06:45",
+              "back": "07:25",
+              "why": "Morning run, gentle pace to go easy on sore forearms"
+            },
+            {
+              "leave": "12:30",
+              "back": "13:00",
+              "why": "Short lunchtime walk and coffee to stretch legs between remote work blocks"
+            }
+          ],
+          "final": [
+            {
+              "leave": "06:45",
+              "back": "07:25",
+              "why": "Morning run, gentle pace to go easy on sore forearms"
+            },
+            {
+              "leave": "12:30",
+              "back": "13:00",
+              "why": "Short lunchtime walk and coffee to stretch legs between remote work blocks"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "08:00",
+              "back": "09:30",
+              "why": "Long walk and coffee to clear my head before sending the pitch follow-up, plus cable ties and a snack for tomorrow's shoot"
+            },
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Restock the shared coffee and household supplies, then grab a quick lunch"
+            },
+            {
+              "leave": "19:30",
+              "back": "22:30",
+              "why": "Drink with a friend; I promised to send the pitch follow-up soon"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:00",
+              "back": "09:30",
+              "why": "Long walk and coffee to clear my head before sending the pitch follow-up, plus cable ties and a snack for tomorrow's shoot"
+            },
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Restock the shared coffee and household supplies, then grab a quick lunch"
+            },
+            {
+              "leave": "19:30",
+              "back": "22:30",
+              "why": "Drink with a friend; I promised to send the pitch follow-up soon"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift 6:00am-1:00pm, then walk home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift 6:00am-1:00pm, then walk home"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Long dinner shift on the line tonight, feet are wrecked and I got home way past midnight. Still need to run the dishwasher and clean up the kitchen mess I left, and I'm hoping to catch up with the crew after Saturday's shift.",
+        "Priya": "Did a gentle morning run and a lunchtime coffee walk today since my forearms are still sore from climbing, so I'll keep things easy on them at the gym tonight. Felt pretty good overall, just need to remember to take it easy and collect those mugs from my room.",
+        "Tobias": "I still owe that pitch follow-up and promised to send it soon, so it's the first thing to do tomorrow before the shoot, and I've got cable ties and a snack ready. Restocked the shared coffee and supplies, which feels good, and the drink with my friend left me relaxed but a bit guilty about the pending email.",
+        "Imani": "Long barista shift today, up at 4:45 and out by 5:30, so I'm tired and need an afternoon nap before I do any studying. I'm still planning to take out the trash I keep forgetting and tidy my oat milk and leftovers in the fridge.",
+        "Marisol": "Long day at school, and the commute on the 10 both ways wore me out, but I got home around 4:45. Tonight I need to cook dinner at 6:30, finish grading at the kitchen table by 9, and get to bed by 10 so tomorrow's 5:45 wake-up isn't rough."
+      }
+    },
+    {
+      "day": 5,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "10:30",
+              "back": "17:30",
+              "why": "Weekly Saturday visit with my sister in Pasadena, lunch and a relaxed afternoon, with a quick grocery stop on the way home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:30",
+              "back": "17:30",
+              "why": "Weekly Saturday visit with my sister in Pasadena, lunch and a relaxed afternoon, with a quick grocery stop on the way home"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "23:45",
+              "why": "Work the dinner shift on the line at the restaurant in Silver Lake"
+            },
+            {
+              "leave": "24:00",
+              "back": "26:30",
+              "why": "Hang out with the restaurant crew after the Saturday shift"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "23:45",
+              "why": "Work the dinner shift on the line at the restaurant in Silver Lake"
+            },
+            {
+              "leave": "24:00",
+              "back": "26:30",
+              "why": "Hang out with the restaurant crew after the Saturday shift"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "09:00",
+              "back": "10:30",
+              "why": "Easy coffee walk and pick up a few groceries for the weekend, keeping it light on my sore forearms"
+            },
+            {
+              "leave": "17:30",
+              "back": "21:30",
+              "why": "Dinner and hanging out with friends, low-key, no hard climbing"
+            }
+          ],
+          "final": [
+            {
+              "leave": "09:00",
+              "back": "10:30",
+              "why": "Easy coffee walk and pick up a few groceries for the weekend, keeping it light on my sore forearms"
+            },
+            {
+              "leave": "17:30",
+              "back": "21:30",
+              "why": "Dinner and hanging out with friends, low-key, no hard climbing"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "11:00",
+              "back": "12:30",
+              "why": "Pick up spare memory cards and gaffer tape at the camera shop, plus a quick lunch out"
+            },
+            {
+              "leave": "19:30",
+              "back": "22:30",
+              "why": "Drink with a friend, home early because of the early start for tomorrow's shoot"
+            }
+          ],
+          "final": [
+            {
+              "leave": "11:00",
+              "back": "12:30",
+              "why": "Pick up spare memory cards and gaffer tape at the camera shop, plus a quick lunch out"
+            },
+            {
+              "leave": "19:30",
+              "back": "22:30",
+              "why": "Drink with a friend, home early because of the early start for tomorrow's shoot"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "12:30",
+              "back": "17:00",
+              "why": "Study session with cohort classmates at the UCLA library, with lunch nearby"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:30",
+              "back": "17:00",
+              "why": "Study session with cohort classmates at the UCLA library, with lunch nearby"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Slammed Saturday dinner service, but the line held together and I was wiped by the end. Hung out with the crew until about 2:30am and it was a good wind-down, so tomorrow I'm sleeping in a bit and heading back to work for Sunday's shift, with Monday off to clean the kitchen and maybe have friends over.",
+        "Priya": "Had a relaxed day: morning coffee walk and a small grocery run for the weekend, then a low-key dinner with friends that stretched until about 9:30pm, with no hard climbing because my forearms are still sore. Feeling mellow and content, and I should rest my forearms again and use the groceries for weekend meals.",
+        "Tobias": "Picked up spare memory cards and gaffer tape at the camera shop, so I need to pack them in the gear bag tonight. Had a good catch-up drink with a friend but got home early, feeling a bit tired and set for the early shoot tomorrow.",
+        "Imani": "Spent 12:30-5:00 studying with my cohort at the UCLA library and grabbed lunch nearby; feeling productive but a bit tired. I still need to take the trash out at home and review my notes before the next class.",
+        "Marisol": "Had a relaxed Saturday with my sister in Pasadena, lunch and a lazy afternoon, and picked up groceries on the way home. Feeling calm and recharged; tomorrow is Sunday laundry, and I should label the new food in the fridge and get ready for the school week."
+      }
+    },
+    {
+      "day": 6,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "10:30",
+              "back": "11:30",
+              "why": "Quick errand run for school supplies and anything missed at the grocery store before the week starts"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:30",
+              "back": "11:30",
+              "why": "Quick errand run for school supplies and anything missed at the grocery store before the week starts"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "23:45",
+              "why": "Sunday shift on the line at the restaurant"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "23:45",
+              "why": "Sunday shift on the line at the restaurant"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "10:15",
+              "back": "13:00",
+              "why": "Sunday brunch with friends"
+            },
+            {
+              "leave": "16:30",
+              "back": "17:15",
+              "why": "Easy walk to loosen up and rest sore forearms"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:15",
+              "back": "13:00",
+              "why": "Sunday brunch with friends"
+            },
+            {
+              "leave": "16:30",
+              "back": "17:15",
+              "why": "Easy walk to loosen up and rest sore forearms"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "13:30",
+              "back": "15:00",
+              "why": "Walk and a takeaway coffee to clear my head before packing the gear bag"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:30",
+              "back": "15:00",
+              "why": "Walk and a takeaway coffee to clear my head before packing the gear bag"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "12:00",
+              "back": "17:15",
+              "why": "Study session with my cohort at the UCLA library, then lunch nearby"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:00",
+              "back": "17:15",
+              "why": "Study session with my cohort at the UCLA library, then lunch nearby"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Long Sunday shift on the line, got home beat around midnight, so I'm just going to grab a late snack, smoke on the patio, and wind down. Tomorrow's Monday, my day off, so I'll sleep in, clean the kitchen I left messy, and see if friends want to come over to play games or cook.",
+        "Priya": "Had a fun Sunday brunch with friends, then took an easy walk in the late afternoon to loosen up my sore forearms from climbing. Tomorrow is a remote Monday, so I'll work from my bedroom desk, and I'll go to the climbing gym that night, but I should take it easy on my forearms.",
+        "Tobias": "Took a walk and grabbed a takeaway coffee from 13:30 to 15:00, which cleared my head before I packed the gear bag. Felt calmer and ready for the next shoot, but I should check I've charged the batteries and restock the shared coffee and supplies at home.",
+        "Imani": "Spent 12:00-5:15 studying at the UCLA library with my cohort and grabbed lunch nearby; it was a productive, good-mood day, though I'm a bit tired. I still need to take out the trash and get ready for tomorrow's schedule.",
+        "Marisol": "Ran out from 10:30 to 11:30 to grab school supplies and pick up any groceries I'd forgotten, so I'm set for the week ahead. Feeling prepared and a little relieved; I still need to do my Sunday laundry and finish getting papers ready for grading."
+      }
+    },
+    {
+      "day": 7,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Work day at the elementary school, including the commute on the 10 both ways"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Work day at the elementary school, including the commute on the 10 both ways"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "12:30",
+              "back": "13:30",
+              "why": "Grab groceries for cooking tonight and pick up a few drinks for friends coming over"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:30",
+              "back": "13:30",
+              "why": "Grab groceries for cooking tonight and pick up a few drinks for friends coming over"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "12:15",
+              "back": "12:55",
+              "why": "Easy lunchtime coffee walk to get out of the bedroom and loosen up"
+            },
+            {
+              "leave": "18:30",
+              "back": "21:15",
+              "why": "Climbing gym with friends, taking it easy on my sore forearms"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:15",
+              "back": "12:55",
+              "why": "Easy lunchtime coffee walk to get out of the bedroom and loosen up"
+            },
+            {
+              "leave": "18:30",
+              "back": "21:15",
+              "why": "Climbing gym with friends, taking it easy on my sore forearms"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "13:30",
+              "back": "15:00",
+              "why": "Walk and takeaway coffee to clear my head before packing the gear bag"
+            },
+            {
+              "leave": "18:30",
+              "back": "20:00",
+              "why": "Quick errand to pick up a few last-minute items for tomorrow's early shoot, plus dinner out"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:30",
+              "back": "15:00",
+              "why": "Walk and takeaway coffee to clear my head before packing the gear bag"
+            },
+            {
+              "leave": "18:30",
+              "back": "19:15",
+              "why": "Quick errand for last-minute items for tomorrow's early shoot. Skipping dinner out since I made plenty of food at home to share with Marisol."
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "05:30",
+              "back": "13:20",
+              "why": "Barista shift 6:00am-1:00pm, then the commute home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "05:30",
+              "back": "13:20",
+              "why": "Barista shift 6:00am-1:00pm, then the commute home"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Ran out for groceries and drinks around 12:30 so I'm all set to cook tonight for the friends coming over (it's Monday, my day off). Feeling relaxed and looking forward to a chill night of food and games, and I'll need to clean up the kitchen tomorrow.",
+        "Priya": "Took a quick coffee walk at lunch to get out of my bedroom, and it helped me loosen up. Climbed easy tonight because my forearms are sore, so I should rest them and remember tomorrow is an office day (9:30 in Santa Monica).",
+        "Tobias": "Took a long walk and coffee to clear my head, then ran out for last-minute items for tomorrow's early shoot. After checking on Marisol at 17:00 I dropped my plans to eat out and cooked plenty at home to share with her, so I'm feeling settled but need to get the gear bag finished and be up early.",
+        "Imani": "Worked my 6am-1pm barista shift and got home around 1:20, tired but okay. Tomorrow I need to nap less, study for class, and remember to take the trash out before it gets bad.",
+        "Marisol": "Long but ordinary school day, and the commute on the 10 both ways wore me out a bit, so I'm looking forward to a quiet dinner at 6:30 and grading at the kitchen table until 9. Need to be in bed by 10 and up at 5:45 to leave by 7:00 again tomorrow."
+      }
+    },
+    {
+      "day": 8,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Work day at the elementary school, with the commute on the 10 both ways"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Work day at the elementary school, with the commute on the 10 both ways"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "12:15",
+              "back": "13:30",
+              "why": "Grocery and drinks run for cooking tonight with friends coming over on his day off"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:15",
+              "back": "13:30",
+              "why": "Grocery and drinks run for cooking tonight with friends coming over on his day off"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "08:45",
+              "back": "18:45",
+              "why": "Office day in Santa Monica: commute, work 9:30-6:00, and a lunch walk nearby"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:45",
+              "back": "18:45",
+              "why": "Office day in Santa Monica: commute, work 9:30-6:00, and a lunch walk nearby"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "10:00",
+              "back": "10:50",
+              "why": "Restock the shared coffee and household supplies at the grocery store"
+            },
+            {
+              "leave": "13:30",
+              "back": "15:00",
+              "why": "Walk and takeaway coffee to clear my head"
+            },
+            {
+              "leave": "15:40",
+              "back": "16:30",
+              "why": "Pick up last-minute items for tomorrow's early shoot"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:00",
+              "back": "10:50",
+              "why": "Restock the shared coffee and household supplies at the grocery store"
+            },
+            {
+              "leave": "13:30",
+              "back": "15:00",
+              "why": "Walk and takeaway coffee to clear my head"
+            },
+            {
+              "leave": "15:40",
+              "back": "16:30",
+              "why": "Pick up last-minute items for tomorrow's early shoot"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "05:30",
+              "back": "13:20",
+              "why": "Barista shift at the cafe (6am-1pm), commute both ways"
+            },
+            {
+              "leave": "16:30",
+              "back": "18:00",
+              "why": "Quick grocery run for oat milk and study snacks, then drop by campus coffee spot to grab notes from a cohort friend"
+            }
+          ],
+          "final": [
+            {
+              "leave": "05:30",
+              "back": "13:20",
+              "why": "Barista shift at the cafe (6am-1pm), commute both ways"
+            },
+            {
+              "leave": "16:30",
+              "back": "18:00",
+              "why": "Quick grocery run for oat milk and study snacks, then drop by campus coffee spot to grab notes from a cohort friend"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Did the grocery and drinks run midday (12:15-13:30) so I'm all set to cook tonight with friends coming over on my day off. Feeling relaxed and looking forward to it, just need to clean up the kitchen before they show.",
+        "Priya": "Long office day in Santa Monica, got back around 6:45 and felt pretty drained, though the lunch walk helped clear my head. Tomorrow's another office day (leaving by 8:45), so I want to sort dinner early, water the plants, and grab the mugs piling up in my room.",
+        "Tobias": "Finally restocked the shared coffee and household supplies this morning, and the walk plus takeaway coffee cleared my head. Got the last-minute items for tomorrow's early shoot, so I need to pack the gear bag tonight and get to bed early, feeling a bit relieved and ready.",
+        "Imani": "Got through the 6am-1pm shift and then picked up oat milk, snacks, and my cohort friend's notes, so I'm set to study tomorrow. I'm tired but feeling okay, and I need to remember to take the trash out before class.",
+        "Marisol": "Long but routine day at school, and the commute on the 10 wore me out; I want to get home, cook dinner at 6:30, and finish grading by 9 so I can be in bed by 10. Tomorrow I'll leave by 7:00 again to beat traffic, and I'm hoping for a quiet evening."
+      }
+    },
+    {
+      "day": 9,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Commute on the 10 and a full day teaching at the elementary school, then the drive home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Commute on the 10 and a full day teaching at the elementary school, then the drive home"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Work shift on the line at the restaurant in Silver Lake (2:00pm-11:30pm), then home around midnight"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Work shift on the line at the restaurant in Silver Lake (2:00pm-11:30pm), then home around midnight"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "08:45",
+              "back": "18:45",
+              "why": "Office day in Santa Monica, 9:30 to 6:00, including a lunch coffee walk nearby and the commute home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:45",
+              "back": "18:45",
+              "why": "Office day in Santa Monica, 9:30 to 6:00, including a lunch coffee walk nearby and the commute home"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Pick up a spare memory card and gaffer tape at the camera shop and grab a coffee before tomorrow's early shoot"
+            },
+            {
+              "leave": "15:30",
+              "back": "16:15",
+              "why": "Quick walk to clear my head after editing, plus a stop for fresh batteries"
+            }
+          ],
+          "final": [
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Pick up a spare memory card and gaffer tape at the camera shop and grab a coffee before tomorrow's early shoot"
+            },
+            {
+              "leave": "15:30",
+              "back": "16:15",
+              "why": "Quick walk to clear my head after editing, plus a stop for fresh batteries"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "15:45",
+              "back": "23:45",
+              "why": "Evening class at UCLA from 5:00 to 9:30, then studying at the library until late"
+            }
+          ],
+          "final": [
+            {
+              "leave": "15:45",
+              "back": "23:45",
+              "why": "Evening class at UCLA from 5:00 to 9:30, then studying at the library until late"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Long shift on the line today, feet are killing me, but service ran smoothly and I got home around midnight tired and ready for a late snack and some TV. Need to sleep in tomorrow, play a little guitar, and remember to run the dishwasher and clean up the mess I left in the kitchen.",
+        "Priya": "Long office day in Santa Monica, and the lunch coffee walk was a nice break; I got home around 6:45 a bit tired. Tomorrow is another office day, so I want to go to bed on time and not leave my mugs in my room, and maybe I'll do a quick meal prep for dinner.",
+        "Tobias": "Got the spare memory card and gaffer tape, so my bag's nearly ready for the early shoot tomorrow, and I still need to charge the fresh batteries tonight. Felt a bit fried from editing, but the walk helped clear my head, and I should restock the shared coffee and tidy my gear out of the common areas.",
+        "Imani": "Long day with class 5-9:30 and then the library until almost midnight, so I'm pretty tired. Tomorrow is a Thursday with evening class again, so I need to get some sleep, and I should remember to take the trash out since I keep forgetting.",
+        "Marisol": "Long but steady day teaching, and the drive home on the 10 wore me out a bit. Tonight I need to cook dinner around 6:30, grade papers until 9, and get to bed by 10 for an early start tomorrow."
+      }
+    },
+    {
+      "day": 10,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Commute on the 10 and a full day teaching at school, plus the drive home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Commute on the 10 and a full day teaching at school, plus the drive home"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Line cook shift at the restaurant in Silver Lake (2:00pm to 11:30pm), then home for a late snack"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Line cook shift at the restaurant in Silver Lake (2:00pm to 11:30pm), then home for a late snack"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "08:45",
+              "back": "18:45",
+              "why": "Office day in Santa Monica, with a coffee walk at lunch"
+            },
+            {
+              "leave": "19:45",
+              "back": "21:45",
+              "why": "Thursday night climbing gym with friends, keeping it easy on sore forearms"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:45",
+              "back": "18:45",
+              "why": "Office day in Santa Monica, with a coffee walk at lunch"
+            },
+            {
+              "leave": "19:45",
+              "back": "21:45",
+              "why": "Thursday night climbing gym with friends, keeping it easy on sore forearms"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "12:30",
+              "back": "13:45",
+              "why": "Quick lunch with a creative friend and a stop to pick up a couple of small things before tomorrow's early shoot"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:30",
+              "back": "13:45",
+              "why": "Quick lunch with a creative friend and a stop to pick up a couple of small things before tomorrow's early shoot"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "09:30",
+              "back": "11:00",
+              "why": "Meet cohort friend on campus to return notes and grab coffee"
+            },
+            {
+              "leave": "16:15",
+              "back": "23:50",
+              "why": "Evening class 5:00-9:30pm at UCLA, then studying at the library until late"
+            }
+          ],
+          "final": [
+            {
+              "leave": "09:30",
+              "back": "11:00",
+              "why": "Meet cohort friend on campus to return notes and grab coffee"
+            },
+            {
+              "leave": "16:15",
+              "back": "23:50",
+              "why": "Evening class 5:00-9:30pm at UCLA, then studying at the library until late"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Long shift on the line today, feet are killing me, but got home around midnight and had a late snack to wind down. Tomorrow I'm planning to sleep in, make coffee and play some guitar before heading back in for my 2pm shift.",
+        "Priya": "Long office day in Santa Monica with a nice lunchtime coffee walk, then an easy climbing session tonight since my forearms are sore. Tomorrow is a remote Friday, so I should take it easy, rest my forearms, and water the plants.",
+        "Tobias": "Had a quick, easy lunch with a creative friend and grabbed the last small things I needed for tomorrow's early shoot, so I'm feeling prepared and a bit energized. I need to pack the gear bag tonight, charge batteries, and get to bed early for the early start.",
+        "Imani": "Returned my notes to my cohort friend over coffee this morning, which felt good, then had a long evening class and library session that left me tired but caught up. Tomorrow I need to get some sleep, remember to take the trash out, and keep up with my reading.",
+        "Marisol": "Long but ordinary school day, and I'm tired from the commute on the 10; I still need to grade papers tonight and get to bed by 10 since tomorrow starts early again. Don't forget to start leaving by 7:00 to beat traffic and to keep the house quiet in the evening."
+      }
+    },
+    {
+      "day": 11,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teaching at the elementary school, with the commute on the 10 both ways"
+            }
+          ],
+          "final": [
+            {
+              "leave": "07:00",
+              "back": "16:45",
+              "why": "Teaching at the elementary school, with the commute on the 10 both ways"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Long shift on the line at the restaurant, 2pm to 11:30pm, then the commute home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "24:00",
+              "why": "Long shift on the line at the restaurant, 2pm to 11:30pm, then the commute home"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "12:30",
+              "back": "13:15",
+              "why": "Lunchtime coffee walk to break up the remote workday"
+            },
+            {
+              "leave": "17:30",
+              "back": "18:15",
+              "why": "Quick grocery run for a light meal prep dinner"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:30",
+              "back": "13:15",
+              "why": "Lunchtime coffee walk to break up the remote workday"
+            },
+            {
+              "leave": "17:30",
+              "back": "18:15",
+              "why": "Quick grocery run for a light meal prep dinner"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "11:30",
+              "back": "13:30",
+              "why": "Quick lunch with a creative friend and grabbing last small items for tomorrow's shoot"
+            }
+          ],
+          "final": [
+            {
+              "leave": "11:30",
+              "back": "13:30",
+              "why": "Quick lunch with a creative friend and grabbing last small items for tomorrow's shoot"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift 6am-1pm, plus the commute home"
+            },
+            {
+              "leave": "16:00",
+              "back": "18:00",
+              "why": "Study session with cohort friends and a quick grocery stop"
+            }
+          ],
+          "final": [
+            {
+              "leave": "05:30",
+              "back": "13:30",
+              "why": "Barista shift 6am-1pm, plus the commute home"
+            },
+            {
+              "leave": "16:00",
+              "back": "18:00",
+              "why": "Study session with cohort friends and a quick grocery stop"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Marisol": "Long day at school, and the commute on the 10 both ways wore me out, but I got home around 4:45. Tonight I need to cook dinner at 6:30, finish grading at the kitchen table by 9, and get to bed by 10 so tomorrow's 5:45 wake-up isn't rough.",
+        "Devon": "Long, grinding shift on the line—feet aching and pretty wiped by the time I got home near midnight. Need to sleep in, clean up the kitchen mess I left, and remember tomorrow's another shift if it's a workday, so I should play a little guitar and take it easy.",
+        "Priya": "Today was a remote day, and the lunchtime coffee walk really helped break up the screen time, so I want to keep doing that. I picked up groceries for a light meal prep dinner, so tomorrow I should use them up and remember I'm in the Santa Monica office 9:30-6.",
+        "Tobias": "Had a quick lunch with a friend and picked up the last small items for tomorrow's shoot, so I need to charge batteries and pack the camera bag tonight. Feeling upbeat but a bit scattered, and I should grab coffee since we're probably running low again.",
+        "Imani": "Long barista shift, then a good study session with my cohort and a quick grocery run; I'm tired but feeling okay. Tomorrow I need to remember to take the trash out, since I keep forgetting, and put the oat milk and groceries away in the fridge."
+      }
+    },
+    {
+      "day": 12,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "10:00",
+              "back": "16:30",
+              "why": "Saturday visit with my sister in Pasadena, with a quick grocery stop on the way home"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:00",
+              "back": "16:30",
+              "why": "Saturday visit with my sister in Pasadena, with a quick grocery stop on the way home"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "23:45",
+              "why": "Work shift on the line at the restaurant"
+            },
+            {
+              "leave": "24:15",
+              "back": "26:30",
+              "why": "Hanging out with the restaurant crew after the Saturday shift, plus a smoke and a bite"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "23:45",
+              "why": "Work shift on the line at the restaurant"
+            },
+            {
+              "leave": "24:15",
+              "back": "26:30",
+              "why": "Hanging out with the restaurant crew after the Saturday shift, plus a smoke and a bite"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "08:45",
+              "back": "09:45",
+              "why": "Easy Saturday morning run along the beach path"
+            },
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Coffee walk and a quick stop at the farmers market for veggies for tomorrow's meal prep"
+            },
+            {
+              "leave": "19:00",
+              "back": "22:30",
+              "why": "Dinner and drinks out with my boyfriend"
+            }
+          ],
+          "final": [
+            {
+              "leave": "08:45",
+              "back": "09:45",
+              "why": "Easy Saturday morning run along the beach path"
+            },
+            {
+              "leave": "11:30",
+              "back": "13:00",
+              "why": "Coffee walk and a quick stop at the farmers market for veggies for tomorrow's meal prep"
+            },
+            {
+              "leave": "19:00",
+              "back": "22:30",
+              "why": "Dinner and drinks out with my boyfriend"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "10:30",
+              "back": "11:30",
+              "why": "Grocery run to restock shared coffee and a few basics"
+            },
+            {
+              "leave": "15:00",
+              "back": "16:30",
+              "why": "Walk and coffee with a creative friend to unwind before the early shoot"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:30",
+              "back": "11:30",
+              "why": "Grocery run to restock shared coffee and a few basics"
+            },
+            {
+              "leave": "15:00",
+              "back": "16:30",
+              "why": "Walk and coffee with a creative friend to unwind before the early shoot"
+            },
+            {
+              "leave": "18:00",
+              "back": "18:45",
+              "why": "Quick run to buy coffee for the shared supply, since we're probably still low, and grab a few dinner basics so I'm not in Marisol's way while she's in the kitchen"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "12:00",
+              "back": "16:30",
+              "why": "Weekend study session with cohort at the library/campus cafe"
+            },
+            {
+              "leave": "17:45",
+              "back": "18:30",
+              "why": "Quick grocery run for oat milk and groceries"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:00",
+              "back": "16:30",
+              "why": "Weekend study session with cohort at the library/campus cafe"
+            },
+            {
+              "leave": "17:45",
+              "back": "18:30",
+              "why": "Quick grocery run for oat milk and groceries"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Long Saturday shift on the line, then hung out with the crew until around 2:30am with a smoke and a bite, so I'm tired but in a good mood. Tomorrow's Sunday, my last shift before my days off, and I'll clean the kitchen Monday and maybe have friends over for games or cooking.",
+        "Priya": "Had a relaxed Saturday: beach path run, coffee walk, and picked up farmers market veggies that I need to meal prep tomorrow. Dinner and drinks with my boyfriend went late and left me in a great mood, so I should plan a slow start before Sunday brunch and prepping.",
+        "Imani": "Had a solid weekend study session with my cohort from 12 to 4:30, then grabbed oat milk and groceries around 6. I'm feeling productive but tired, and I still need to take the trash out, do laundry, and call my family tonight before an early start tomorrow at 4:45 for my barista shift.",
+        "Marisol": "Spent a nice Saturday with my sister in Pasadena and stopped for groceries on the way home, so the fridge is stocked and I should label everything tonight. Tomorrow is Sunday: laundry in the afternoon and getting my papers and lesson plans ready for Monday's 7:00 departure.",
+        "Tobias": "Restocked coffee and basics in the morning, then unwound with a creative friend over a walk and coffee; after checking on Marisol at 17:30 I changed plans and made another quick coffee and dinner-basics run so I'd stay out of her way in the kitchen. I need to be up for the early shoot tomorrow, so I should pack my gear and clear my cables out of the common areas tonight, and I'm feeling relaxed but a little rushed."
+      }
+    },
+    {
+      "day": 13,
+      "plans": {
+        "Marisol": {
+          "morning": [
+            {
+              "leave": "10:30",
+              "back": "11:30",
+              "why": "Quick run to the farmers market for fresh produce and a few extras for the week's lunches"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:30",
+              "back": "11:30",
+              "why": "Quick run to the farmers market for fresh produce and a few extras for the week's lunches"
+            }
+          ]
+        },
+        "Devon": {
+          "morning": [
+            {
+              "leave": "13:15",
+              "back": "23:45",
+              "why": "Sunday shift on the line at the restaurant, last one before days off"
+            }
+          ],
+          "final": [
+            {
+              "leave": "13:15",
+              "back": "23:45",
+              "why": "Sunday shift on the line at the restaurant, last one before days off"
+            }
+          ]
+        },
+        "Priya": {
+          "morning": [
+            {
+              "leave": "10:45",
+              "back": "13:15",
+              "why": "Sunday brunch with friends after a slow start to the morning"
+            },
+            {
+              "leave": "15:30",
+              "back": "16:15",
+              "why": "Coffee walk to break up the afternoon and get some fresh air"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:45",
+              "back": "13:15",
+              "why": "Sunday brunch with friends after a slow start to the morning"
+            },
+            {
+              "leave": "15:30",
+              "back": "16:15",
+              "why": "Coffee walk to break up the afternoon and get some fresh air"
+            }
+          ]
+        },
+        "Tobias": {
+          "morning": [
+            {
+              "leave": "10:30",
+              "back": "12:00",
+              "why": "Restock coffee and basics at the grocery store"
+            },
+            {
+              "leave": "14:00",
+              "back": "15:45",
+              "why": "Walk and coffee with a creative friend to unwind"
+            },
+            {
+              "leave": "18:15",
+              "back": "19:00",
+              "why": "Quick coffee and dinner-basics run to stay out of Marisol's way in the kitchen"
+            }
+          ],
+          "final": [
+            {
+              "leave": "10:30",
+              "back": "12:00",
+              "why": "Restock coffee and basics at the grocery store"
+            },
+            {
+              "leave": "14:00",
+              "back": "15:45",
+              "why": "Walk and coffee with a creative friend to unwind"
+            },
+            {
+              "leave": "18:15",
+              "back": "19:00",
+              "why": "Quick coffee and dinner-basics run to stay out of Marisol's way in the kitchen"
+            }
+          ]
+        },
+        "Imani": {
+          "morning": [
+            {
+              "leave": "12:00",
+              "back": "16:30",
+              "why": "Weekend study session with my cohort"
+            },
+            {
+              "leave": "18:00",
+              "back": "18:45",
+              "why": "Quick grocery run for oat milk and groceries"
+            }
+          ],
+          "final": [
+            {
+              "leave": "12:00",
+              "back": "16:30",
+              "why": "Weekend study session with my cohort"
+            },
+            {
+              "leave": "18:00",
+              "back": "18:45",
+              "why": "Quick grocery run for oat milk and groceries"
+            }
+          ]
+        }
+      },
+      "memories": {
+        "Devon": "Got through the Sunday shift, the last one before my days off, and I'm wiped but glad to have Monday and Tuesday free. Tomorrow I'll sleep in, clean the kitchen since it got messy this week, and maybe have friends over to play video games or cook.",
+        "Priya": "Had a nice Sunday brunch with friends after a slow morning, and the afternoon coffee walk helped me clear my head. Tomorrow is a remote Monday, so I need to get set up at my desk and remember climbing gym with friends tomorrow night.",
+        "Imani": "Spent the afternoon studying with my cohort (12-4:30), then ran out for oat milk and groceries around 6 and the fridge is stocked again. I should remember to take the trash out tonight or tomorrow morning before my Monday 6am barista shift, and call my family in Atlanta this evening.",
+        "Marisol": "Made a quick trip to the farmers market from 10:30 to 11:30 and picked up fresh produce plus a few extras for the week's lunches, so I should wash and label everything in the fridge tonight. Felt calm and productive, and I want to get the grading done by 9 so I can be in bed by 10.",
+        "Tobias": "Finally restocked the coffee and basics this morning, and the walk with my friend left me relaxed. I made another quick store run tonight to stay out of Marisol's way in the kitchen, so I should pick up my gear from the common areas and thank her for sharing the space."
+      }
+    }
+  ],
+  "questions": [
+    {
+      "day": 0,
+      "at": "10:00",
+      "asker": "Tobias",
+      "target": "Marisol",
+      "why": "Wondering if anyone is home so I can spread out my gear on the living room table and finish packing without being in the way",
+      "text": "hey, is Marisol home right now? wanna spread my gear out on the living room table and finish packing without being in her way",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is away right now, so the living room table should be clear for your gear.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 89,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 886,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 308,
+            "outputTokens": 25,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 572,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 0,
+      "at": "16:50",
+      "asker": "Marisol",
+      "target": "Devon",
+      "why": "Want to know if anyone is home and using the kitchen before I start settling in to cook dinner at 6:30 and grade at the table",
+      "text": "hey, is Devon home right now? Want to know if he's in the kitchen before I start settling in to cook and grade at the table",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_wrong_confident",
+      "askerText": "Devon is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 92,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 880,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 310,
+            "outputTokens": 10,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 405,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 0,
+      "at": "17:45",
+      "asker": "Devon",
+      "target": "Marisol",
+      "why": "Checking whether she'll be home this evening before friends come over, and if the kitchen and living room are free for us to use",
+      "text": "hey is Marisol gonna be home this evening? friends are coming over tonight and I wanna make sure the kitchen and living room are free for us",
+      "intent": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-05T03:00:00.000Z"
+      },
+      "parsed": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-05T03:00:00.000Z"
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-05T03:00:00.000Z",
+        "predictedTime": null,
+        "predictedState": null,
+        "confidence": "low",
+        "basis": "none"
+      },
+      "decision": "unknown",
+      "outcome": "unknown",
+      "askerText": null,
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 98,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1341,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 0,
+      "at": "17:45",
+      "asker": "Priya",
+      "target": "Marisol",
+      "why": "Wondering if anyone is home or cooking in the kitchen so I can plan an early meal prep or dinner before heading to the climbing gym",
+      "text": "hey is Marisol home right now? trying to figure out if the kitchen's free to meal prep before I head to the climbing gym",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 93,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1004,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 312,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 407,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 1,
+      "at": "14:30",
+      "asker": "Imani",
+      "target": "Tobias",
+      "why": "Want to nap and wonder if the apartment is quiet, also deciding whether to take the trash out now or wait",
+      "text": "hey, is Tobias home right now? trying to nap and wondering if the apartment's quiet, also deciding if I should take the trash out now or wait",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Tobias is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 100,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 920,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 319,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 398,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 1,
+      "at": "16:50",
+      "asker": "Marisol",
+      "target": "Priya",
+      "why": "Wondering if anyone is home or in the kitchen before I start settling in and plan to cook at 6:30",
+      "text": "Hey, is Priya home right now? Just got in and wondering if anyone's in the kitchen before I settle in.",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Priya is away right now, so the kitchen is probably empty.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 90,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1515,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 308,
+            "outputTokens": 22,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 498,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 1,
+      "at": "17:15",
+      "asker": "Devon",
+      "target": "Priya",
+      "why": "Check whether she'll be home this evening so I can give her a heads up that friends are coming over to cook and play games",
+      "text": "hey is Priya gonna be home tonight? got a few friends coming over to cook and play games, wanna give her a heads up",
+      "intent": {
+        "kind": "until_when",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "unclear",
+        "aboutTime": null
+      },
+      "parseOk": false,
+      "claim": null,
+      "decision": "escalate",
+      "outcome": "escalated",
+      "askerText": null,
+      "draft": null,
+      "replyText": "Hey Devon, thanks for the heads up! Yep, I'll be home around 18:40 after the office. Cooking and games are totally fine with me. I'll probably just grab some food and settle into my room, so no worries about the noise. Just save me a little counter space if you can!",
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 92,
+            "outputTokens": 20,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1051,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 1,
+      "at": "18:00",
+      "asker": "Tobias",
+      "target": "Marisol",
+      "why": "Want to know if she'll be home for dinner since I'm cooking tonight and charging gear in the living room",
+      "text": "hey is Marisol gonna be home for dinner tonight? I'm cooking a big batch and have gear charging all over the living room",
+      "intent": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-06T03:30:00.000Z"
+      },
+      "parsed": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-06T03:00:00.000Z"
+      },
+      "parseOk": false,
+      "claim": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-06T03:00:00.000Z",
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "medium",
+        "basis": "recent_presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is probably home around 7:00 PM.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 94,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1125,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 320,
+            "outputTokens": 19,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 405,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "at": "09:30",
+      "asker": "Tobias",
+      "target": "Marisol",
+      "why": "Wondering if she's home so I can sort the living room cables and check if we need coffee before I head out",
+      "text": "hey is Marisol home right now? wanna sort my cables out of the living room and see if we're low on coffee before I head out",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is away right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 91,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1127,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 310,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 422,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "at": "15:00",
+      "asker": "Imani",
+      "target": "Devon",
+      "why": "Want to know if he's in the kitchen before I pack leftovers and move my oat milk around in the fridge before leaving for class",
+      "text": "hey is Devon in the kitchen right now? about to pack up leftovers and rearrange my oat milk before I head to class",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Devon is away right now, so you should have the kitchen to yourself.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 92,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 938,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 310,
+            "outputTokens": 24,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 519,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "at": "17:30",
+      "asker": "Marisol",
+      "target": "Imani",
+      "why": "Wondering if Imani will be using the kitchen around 6:30 so I can plan when to cook dinner and then set up my grading at the table",
+      "text": "Hey! Will Imani be home around 6:30 tonight? Trying to figure out when to cook and set up my grading at the kitchen table",
+      "intent": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-07T02:30:00.000Z"
+      },
+      "parsed": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-07T02:30:00.000Z"
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-07T02:30:00.000Z",
+        "predictedTime": null,
+        "predictedState": null,
+        "confidence": "low",
+        "basis": "none"
+      },
+      "decision": "unknown",
+      "outcome": "unknown",
+      "askerText": null,
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 98,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1026,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "at": "18:10",
+      "asker": "Priya",
+      "target": "Devon",
+      "why": "Check whether Devon and his friends are already home and cooking so I know how busy the kitchen is before I get back with takeout",
+      "text": "hey is Devon home right now? and does it sound like he's got friends over cooking? trying to see how packed the kitchen is before I get back with takeout",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Devon is away right now, so the kitchen should be clear.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 100,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 918,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 318,
+            "outputTokens": 21,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 487,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "at": "11:00",
+      "asker": "Tobias",
+      "target": "Marisol",
+      "why": "Checking whether she's home or already took the last of the coffee before I go restock",
+      "text": "is Marisol home right now? trying to figure out if she already finished the last of the coffee before I run out to restock",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is away right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 87,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 990,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 306,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 492,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "at": "11:30",
+      "asker": "Imani",
+      "target": "Devon",
+      "why": "Want to know if he's home before I clear out fridge space for the groceries and oat milk and take the trash out before I leave",
+      "text": "hey! is Devon home right now? want to clear out fridge space for groceries + my oat milk and take the trash out before I head out, don't want to be in his way",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Devon is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 102,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 750,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 320,
+            "outputTokens": 10,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 470,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "at": "17:15",
+      "asker": "Marisol",
+      "target": "Imani",
+      "why": "Want to know if Imani is home or about to start cooking so we don't crowd the kitchen before I make dinner at 6:30",
+      "text": "Hey Imani, are you home right now? Trying to figure out if you're about to start cooking so we don't crowd the kitchen before I make dinner around 6:30",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Imani is away right now, and I'm confident about that.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 105,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 966,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 323,
+            "outputTokens": 19,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 421,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 4,
+      "at": "09:00",
+      "asker": "Priya",
+      "target": "Devon",
+      "why": "Want to know if he's home and whether the kitchen is clear so I can bring mugs back, wash them, and thank him for last night",
+      "text": "hey, is Devon home right now? I'm trying to bring a pile of mugs back to the kitchen and wash them, and want to thank him for last night. just checking the kitchen's clear",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Devon is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 112,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1231,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 330,
+            "outputTokens": 10,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 717,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 4,
+      "at": "14:15",
+      "asker": "Imani",
+      "target": "Marisol",
+      "why": "Want to know if the kitchen is free before I heat up leftovers, and if anyone's heading out so I can nap quietly",
+      "text": "hey is Marisol home right now? wanna heat up leftovers and see if the kitchen's free, then nap quietly",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is away right now, so the kitchen should be free.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 91,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 914,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 310,
+            "outputTokens": 21,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 468,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "at": "10:15",
+      "asker": "Imani",
+      "target": "Tobias",
+      "why": "Checking whether he's home or using the laundry before I haul my clothes down and tidy the fridge",
+      "text": "Hey, is Tobias home right now? Want to know if he's using the laundry before I haul my clothes down and tidy the fridge",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Tobias is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 95,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1040,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 314,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 514,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "at": "11:30",
+      "asker": "Devon",
+      "target": "Marisol",
+      "why": "Wondering if she's home so I can plan cleaning the kitchen and running the dishwasher without bothering anyone before work",
+      "text": "hey is Marisol home right now? wanna clean the kitchen and run the dishwasher before work, don't want to wake her or get in her way",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is away right now, so the kitchen should be clear for you to clean and run the dishwasher.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 97,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1224,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 316,
+            "outputTokens": 35,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 530,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "at": "13:30",
+      "asker": "Priya",
+      "target": "Devon",
+      "why": "Checking whether Devon and his friends are in the kitchen or living room before my boyfriend arrives and I head out to grab mugs",
+      "text": "hey is Devon home right now? and does he have friends over hanging in the kitchen or living room? my bf's about to get here and I need to grab some mugs",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Devon is away right now, and I'm not able to tell whether he has friends over, so you can grab your mugs while you wait for your bf.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 101,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 985,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 319,
+            "outputTokens": 45,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 714,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "at": "17:10",
+      "asker": "Marisol",
+      "target": "Tobias",
+      "why": "Checking if he's home and using the kitchen before I get back, since I need to cook dinner and grade at the kitchen table tonight",
+      "text": "Hey, is Tobias home right now? Trying to figure out if the kitchen's going to be free when I get back, I need to cook dinner and grade at the table tonight.",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_wrong_confident",
+      "askerText": "Tobias is away right now, so the kitchen should be free when you get back.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 107,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1230,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 326,
+            "outputTokens": 25,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 490,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 6,
+      "at": "12:30",
+      "asker": "Devon",
+      "target": "Marisol",
+      "why": "Wondering if she's home before I leave so I know whether to be quiet and whether the kitchen is free for my coffee",
+      "text": "hey is Marisol home right now? trying to figure out if I need to keep the guitar down and if the kitchen's free for my coffee before I head out",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 99,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1024,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 318,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 511,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 6,
+      "at": "16:30",
+      "asker": "Marisol",
+      "target": "Tobias",
+      "why": "Wondering if he's home and planning to use the kitchen, since I want to start cooking dinner at 6:30 and prefer a tidy, quiet space",
+      "text": "Hey, is Tobias planning to be home around 6:30 tonight? I'm going to cook dinner then and wanted to know if he'll be using the kitchen too.",
+      "intent": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-11T02:30:00.000Z"
+      },
+      "parsed": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-11T02:30:00.000Z"
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-11T02:30:00.000Z",
+        "predictedTime": null,
+        "predictedState": null,
+        "confidence": "low",
+        "basis": "none"
+      },
+      "decision": "unknown",
+      "outcome": "unknown",
+      "askerText": null,
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 107,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 935,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 6,
+      "at": "17:45",
+      "asker": "Tobias",
+      "target": "Devon",
+      "why": "Want to know if Devon will be home for dinner so I know how much to cook before an early night",
+      "text": "hey is Devon gonna be home for dinner tonight? trying to figure out how much to cook, planning an early night",
+      "intent": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-11T03:00:00.000Z"
+      },
+      "parsed": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-11T03:00:00.000Z"
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-11T03:00:00.000Z",
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "medium",
+        "basis": "block"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Devon is probably away at 7:00 PM, so you may not need to cook for them.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 89,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1433,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 314,
+            "outputTokens": 29,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 534,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 6,
+      "at": "17:45",
+      "asker": "Imani",
+      "target": "Tobias",
+      "why": "Checking whether he's in the kitchen before I clean out my oat milk and leftovers in the fridge and take the trash out",
+      "text": "hey, is Tobias in the kitchen right now? want to clean out my oat milk and leftovers and take the trash out",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Tobias is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 91,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 995,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 310,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 463,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 6,
+      "at": "18:15",
+      "asker": "Priya",
+      "target": "Marisol",
+      "why": "Checking whether she's in the kitchen before I start meal prep with the groceries",
+      "text": "hey is Marisol home right now? about to start meal prep in the kitchen and wanted to know if she's around",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 87,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1000,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 306,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 547,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 7,
+      "at": "10:50",
+      "asker": "Priya",
+      "target": "Devon",
+      "why": "I have a team call in the kitchen at 11:00 and want to know if he's home and might be around making noise",
+      "text": "hey is Devon home right now? I have a team call in the kitchen at 11 and don't want to be in his way",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Devon is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 87,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1023,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 305,
+            "outputTokens": 10,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 410,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 7,
+      "at": "17:00",
+      "asker": "Tobias",
+      "target": "Marisol",
+      "why": "Wondering if she's home and wants to share dinner or if the shared supplies I restocked are enough before I head out",
+      "text": "hey is Marisol home right now? made way too much food after the job paid, and I restocked the coffee and shared stuff before heading out, wanna make sure she's got enough",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": true,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 106,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1230,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 325,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 511,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 7,
+      "at": "18:15",
+      "asker": "Devon",
+      "target": "Marisol",
+      "why": "Checking whether she'll be home when friends arrive so I can give her a heads up about the noise and kitchen use",
+      "text": "Hey, will Marisol be home around 20:00? Friends are coming over to game and cook, so I want to give her a heads up about the noise and kitchen use",
+      "intent": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-12T04:00:00.000Z"
+      },
+      "parsed": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-12T04:00:00.000Z"
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-12T04:00:00.000Z",
+        "predictedTime": null,
+        "predictedState": null,
+        "confidence": "low",
+        "basis": "none"
+      },
+      "decision": "unknown",
+      "outcome": "unknown",
+      "askerText": null,
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 103,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1028,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 8,
+      "at": "16:40",
+      "asker": "Tobias",
+      "target": "Marisol",
+      "why": "I want to check on her at 17:00 and see if she's home before I start cooking enough to share",
+      "text": "hey, will Marisol be home around 5? thinking of cooking a big dinner and want to know if I should make enough for her too",
+      "intent": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-13T01:00:00.000Z"
+      },
+      "parsed": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-13T01:00:00.000Z"
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-13T01:00:00.000Z",
+        "predictedTime": null,
+        "predictedState": null,
+        "confidence": "low",
+        "basis": "none"
+      },
+      "decision": "unknown",
+      "outcome": "unknown",
+      "askerText": null,
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 92,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 856,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 8,
+      "at": "17:00",
+      "asker": "Devon",
+      "target": "Marisol",
+      "why": "Wants to know if she'll be home and need the kitchen before he starts cooking for friends tonight",
+      "text": "hey is Marisol home rn? having friends over tonight and wanna cook, just want to know if she'll need the kitchen before I start",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 95,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 906,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 314,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 437,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 8,
+      "at": "18:00",
+      "asker": "Marisol",
+      "target": "Priya",
+      "why": "Wants to know if Priya is home and planning to use the kitchen before Marisol starts cooking dinner at 18:30",
+      "text": "Hey, is Priya home right now? I'm about to start cooking around 6:30 and wanted to see if she needs the kitchen first",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Priya is away right now, so the kitchen should be free for you to start cooking around 6:30.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 96,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1088,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 314,
+            "outputTokens": 32,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 510,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 8,
+      "at": "18:15",
+      "asker": "Imani",
+      "target": "Marisol",
+      "why": "Wondering if anyone is home yet so I can plan when to take the trash out and use the kitchen to heat up leftovers",
+      "text": "hey! is Marisol home right now? trying to figure out if the kitchen's free to heat up leftovers and take the trash out",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 93,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 921,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 312,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 510,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 8,
+      "at": "19:15",
+      "asker": "Priya",
+      "target": "Marisol",
+      "why": "Wondering if the kitchen is free so I can start meal prep for dinner around 7",
+      "text": "hey is Marisol home right now? trying to see if the kitchen's free so I can start meal prep",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now, so the kitchen may be occupied, but you can check with her before starting meal prep.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 84,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1569,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 303,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 498,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 9,
+      "at": "13:30",
+      "asker": "Tobias",
+      "target": "Marisol",
+      "why": "Want to know if she'll be home around 14:00 to hear the door for the courier in case I'm buried in editing, and whether she wants to share dinner tonight",
+      "text": "Hey, is Marisol going to be home around 2? Courier's due and I'll probably be buried in editing so I might not hear the door. Also want to ask if she'd like to share dinner tonight, I'm cooking",
+      "intent": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-13T22:00:00.000Z"
+      },
+      "parsed": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-13T22:00:00.000Z"
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-13T22:00:00.000Z",
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "medium",
+        "basis": "block"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is probably away around 2:00 PM.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 122,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1012,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 348,
+            "outputTokens": 19,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 519,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 9,
+      "at": "15:00",
+      "asker": "Imani",
+      "target": "Priya",
+      "why": "Checking whether the bathroom is likely free so I can shower and get ready before I leave for class",
+      "text": "Hey, is Priya home right now? Trying to figure out if the bathroom's free so I can shower before I head to class",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Priya is away right now, so the bathroom should be free for your shower.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 90,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 951,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 308,
+            "outputTokens": 24,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 513,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 9,
+      "at": "16:50",
+      "asker": "Marisol",
+      "target": "Priya",
+      "why": "Want to know if she's home and in the kitchen before I start planning dinner at 6:30, so we don't clash over the stove",
+      "text": "Hey! Is Priya home right now? Trying to figure out if the kitchen will be free before I start dinner around 6:30",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Priya is away right now, so the kitchen should be free for your 6:30 dinner.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 93,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1216,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 311,
+            "outputTokens": 30,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 524,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 9,
+      "at": "19:10",
+      "asker": "Priya",
+      "target": "Marisol",
+      "why": "Wants to know if she's in the kitchen cooking before starting meal prep for dinner and tomorrow's office day",
+      "text": "hey is Marisol home right now? trying to see if she's in the kitchen cooking before I start meal prepping",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 88,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1118,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 307,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 413,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 10,
+      "at": "15:30",
+      "asker": "Imani",
+      "target": "Tobias",
+      "why": "Checking if he's home and using the kitchen before I heat up leftovers and take the trash out on my way to class",
+      "text": "hey, is Tobias home right now? want to heat up leftovers and take the trash out before I head to class",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Tobias is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 85,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1047,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 304,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 408,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 10,
+      "at": "17:15",
+      "asker": "Marisol",
+      "target": "Devon",
+      "why": "Want to know if Devon will be in the kitchen around 6:30 so I can plan cooking and quiet grading space",
+      "text": "Hey! Will Devon be home around 6:30 tonight? Trying to plan dinner and set up my grading in the kitchen.",
+      "intent": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-15T02:30:00.000Z"
+      },
+      "parsed": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-15T02:30:00.000Z"
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-15T02:30:00.000Z",
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "medium",
+        "basis": "block"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Devon will probably be away around 6:30 PM tonight.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 96,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1009,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 321,
+            "outputTokens": 22,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 575,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 10,
+      "at": "18:15",
+      "asker": "Tobias",
+      "target": "Marisol",
+      "why": "Wants to know if she's home to share dinner before he packs the gear bag and charges batteries for the early start",
+      "text": "hey is Marisol home right now? made way too much food, wanna see if she wants dinner before I pack up for the early shoot",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now, so you can ask her about dinner before you head out for the early shoot.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 92,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 960,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 311,
+            "outputTokens": 32,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 559,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 11,
+      "at": "14:30",
+      "asker": "Imani",
+      "target": "Marisol",
+      "why": "Want to nap in the afternoon and wondering if she's home and whether the apartment will be quiet",
+      "text": "hey! is Marisol home right now? I'm about to nap after my shift and wanted to know if the apartment's gonna be quiet",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is away right now, so the apartment should be quiet for your nap.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 95,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1025,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 314,
+            "outputTokens": 26,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 504,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 11,
+      "at": "17:30",
+      "asker": "Tobias",
+      "target": "Marisol",
+      "why": "Wondering if anyone will be home for dinner tonight, since I'm packing and want to cook something simple before an early bedtime",
+      "text": "hey is Marisol going to be home for dinner tonight? packing for a trip and just making something simple before an early night",
+      "intent": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-16T03:30:00.000Z"
+      },
+      "parsed": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-16T03:00:00.000Z"
+      },
+      "parseOk": false,
+      "claim": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-16T03:00:00.000Z",
+        "predictedTime": null,
+        "predictedState": null,
+        "confidence": "low",
+        "basis": "none"
+      },
+      "decision": "unknown",
+      "outcome": "unknown",
+      "askerText": null,
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 88,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 988,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 12,
+      "at": "09:30",
+      "asker": "Imani",
+      "target": "Priya",
+      "why": "Wondering if Priya is home or using the laundry before I start my load this morning",
+      "text": "hey! is Priya home right now or using the laundry? about to start my load",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Priya is away right now, so the laundry should be free for you to start your load.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 75,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1127,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 293,
+            "outputTokens": 25,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 472,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 12,
+      "at": "17:30",
+      "asker": "Tobias",
+      "target": "Marisol",
+      "why": "Wondering if she's home to know whether the kitchen is free for cooking dinner before I pack gear and go to bed early",
+      "text": "hey, is Marisol home right now? wanna cook dinner and don't want to get in her way in the kitchen",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": true,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 88,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1239,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 307,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 399,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 12,
+      "at": "17:45",
+      "asker": "Marisol",
+      "target": "Imani",
+      "why": "Checking whether she is home and planning to use the kitchen, so I know it will be free when I start cooking at 6:30",
+      "text": "Hey, is Imani home right now? I'm planning to start cooking around 6:30 and wanted to make sure the kitchen will be free.",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_wrong_confident",
+      "askerText": "Imani is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 98,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 916,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 316,
+            "outputTokens": 10,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 396,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 12,
+      "at": "23:30",
+      "asker": "Devon",
+      "target": "Marisol",
+      "why": "Wondering if anyone is home or awake before I get back, so I know whether to keep the dishwasher and TV quiet",
+      "text": "hey is Marisol home or awake right now? trying to figure out if I need to keep the dishwasher and TV down when I get in",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now, so you may want to keep the dishwasher and TV quiet.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 93,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1022,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 312,
+            "outputTokens": 31,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 440,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 13,
+      "at": "10:30",
+      "asker": "Imani",
+      "target": "Marisol",
+      "why": "Want to know if she's home so I can do laundry without clashing over the machines",
+      "text": "hey! is Marisol home right now? want to start laundry and don't want to clash over the machines",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_wrong_confident",
+      "askerText": "Marisol is home right now, so you can go ahead and start your laundry.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 82,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1325,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 301,
+            "outputTokens": 25,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 455,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 13,
+      "at": "11:30",
+      "asker": "Devon",
+      "target": "Marisol",
+      "why": "Wondering if anyone is around to chat over coffee or if the house is quiet while I play guitar before work",
+      "text": "hey is Marisol home right now? thinking of making coffee and playing guitar before work, just wondering if she's around to chat or if I should keep it quiet",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "away",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_wrong_confident",
+      "askerText": "Marisol is away right now, so you should be able to make coffee and play guitar without disturbing her.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 102,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1164,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 321,
+            "outputTokens": 33,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 589,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 13,
+      "at": "16:30",
+      "asker": "Marisol",
+      "target": "Tobias",
+      "why": "Wondering if he's home or planning to cook around 6:30 so we don't clash in the kitchen while I make dinner and want a quiet evening for grading",
+      "text": "Hey! Will Tobias be home around 6:30 tonight? Planning to cook then and want to make sure we don't clash in the kitchen",
+      "intent": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-18T02:30:00.000Z"
+      },
+      "parsed": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-18T02:30:00.000Z"
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "at_time",
+        "aboutTime": "2027-01-18T02:30:00.000Z",
+        "predictedTime": null,
+        "predictedState": null,
+        "confidence": "low",
+        "basis": "none"
+      },
+      "decision": "unknown",
+      "outcome": "unknown",
+      "askerText": null,
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 99,
+            "outputTokens": 37,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1046,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 13,
+      "at": "16:40",
+      "asker": "Priya",
+      "target": "Marisol",
+      "why": "Wondering if Marisol is home or using the kitchen before I start meal prepping the farmers market veggies",
+      "text": "hey is Marisol home right now? about to start meal prepping the farmers market veggies and wanted to see if she's using the kitchen",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 95,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1150,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 314,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 450,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    },
+    {
+      "day": 13,
+      "at": "17:15",
+      "asker": "Tobias",
+      "target": "Marisol",
+      "why": "Want to know if she's home and planning to cook so I can check in around 17:30 and plan around the kitchen",
+      "text": "Hey, is Marisol home right now? Thinking of checking in with her around 17:30 about the kitchen, wondering if she's planning to cook",
+      "intent": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parsed": {
+        "kind": "now",
+        "aboutTime": null
+      },
+      "parseOk": true,
+      "claim": {
+        "kind": "now",
+        "aboutTime": null,
+        "predictedTime": null,
+        "predictedState": "home",
+        "confidence": "high",
+        "basis": "presence"
+      },
+      "decision": "answer",
+      "outcome": "answered_correct",
+      "askerText": "Marisol is home right now.",
+      "draft": null,
+      "replyText": null,
+      "targetChanged": false,
+      "askerChanged": false,
+      "agentCalls": [
+        {
+          "step": "parse",
+          "ok": true,
+          "usage": {
+            "inputTokens": 100,
+            "outputTokens": 18,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 1015,
+            "stopReason": "end_turn"
+          }
+        },
+        {
+          "step": "answer",
+          "ok": true,
+          "usage": {
+            "inputTokens": 319,
+            "outputTokens": 11,
+            "model": "claude-haiku-5-5",
+            "latencyMs": 532,
+            "stopReason": "end_turn"
+          }
+        }
+      ]
+    }
+  ],
+  "needs": [
+    {
+      "who": "Devon",
+      "day": 0,
+      "at": "18:30",
+      "what": "Friends coming over to play video games and cook together, need someone to let them in if I'm in the shower or on the patio",
+      "met": true,
+      "coveredBy": [
+        "Marisol",
+        "Devon",
+        "Tobias"
+      ],
+      "byChange": false
+    },
+    {
+      "who": "Priya",
+      "day": 5,
+      "at": "14:00",
+      "what": "Boyfriend comes over to hang out, need someone to let him in if I'm in the shower or have headphones on",
+      "met": true,
+      "coveredBy": [
+        "Priya",
+        "Tobias"
+      ],
+      "byChange": false
+    },
+    {
+      "who": "Devon",
+      "day": 7,
+      "at": "19:00",
+      "what": "Friends coming over for games and cooking, need someone home to let them in while I'm in the kitchen and keep the house comfortable for guests",
+      "met": true,
+      "coveredBy": [
+        "Marisol",
+        "Devon",
+        "Imani"
+      ],
+      "byChange": false
+    },
+    {
+      "who": "Tobias",
+      "day": 9,
+      "at": "14:00",
+      "what": "Someone to let in the courier delivering a replacement camera strap and lens cleaning kit while I'm home but possibly in the shower or on headphones editing",
+      "met": true,
+      "coveredBy": [
+        "Tobias",
+        "Imani"
+      ],
+      "byChange": false
+    }
+  ],
+  "errors": []
+}

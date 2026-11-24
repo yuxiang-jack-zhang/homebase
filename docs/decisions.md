@@ -422,3 +422,19 @@ The first Opus run flagged one fixture: the answer was "Sam isn't home right now
 **Decision:** switch the default to `claude-haiku-5-5` (Jack, 2026-11-23): every system-level number is the same and its misses fail safe. One constant, `DEFAULT_MODEL` in `packages/core/src/agent/anthropic.ts`, used by production and both eval runners so the evals always test what ships. Hosted picks it up on the next `ask` deploy. Supersedes D58.
 **Why:** this result says where quality comes from: the evidence and the policy (no evidence for 75% of future at-time questions; until-when answers from block ends cause most confident errors), not the language model.
 **Revisit if:** harder phrasing (option 3, LLM-driven roommates) separates the models, or a learned predictor makes the parse of times more consequential.
+
+## D65. LLM-driven roommates: day by day, reactions allowed, cached; first result says a five-person house hides the effect — 2026-11-24, Jack
+**Context:** follow-up to D63 ("option 3"). Design: `docs/superpowers/specs/2026-11-23-llm-roommates-design.md`. Jack chose the day-by-day approach because a roommate's answer can change plans.
+**Options:** *lives written up front* — cheap, but answers can't change anything. *Day by day with reactions (chosen)* — measures needs met vs bother and commitments. *LLM-authored rules sampled by code* — no plans or stories.
+**Decision:** `evals/sim/lives/`, `npm run lives`. Sonnet 5.5 invents the household and plays every roommate: morning plans with needs and questions, phrasing, replies when the agent routes a question to them, reactions to answers, end-of-day memories. Any of those can change that person's plans from that moment on. The agent is the real pipeline on `DEFAULT_MODEL`. Answers are graded against the final timeline. Every LLM call is cached in `evals/sim/lives/cache.jsonl`, so the second and third modes replay the shared warm-up for free. Built-in rules: invalid plans are retried once, then become a stay-home day; two API failures stop the run (added after the account hit its monthly API limit mid-run and the first version quietly filled the days with fallbacks); failed agent calls are never cached.
+**First result (seed 1, five roommates, 7 warm-up + 14 days, agent Haiku 5.5):**
+
+| mode | questions | needs met | met by a plan change | asked per roommate-day | commitments | correct | confidently wrong | asked roommate |
+|---|---|---|---|---|---|---|---|---|
+| ask_me | 57 | 9/9 | 0 | 0.17 | 0 | 77% | 2% | 21% |
+| auto_when_confident | 56 | 5/5 | 0 | 0.07 | 0 | 88% | 4% | 9% |
+| always_auto | 52 | 4/4 | 0 | 0.01 | 0 | 75% | 10% | 2% |
+
+In a house of five someone is nearly always home: every need was met with no plan changes, so the effect this harness exists to measure never came up. Replies were realistic ("Nope, at work till 11:30, don't cook for me") and askers sometimes adjusted, but no target ever had to. The trade-off between modes still shows: `always_auto` almost never bothers anyone but is confidently wrong 5× as often as `ask_me`. Parse agreement (89–94%) is lower than in D64 because real-sounding questions are vaguer ("home for dinner tonight?"), so it measures agreement with the asker's intent more than model error. Also found: the answer writer embellishes (backlog).
+**Why:** the harness works and is cheap (about $1.30 for the first mode, a fraction of that for the others thanks to the cache); the household size, not the harness, is what hid the effect.
+**Revisit if:** the two-person run (`--size 2`) can be done after the API limit resets (2026-12-01) or is raised: that is the case where roommates depend on each other and plan changes should matter.

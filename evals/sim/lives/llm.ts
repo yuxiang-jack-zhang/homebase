@@ -36,6 +36,7 @@ export function makeLlm(opts: { client: Anthropic; model: string; cachePath: str
   const llm: Llm = {
     usage: [], calls: 0,
     async call<T>(req: LlmRequest<T>): Promise<T | null> {
+      let apiError: Error | null = null;
       for (const attempt of [1, 2]) {
         const key = keyOf(opts.model, req.name, req.system, req.user, String(attempt));
         let hit = cache.get(key);
@@ -54,14 +55,18 @@ export function makeLlm(opts: { client: Anthropic; model: string; cachePath: str
             };
             cache.set(hit);
           } catch (e) {
-            console.warn(`sim llm ${req.name} failed: ${(e as Error).message}`); // transient: not cached
+            console.warn(`sim llm ${req.name} failed: ${(e as Error).message}`); // not cached
+            apiError = e as Error;
             continue;
           }
         }
         if (hit.usage) llm.usage.push(hit.usage);
         const ok = req.schema.safeParse(hit.value);
         if (ok.success) return ok.data;
+        apiError = null; // the model answered, just not usably
       }
+      // Two API failures (limits, outage): stop the run rather than fill the simulation with fallback days.
+      if (apiError) throw apiError;
       return null;
     },
   };
@@ -89,7 +94,7 @@ export function cachedModel(model: ModelClient, modelId: string, cachePath: stri
     const hit = cache.get(key);
     if (hit) return hit.value as R;
     const r = await run();
-    cache.set({ key, value: r, usage: r.usage });
+    if (!r.usage.error) cache.set({ key, value: r, usage: r.usage }); // an API failure is not a result worth replaying
     return r;
   };
   return {
