@@ -1,0 +1,603 @@
+{
+  "model": "claude-haiku-5-5",
+  "date": "2026-11-24",
+  "summary": {
+    "n": 24,
+    "parseAccuracy": 1,
+    "decisionAccuracy": 1,
+    "wrongConfidentRate": 0,
+    "errors": 0,
+    "leaks": 0,
+    "p50LatencyMs": 1597,
+    "p95LatencyMs": 2032,
+    "unpricedCalls": 0,
+    "costPerQuestion": 0.000049783333333333335
+  },
+  "results": [
+    {
+      "name": "always-auto-low",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "away",
+      "logPrediction": true,
+      "usage": [
+        {
+          "inputTokens": 65,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1483,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 293,
+          "outputTokens": 26,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 526,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam is probably away at 3:00 PM, but I'm not sure."
+    },
+    {
+      "name": "always-auto-no-evidence",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "unknown",
+      "predictedState": null,
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 65,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1132,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "ask-me-future",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "escalate",
+      "predictedState": "home",
+      "logPrediction": true,
+      "usage": [
+        {
+          "inputTokens": 65,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1500,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 255,
+          "outputTokens": 21,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 506,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "at-time-block-contradicted",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "escalate",
+      "predictedState": "away",
+      "logPrediction": true,
+      "usage": [
+        {
+          "inputTokens": 65,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1071,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 254,
+          "outputTokens": 30,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 465,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "at-time-block",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "away",
+      "logPrediction": true,
+      "usage": [
+        {
+          "inputTokens": 65,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1125,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 293,
+          "outputTokens": 18,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 509,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam is probably away at 3:00 PM."
+    },
+    {
+      "name": "at-time-no-evidence",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "escalate",
+      "predictedState": null,
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 65,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1141,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "at-time-soon-home",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "home",
+      "logPrediction": true,
+      "usage": [
+        {
+          "inputTokens": 67,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1538,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 293,
+          "outputTokens": 18,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 450,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam is probably home around 10:45 AM."
+    },
+    {
+      "name": "household-ask-me",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "unknown",
+      "predictedState": "away",
+      "logPrediction": true,
+      "usage": [
+        {
+          "inputTokens": 67,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1028,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "household-auto-low",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "escalate",
+      "predictedState": null,
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 67,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1141,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "injection-auto",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "home",
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 80,
+          "outputTokens": 18,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1130,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 286,
+          "outputTokens": 10,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 537,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam is home right now."
+    },
+    {
+      "name": "injection",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "escalate",
+      "predictedState": null,
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 70,
+          "outputTokens": 20,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 682,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "midnight-block",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "away",
+      "logPrediction": true,
+      "usage": [
+        {
+          "inputTokens": 64,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 975,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 293,
+          "outputTokens": 18,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 797,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam is probably away at 1:00 AM."
+    },
+    {
+      "name": "non-question",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "escalate",
+      "predictedState": null,
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 55,
+          "outputTokens": 20,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 984,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "now-away",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "away",
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 61,
+          "outputTokens": 18,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1080,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 286,
+          "outputTokens": 10,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 406,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam is away right now."
+    },
+    {
+      "name": "now-hidden",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "escalate",
+      "predictedState": "home",
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 59,
+          "outputTokens": 18,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1218,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 248,
+          "outputTokens": 9,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 397,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "now-home",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "home",
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 59,
+          "outputTokens": 18,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1101,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 286,
+          "outputTokens": 10,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 496,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam is home right now."
+    },
+    {
+      "name": "past",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "home",
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 60,
+          "outputTokens": 190,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 2314,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 292,
+          "outputTokens": 16,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 417,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam is home at 3:00 PM."
+    },
+    {
+      "name": "relative-time-tokyo",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "home",
+      "logPrediction": true,
+      "usage": [
+        {
+          "inputTokens": 67,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 949,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 293,
+          "outputTokens": 18,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 396,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam is probably home around 12:30 PM."
+    },
+    {
+      "name": "relative-time",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "home",
+      "logPrediction": true,
+      "usage": [
+        {
+          "inputTokens": 67,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1222,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 293,
+          "outputTokens": 18,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 416,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam is probably home around 10:30 AM."
+    },
+    {
+      "name": "tonight",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "escalate",
+      "predictedState": null,
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 62,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1000,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "typo-slang",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "escalate",
+      "predictedState": null,
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 63,
+          "outputTokens": 37,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1675,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "unclear",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "escalate",
+      "predictedState": null,
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 56,
+          "outputTokens": 20,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1540,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": null
+    },
+    {
+      "name": "until-when-block",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "away",
+      "logPrediction": true,
+      "usage": [
+        {
+          "inputTokens": 62,
+          "outputTokens": 20,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 970,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 293,
+          "outputTokens": 18,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 714,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam is probably away until 5:00 PM."
+    },
+    {
+      "name": "until-when-home",
+      "parseOk": true,
+      "decisionOk": true,
+      "wrongConfident": false,
+      "leaked": false,
+      "decision": "answer",
+      "predictedState": "home",
+      "logPrediction": false,
+      "usage": [
+        {
+          "inputTokens": 61,
+          "outputTokens": 20,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1022,
+          "stopReason": "end_turn"
+        },
+        {
+          "inputTokens": 288,
+          "outputTokens": 113,
+          "model": "claude-haiku-5-5",
+          "latencyMs": 1010,
+          "stopReason": "end_turn"
+        }
+      ],
+      "askerText": "Sam: home now"
+    }
+  ]
+}

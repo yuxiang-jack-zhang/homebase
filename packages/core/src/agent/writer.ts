@@ -1,6 +1,10 @@
 import type { Claim } from '../types.ts';
 import { clock } from './template.ts';
 
+/** The claim's predicted time worth saying. For "when are they back?" while they're home it is just "now", which reads as a departure time. */
+export const statedPredictedTime = (claim: Claim) =>
+  claim.kind === 'until_when' && claim.predictedState === 'home' ? null : claim.predictedTime;
+
 /** Longest writer line accepted. The template line is ~40 chars; this leaves room for a friendly sentence, not an essay. */
 export const WRITER_MAX_CHARS = 160;
 
@@ -36,7 +40,7 @@ export function acceptWriterText(text: string | null, claim: Claim, timezone: st
   if (!t || t.length > WRITER_MAX_CHARS || /[\r\n]/.test(t) || FORBIDDEN.test(t)) return null;
   if (!stateOk(t, claim.predictedState)) return null;
   const toClock = (iso: string) => timesIn(clock(iso, timezone))[0];
-  const allowed = [claim.aboutTime, claim.predictedTime].flatMap((iso) => (iso ? [toClock(iso)] : []));
+  const allowed = [claim.aboutTime, statedPredictedTime(claim)].flatMap((iso) => (iso ? [toClock(iso)] : []));
   const times = timesIn(t);
   if (!times.every((x) => allowed.some((a) => sameTime(x, a)))) return null;
   const required = claim.kind === 'at_time' ? claim.aboutTime

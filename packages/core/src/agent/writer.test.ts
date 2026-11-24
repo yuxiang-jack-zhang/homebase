@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import type { Claim } from '../types.ts';
+import { answerUser, draftUser } from './prompts.ts';
 import { acceptWriterText, WRITER_MAX_CHARS } from './writer.ts';
 
 const TZ = 'America/Los_Angeles';
 const at7Away: Claim = { kind: 'at_time', aboutTime: '2027-01-06T03:00:00Z', predictedState: 'away', predictedTime: null, confidence: 'medium', basis: 'block' }; // 7:00 PM local
 const nowHome: Claim = { kind: 'now', aboutTime: null, predictedState: 'home', predictedTime: null, confidence: 'high', basis: 'presence' };
 const backAt5: Claim = { kind: 'until_when', aboutTime: null, predictedState: 'away', predictedTime: '2027-01-06T01:00:00Z', confidence: 'medium', basis: 'block' }; // 5:00 PM
+// "When is Sam back?" while Sam is home: predictedTime is just "now", not a time to mention (eval 2026-11-24 got "home until 10:00 AM").
+const backHome: Claim = { kind: 'until_when', aboutTime: null, predictedState: 'home', predictedTime: '2027-01-05T18:00:00Z', confidence: 'high', basis: 'presence' }; // 10:00 AM
 const accept = (text: string | null, claim: Claim) => acceptWriterText(text, claim, TZ);
 
 describe('acceptWriterText', () => {
@@ -18,6 +21,17 @@ describe('acceptWriterText', () => {
     ['Sam should be back around 5 PM.', backAt5],
     ["I'm out until about 5:00 PM.", backAt5],
   ])('accepts %s', (text, claim) => expect(accept(text, claim)).toBe(text));
+
+  it('until-when while home: accepts "home now", rejects any time (it would read as a departure time)', () => {
+    expect(accept('Sam is home now.', backHome)).toBe('Sam is home now.');
+    expect(accept('Sam is predicted to be home until 10:00 AM.', backHome)).toBeNull();
+  });
+
+  it('until-when while home: the writer is not given the "now" time', () => {
+    expect(answerUser('Sam', backHome, false, TZ)).toContain('Predicted time: n/a');
+    expect(draftUser('Sam', backHome, TZ)).toContain('Predicted time: n/a');
+    expect(answerUser('Sam', backAt5, false, TZ)).toMatch(/Predicted time: 5:00\sPM/);
+  });
 
   it('trims surrounding whitespace', () => expect(accept('  Sam is home. \n', nowHome)).toBe('Sam is home.'));
 

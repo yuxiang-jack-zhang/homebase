@@ -450,6 +450,7 @@ Realistic generated lives almost never produce a conflict (someone out when some
 **Decision:** the writers get the target's name, the claim, the caveat and the timezone, never the question. `acceptWriterText` keeps a line only if it is one line of ≤ 160 characters with no links, emails or code, states the claim's state without contradicting it, and mentions only the claim's times (including the one the template would show). Otherwise answers fall back to the template line and drafts are dropped.
 **Why:** nothing the asker types reaches a model that writes free text; `parseQuestion` is schema-constrained, so the key can't be used as a general LLM.
 **Revisit if:** a paid eval shows many real lines fall back to the template (e.g. "at 7" without AM/PM), or drafts disappear too often.
+**Measured (2026-11-24, Haiku 5.5, 24 fixtures):** 24/24 pass; 11 of 12 answers kept the model's line. The first run surfaced "Sam is predicted to be home until 10:00 AM" for "when is Sam back?" while Sam is home: that claim's predicted time is just "now", so it is no longer given to the writer or accepted in its text (`statedPredictedTime`); that answer now reads "Sam is home…" or falls back to "Sam: home now".
 
 ## D67. Rate limits on ask: an admissions table under a per-user lock, a global breaker, at most 20 targets — 2026-11-24, Jack
 **Context:** finding 3: anyone could sign up and loop `ask`, draining the API credits.

@@ -1,5 +1,6 @@
 import type { Claim } from '../types.ts';
 import { clock } from './template.ts';
+import { statedPredictedTime } from './writer.ts';
 
 // System prompts are static so they can be cached; everything per-request goes in the user message.
 
@@ -52,7 +53,7 @@ const facts = (name: string, claim: Claim, timezone: string) =>
     `Question type: ${claim.kind}`,
     `About time: ${claim.aboutTime ? clock(claim.aboutTime, timezone) : 'n/a'}`,
     `Predicted state: ${claim.predictedState ?? 'unknown'}`,
-    `Predicted time: ${claim.predictedTime ? clock(claim.predictedTime, timezone) : 'n/a'}`,
+    `Predicted time: ${statedPredictedTime(claim) ? clock(statedPredictedTime(claim)!, timezone) : 'n/a'}`,
     `Confidence: ${claim.confidence}`,
   ].join('\n');
 
