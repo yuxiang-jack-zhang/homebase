@@ -280,5 +280,5 @@ grant execute on function public.can_see_presence(uuid, uuid, timestamptz), publ
   public.my_pending_households(), public.approve_member(uuid, uuid), public.decline_member(uuid, uuid),
   public.remove_member(uuid, uuid), public.rotate_invite_code(uuid), public.leave_household(uuid)
   to authenticated, service_role;
--- join_attempts: no client access; the tests read it as service_role.
-grant select on public.join_attempts to service_role;
+-- join_attempts: no client access; service_role as for every table (0006).
+grant select, insert, update, delete on public.join_attempts to service_role;
