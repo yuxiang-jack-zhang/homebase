@@ -54,8 +54,23 @@ export function ok<T>(res: { data: T; error: unknown }): T {
   return res.data;
 }
 
+// Fixture members joined long ago, so presence the tests backdate by minutes or hours stays visible to them.
+const JOINED_LONG_AGO = "2000-01-01T00:00:00Z";
+
+/** join_household's result: `{ id, name }`, or `{ error }` for a bad code (returned, not raised, so the attempt is kept). */
+export type JoinResult = { id: string; name: string; error?: undefined } | { error: string; id?: undefined };
+
+/** Asks to join (a pending request). */
+export async function requestJoin(user: TestUser, inviteCode: string) {
+  return ok(await user.client.rpc("join_household", { p_invite_code: inviteCode })) as JoinResult;
+}
+
+/** Joins and is approved (service role stands in for the owner; approve_member itself is tested in membership.test.ts). */
 export async function joinHousehold(user: TestUser, inviteCode: string, confirm = true) {
-  const household = ok(await user.client.rpc("join_household", { p_invite_code: inviteCode }));
+  const household = await requestJoin(user, inviteCode);
+  if (household.error !== undefined) throw new Error(household.error);
+  ok(await admin.from("household_members").update({ status: "active", joined_at: JOINED_LONG_AGO })
+    .eq("household_id", household.id).eq("user_id", user.id));
   if (confirm) ok(await user.client.rpc("confirm_home", { p_household_id: household.id }));
   return household;
 }
@@ -69,6 +84,7 @@ export async function makeHousehold(memberNames: string[] = [], { confirm = true
   const household = ok(await owner.client.rpc("create_household", {
     p_name: "Test home", p_lat: 37.4275, p_lng: -122.1697, p_radius_m: 100, p_timezone: "America/Los_Angeles",
   }));
+  ok(await admin.from("household_members").update({ joined_at: JOINED_LONG_AGO }).eq("household_id", household.id));
   const members: TestUser[] = [];
   for (const name of memberNames) {
     const member = await newUser(name);

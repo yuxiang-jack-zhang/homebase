@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { admin, anon, joinHousehold, makeHousehold, makeQuestion, newUser, ok } from "./helpers.ts";
+import { admin, anon, joinHousehold, makeHousehold, makeQuestion, newUser, ok, requestJoin } from "./helpers.ts";
 
 async function memberRow(householdId: string, userId: string) {
   return ok(await admin.from("household_members").select()
@@ -19,25 +19,25 @@ describe("RPCs", () => {
     expect(row.home_confirmed_at).not.toBeNull();
   });
 
-  it("join_household with valid code adds member with visibility=true, answer_mode=ask_me, home_confirmed_at=null", async () => {
+  it("join_household with valid code adds a pending member with visibility=true, answer_mode=ask_me, no joined_at or home_confirmed_at, and returns only id and name", async () => {
     const { household } = await makeHousehold();
     const joiner = await newUser("Jo");
-    const joined = ok(await joiner.client.rpc("join_household", { p_invite_code: household.invite_code }));
-    expect(joined.id).toBe(household.id);
+    expect(await requestJoin(joiner, household.invite_code)).toEqual({ id: household.id, name: "Test home" });
     expect(await memberRow(household.id, joiner.id)).toMatchObject({
-      role: "member", visibility: true, answer_mode: "ask_me", home_confirmed_at: null,
+      role: "member", status: "pending", visibility: true, answer_mode: "ask_me", home_confirmed_at: null, joined_at: null,
     });
   });
 
-  it("join_household with bad code raises invalid_invite_code; joining a household you're already in raises already_member; joining a second household succeeds", async () => {
+  it("join_household with bad code returns invalid_invite_code; joining a household you're already in (or asked to) raises already_member; joining a second household succeeds", async () => {
     const a = await makeHousehold();
     const b = await makeHousehold();
     const u = a.owner;
 
-    expect((await u.client.rpc("join_household", { p_invite_code: "000000" })).error?.message).toBe("invalid_invite_code");
+    expect(await requestJoin(u, "000000")).toEqual({ error: "invalid_invite_code" });
     expect((await u.client.rpc("join_household", { p_invite_code: a.household.invite_code })).error?.message).toBe("already_member");
-    const second = ok(await u.client.rpc("join_household", { p_invite_code: b.household.invite_code }));
+    const second = await requestJoin(u, b.household.invite_code);
     expect(second.id).toBe(b.household.id);
+    expect((await u.client.rpc("join_household", { p_invite_code: b.household.invite_code })).error?.message).toBe("already_member");
     expect(ok(await admin.from("household_members").select("household_id").eq("user_id", u.id))).toHaveLength(2);
   });
 

@@ -28,7 +28,7 @@ export function supabaseHouseholdData(admin: SupabaseClient<Database>): Househol
     async membership(householdId, userId) {
       const { data: h, error } = await admin.from('households')
         .select('timezone, household_members(user_id, visibility, answer_mode, profiles(display_name))')
-        .eq('id', householdId).maybeSingle();
+        .eq('id', householdId).eq('household_members.status', 'active').maybeSingle(); // pending requests aren't members
       if (error) throw error;
       if (!h || !h.household_members.some((m) => m.user_id === userId)) return null;
       return {

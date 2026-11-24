@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { supabaseHouseholdData } from "../../packages/core/src/data.ts";
-import { admin, joinHousehold, makeHousehold, newUser, ok } from "./helpers.ts";
+import { admin, joinHousehold, makeHousehold, newUser, ok, requestJoin } from "./helpers.ts";
 
 const NOW = new Date().toISOString();
 const daysAgo = (d: number) => new Date(Date.parse(NOW) - d * 86_400_000).toISOString();
@@ -74,5 +74,14 @@ describe("supabaseHouseholdData", () => {
     ]);
     expect(await data.membership(household.id, outsider.id)).toBeNull();
     expect(await data.membership(crypto.randomUUID(), sam.id)).toBeNull();
+  });
+
+  it("membership() ignores pending requests: a pending user is not a member and is not listed to others", async () => {
+    const { household, owner } = await makeHousehold();
+    const asking = await newUser("Pat");
+    expect(await requestJoin(asking, household.invite_code)).toMatchObject({ id: household.id });
+
+    expect(await data.membership(household.id, asking.id)).toBeNull();
+    expect((await data.membership(household.id, owner.id))?.members.map((m) => m.userId)).toEqual([owner.id]);
   });
 });

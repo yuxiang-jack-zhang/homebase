@@ -326,3 +326,17 @@ describe("score", () => {
     expect(after).toMatchObject({ outcome: null, scored_at: null });
   });
 });
+
+describe("delete-account", () => {
+  it("needs a signed-in caller; deletes only the caller, handing their household to the next member", async () => {
+    const { household, owner, members: [sam] } = await makeHousehold(["Sam"]);
+    expect((await call("delete-account", null, {})).status).toBe(401);
+
+    const r = await call("delete-account", await token(owner), {});
+
+    expect(r).toEqual({ status: 200, body: { status: "deleted" } });
+    expect((await admin.auth.admin.getUserById(owner.id)).data.user).toBeNull();
+    expect(ok(await admin.from("household_members").select("user_id, role").eq("household_id", household.id)))
+      .toEqual([{ user_id: sam.id, role: "owner" }]);
+  });
+});
