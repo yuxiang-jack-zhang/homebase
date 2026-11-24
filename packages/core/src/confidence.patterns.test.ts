@@ -38,6 +38,27 @@ describe('buildClaim with patterns', () => {
     expect(buildClaim(at(today(15)), ev(outNow), on)).toMatchObject({ predictedState: 'away', confidence: 'medium', basis: 'pattern' });
   });
 
+  it('near-term: only comparable days in the same state as now count (away at 18:55, usually home by 18:30)', () => {
+    const at = (t: string, now: string, presence: PresenceEvent[]) => buildClaim({ kind: 'at_time', aboutTime: t }, { ...ev(presence), now }, on);
+    expect(at(today(19), today(18, 55), outNow)).toMatchObject({ basis: 'none', predictedState: null }); // still out: off routine today
+    const backNow = [...outNow, { kind: 'enter', at: today(18) } as PresenceEvent];
+    expect(at(today(19), today(18, 55), backNow)).toMatchObject({ predictedState: 'home', confidence: 'medium', basis: 'pattern' });
+    expect(at(today(19), today(17, 30), outNow)).toMatchObject({ predictedState: 'home', confidence: 'medium', basis: 'pattern' }); // out at 17:30 is usual
+  });
+
+  it('until_when on a DST night: the habitual wall-clock return time is the predicted instant', () => {
+    const LA = 'America/Los_Angeles';
+    const sat = (d: string, h: string) => new Date(`${d}T${h}:00-08:00`).toISOString(); // all PST before 2027-03-14 03:00
+    const nights: PresenceEvent[] = [];
+    for (let k = 56; k >= 1; k--) {
+      const d = new Date(Date.parse('2027-03-13T12:00:00Z') - k * DAY).toISOString().slice(0, 10);
+      nights.push({ kind: 'exit', at: sat(d, '21:00') }, { kind: 'enter', at: iso(Date.parse(sat(d, '03:30')) + DAY) });
+    }
+    nights.push({ kind: 'exit', at: sat('2027-03-13', '21:00') });
+    const e: Evidence = { now: sat('2027-03-13', '22:00'), timezone: LA, presence: nights, blocks: [] };
+    expect(buildClaim(until, e, on)).toMatchObject({ basis: 'pattern', predictedTime: '2027-03-14T10:30:00.000Z' }); // 03:30 PDT
+  });
+
   it('a weak habit (too few days or too mixed) is low confidence', () => {
     const short = [...history(9 * 60, () => 18 * 60, 15), { kind: 'exit', at: today(9) } as PresenceEvent]; // 2 Wednesdays
     expect(buildClaim(at(today(19)), ev(short), on)).toMatchObject({ predictedState: 'home', confidence: 'low', basis: 'pattern' });
