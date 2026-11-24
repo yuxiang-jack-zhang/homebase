@@ -39,6 +39,13 @@
         {
           "enableRemoteNotifications": false
         }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Homebase reads the start and end times of events in calendars you choose, to tell roommates you're probably away. Titles, places and notes stay on your phone.",
+          "remindersPermission": false
+        }
       ]
     ],
     "experiments": {

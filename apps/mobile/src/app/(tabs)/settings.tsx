@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ScrollView, Switch, Text } from 'react-native';
 import { AnswerModePicker } from '../../components/AnswerModePicker';
 import { AwayBlocks } from '../../components/AwayBlocks';
+import { AwayCalendars } from '../../components/AwayCalendars';
 import { DeleteAccount, HouseholdMembers } from '../../components/HouseholdMembers';
 import { MoveHome } from '../../components/MoveHome';
 import { Button, ErrorText, Row, ui } from '../../components/ui';
@@ -45,6 +46,9 @@ export default function Settings() {
 
       <Text style={ui.h2}>Away blocks</Text>
       <AwayBlocks key={current.id} householdId={current.id} userId={me.user_id} />
+
+      <Text style={ui.h2}>Calendars that mean I'm away</Text>
+      <AwayCalendars />
 
       {me.role === 'owner' && (
         <>

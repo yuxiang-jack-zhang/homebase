@@ -36,7 +36,27 @@ describe("supabaseHouseholdData", () => {
       timezone: "America/Los_Angeles",
       presence: [{ kind: "exit", at: daysAgo(60) }, { kind: "enter", at: daysAgo(40) }, { kind: "exit", at: daysAgo(3) }, { kind: "enter", at: daysAgo(2) }, { kind: "exit", at: daysAgo(1) }],
       blocks: [{ daysOfWeek: [1, 3], startLocal: "18:00", endLocal: "21:30", label: "climbing", createdAt: expect.any(String) }],
+      awayPeriods: [],
     });
+  });
+
+  it("evidence() returns the user's calendar away periods overlapping the next 2 days, in every household they're in", async () => {
+    const a = await makeHousehold(["Sam"]);
+    const b = await makeHousehold();
+    const [sam] = a.members;
+    await joinHousehold(sam, b.household.invite_code);
+    const now = new Date().toISOString();
+    const h = (n: number) => new Date(Date.parse(now) + n * 3_600_000).toISOString();
+    ok(await admin.from("calendar_away").insert([
+      { user_id: sam.id, starts_at: h(-3), ends_at: h(-1) },   // ended
+      { user_id: sam.id, starts_at: h(-1), ends_at: h(2) },    // under way
+      { user_id: sam.id, starts_at: h(30), ends_at: h(38) },   // tomorrow
+      { user_id: sam.id, starts_at: h(49), ends_at: h(50) },   // after 2 days
+      { user_id: a.owner.id, starts_at: h(1), ends_at: h(2) }, // someone else
+    ]));
+    const want = [{ start: h(-1), end: h(2) }, { start: h(30), end: h(38) }];
+    expect((await data.evidence(a.household.id, sam.id, now)).awayPeriods).toEqual(want);
+    expect((await data.evidence(b.household.id, sam.id, now)).awayPeriods).toEqual(want);
   });
 
   it("evidence() never uses presence recorded while hidden, nor anything before it (C1)", async () => {

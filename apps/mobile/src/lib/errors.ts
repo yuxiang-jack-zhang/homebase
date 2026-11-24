@@ -18,6 +18,7 @@ const MESSAGES: Record<string, string> = {
   bad_response: 'Got an unexpected answer from the server. Try again.',
   invalid_location: "That location isn't valid. Try again.",
   invalid_radius: 'The home radius must be between 50 and 500 meters.',
+  invalid_periods: "Couldn't share your calendar times. Try again.",
   invalid_timezone: "Your phone's time zone wasn't recognized. Check Settings > General > Date & Time.",
   invalid_request: "That request wasn't valid. Check it and try again.",
   unauthorized: 'Your session has expired. Sign in again.',
