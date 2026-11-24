@@ -17,6 +17,7 @@ export interface HouseholdData {
 }
 
 const DAY = 86_400_000;
+const RECENT_CAP = 1000;
 
 // supabase-js types data as nullable on the error branch; after the error check it is the row(s).
 function must<T>(res: { data: T | null; error: unknown }): T {
@@ -51,12 +52,15 @@ export function supabaseHouseholdData(admin: SupabaseClient<Database>): Househol
       const [h, before, recent, blocks] = await Promise.all([
         admin.from('households').select('timezone').eq('id', householdId).single(),
         events().lt('at', since).order('at', { ascending: false }).order('id', { ascending: false }).limit(1),
-        events().gte('at', since).order('at').order('id'),
+        // Newest first with an explicit cap (PostgREST returns at most 1000 rows): if history is cut, the oldest goes, never today's.
+        events().gte('at', since).order('at', { ascending: false }).order('id', { ascending: false }).limit(RECENT_CAP),
         admin.from('away_blocks').select('days_of_week, start_local, end_local, label')
           .eq('household_id', householdId).eq('user_id', userId),
       ]);
       // Questions are always about another member, so presence recorded while hidden (and anything before it) is never evidence (D55).
-      const all = [...must(before), ...must(recent)];
+      const window = must(recent).reverse();
+      // A full page means older events in the window were cut, so the "state going in" event would sit after a gap.
+      const all = [...(window.length === RECENT_CAP ? [] : must(before)), ...window];
       const visible = all.slice(all.map((e) => e.visible).lastIndexOf(false) + 1);
       return {
         now,

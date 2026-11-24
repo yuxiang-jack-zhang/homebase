@@ -68,6 +68,19 @@ describe("supabaseHouseholdData", () => {
     expect((await data.evidence(household.id, sam.id, NOW)).presence).toEqual([{ kind: "enter", at: daysAgo(30) }]);
   });
 
+  it("evidence() keeps the newest events when there are more than the API returns in one response (1000)", async () => {
+    const { household, members: [sam] } = await makeHousehold(["Sam"]);
+    // 1200 events over the last ~50 days (a phone flapping at the geofence edge), newest is an exit an hour ago.
+    const rows = Array.from({ length: 1200 }, (_, i) => ({
+      household_id: household.id, user_id: sam.id, kind: (i % 2 ? "exit" : "enter") as "enter" | "exit",
+      at: new Date(Date.parse(NOW) - (1200 - i) * 3_600_000).toISOString(),
+    }));
+    ok(await admin.from("presence_events").insert(rows));
+    const p = (await data.evidence(household.id, sam.id, NOW)).presence;
+    expect(p.at(-1)).toEqual({ kind: "exit", at: rows.at(-1)!.at });
+    expect(p.length).toBeGreaterThanOrEqual(1000);
+  });
+
   it("evidence() with visibleFrom drops everything before it, including the state going in (pre-join history)", async () => {
     const { household, members: [sam] } = await makeHousehold(["Sam"]);
     ok(await admin.from("presence_events").insert([
