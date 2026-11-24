@@ -8,10 +8,10 @@
     "wrongConfidentRate": 0,
     "errors": 0,
     "leaks": 0,
-    "p50LatencyMs": 1314,
-    "p95LatencyMs": 1777,
+    "p50LatencyMs": 1340,
+    "p95LatencyMs": 1974,
     "unpricedCalls": 0,
-    "costPerQuestion": 0.000049369230769230766
+    "costPerQuestion": 0.00004988846153846153
   },
   "results": [
     {
@@ -28,14 +28,14 @@
           "inputTokens": 65,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1270,
+          "latencyMs": 1286,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 293,
           "outputTokens": 26,
           "model": "claude-haiku-5-5",
-          "latencyMs": 507,
+          "latencyMs": 569,
           "stopReason": "end_turn"
         }
       ],
@@ -55,7 +55,7 @@
           "inputTokens": 65,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1144,
+          "latencyMs": 1022,
           "stopReason": "end_turn"
         }
       ],
@@ -75,14 +75,14 @@
           "inputTokens": 65,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 906,
+          "latencyMs": 1165,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 255,
-          "outputTokens": 16,
+          "outputTokens": 21,
           "model": "claude-haiku-5-5",
-          "latencyMs": 469,
+          "latencyMs": 404,
           "stopReason": "end_turn"
         }
       ],
@@ -102,14 +102,14 @@
           "inputTokens": 65,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1016,
+          "latencyMs": 952,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 254,
-          "outputTokens": 30,
+          "outputTokens": 29,
           "model": "claude-haiku-5-5",
-          "latencyMs": 595,
+          "latencyMs": 547,
           "stopReason": "end_turn"
         }
       ],
@@ -129,14 +129,14 @@
           "inputTokens": 65,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 536,
+          "latencyMs": 1082,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 293,
           "outputTokens": 18,
           "model": "claude-haiku-5-5",
-          "latencyMs": 384,
+          "latencyMs": 378,
           "stopReason": "end_turn"
         }
       ],
@@ -156,7 +156,7 @@
           "inputTokens": 65,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1103,
+          "latencyMs": 991,
           "stopReason": "end_turn"
         }
       ],
@@ -176,18 +176,18 @@
           "inputTokens": 67,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1045,
+          "latencyMs": 1093,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 293,
           "outputTokens": 18,
           "model": "claude-haiku-5-5",
-          "latencyMs": 390,
+          "latencyMs": 444,
           "stopReason": "end_turn"
         }
       ],
-      "askerText": "Sam is probably home at 10:45 AM."
+      "askerText": "Sam is probably home around 10:45 AM."
     },
     {
       "name": "household-ask-me",
@@ -203,7 +203,7 @@
           "inputTokens": 67,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1040,
+          "latencyMs": 923,
           "stopReason": "end_turn"
         }
       ],
@@ -223,7 +223,7 @@
           "inputTokens": 67,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1357,
+          "latencyMs": 1022,
           "stopReason": "end_turn"
         }
       ],
@@ -243,14 +243,14 @@
           "inputTokens": 80,
           "outputTokens": 18,
           "model": "claude-haiku-5-5",
-          "latencyMs": 908,
+          "latencyMs": 930,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 286,
           "outputTokens": 10,
           "model": "claude-haiku-5-5",
-          "latencyMs": 713,
+          "latencyMs": 502,
           "stopReason": "end_turn"
         }
       ],
@@ -270,7 +270,7 @@
           "inputTokens": 70,
           "outputTokens": 20,
           "model": "claude-haiku-5-5",
-          "latencyMs": 942,
+          "latencyMs": 1017,
           "stopReason": "end_turn"
         }
       ],
@@ -290,14 +290,14 @@
           "inputTokens": 64,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 836,
+          "latencyMs": 847,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 293,
           "outputTokens": 18,
           "model": "claude-haiku-5-5",
-          "latencyMs": 430,
+          "latencyMs": 482,
           "stopReason": "end_turn"
         }
       ],
@@ -317,7 +317,7 @@
           "inputTokens": 55,
           "outputTokens": 20,
           "model": "claude-haiku-5-5",
-          "latencyMs": 977,
+          "latencyMs": 1476,
           "stopReason": "end_turn"
         }
       ],
@@ -337,14 +337,14 @@
           "inputTokens": 61,
           "outputTokens": 18,
           "model": "claude-haiku-5-5",
-          "latencyMs": 923,
+          "latencyMs": 1501,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 286,
           "outputTokens": 10,
           "model": "claude-haiku-5-5",
-          "latencyMs": 388,
+          "latencyMs": 473,
           "stopReason": "end_turn"
         }
       ],
@@ -364,14 +364,14 @@
           "inputTokens": 59,
           "outputTokens": 18,
           "model": "claude-haiku-5-5",
-          "latencyMs": 826,
+          "latencyMs": 824,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 248,
           "outputTokens": 9,
           "model": "claude-haiku-5-5",
-          "latencyMs": 413,
+          "latencyMs": 401,
           "stopReason": "end_turn"
         }
       ],
@@ -391,14 +391,14 @@
           "inputTokens": 59,
           "outputTokens": 18,
           "model": "claude-haiku-5-5",
-          "latencyMs": 873,
+          "latencyMs": 977,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 286,
           "outputTokens": 10,
           "model": "claude-haiku-5-5",
-          "latencyMs": 441,
+          "latencyMs": 587,
           "stopReason": "end_turn"
         }
       ],
@@ -416,16 +416,16 @@
       "usage": [
         {
           "inputTokens": 60,
-          "outputTokens": 177,
+          "outputTokens": 199,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1397,
+          "latencyMs": 1622,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 292,
           "outputTokens": 16,
           "model": "claude-haiku-5-5",
-          "latencyMs": 397,
+          "latencyMs": 434,
           "stopReason": "end_turn"
         }
       ],
@@ -445,14 +445,14 @@
           "inputTokens": 65,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1062,
+          "latencyMs": 955,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 293,
           "outputTokens": 18,
           "model": "claude-haiku-5-5",
-          "latencyMs": 445,
+          "latencyMs": 410,
           "stopReason": "end_turn"
         }
       ],
@@ -472,18 +472,18 @@
           "inputTokens": 62,
           "outputTokens": 20,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1010,
+          "latencyMs": 886,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 293,
           "outputTokens": 19,
           "model": "claude-haiku-5-5",
-          "latencyMs": 613,
+          "latencyMs": 510,
           "stopReason": "end_turn"
         }
       ],
-      "askerText": "Sam is probably away until about 5:45 PM."
+      "askerText": "Sam is probably away until around 5:45 PM."
     },
     {
       "name": "relative-time-tokyo",
@@ -499,14 +499,14 @@
           "inputTokens": 67,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 907,
+          "latencyMs": 933,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 293,
           "outputTokens": 18,
           "model": "claude-haiku-5-5",
-          "latencyMs": 418,
+          "latencyMs": 397,
           "stopReason": "end_turn"
         }
       ],
@@ -526,14 +526,14 @@
           "inputTokens": 67,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1079,
+          "latencyMs": 922,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 293,
           "outputTokens": 18,
           "model": "claude-haiku-5-5",
-          "latencyMs": 533,
+          "latencyMs": 418,
           "stopReason": "end_turn"
         }
       ],
@@ -553,7 +553,7 @@
           "inputTokens": 62,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 890,
+          "latencyMs": 981,
           "stopReason": "end_turn"
         }
       ],
@@ -573,7 +573,7 @@
           "inputTokens": 63,
           "outputTokens": 37,
           "model": "claude-haiku-5-5",
-          "latencyMs": 1250,
+          "latencyMs": 1212,
           "stopReason": "end_turn"
         }
       ],
@@ -593,7 +593,7 @@
           "inputTokens": 56,
           "outputTokens": 20,
           "model": "claude-haiku-5-5",
-          "latencyMs": 766,
+          "latencyMs": 956,
           "stopReason": "end_turn"
         }
       ],
@@ -613,18 +613,18 @@
           "inputTokens": 62,
           "outputTokens": 20,
           "model": "claude-haiku-5-5",
-          "latencyMs": 965,
+          "latencyMs": 851,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 293,
-          "outputTokens": 18,
+          "outputTokens": 19,
           "model": "claude-haiku-5-5",
-          "latencyMs": 400,
+          "latencyMs": 408,
           "stopReason": "end_turn"
         }
       ],
-      "askerText": "Sam is probably away until 5:00 PM."
+      "askerText": "Sam is probably away until around 5:00 PM."
     },
     {
       "name": "until-when-home",
@@ -640,14 +640,14 @@
           "inputTokens": 61,
           "outputTokens": 20,
           "model": "claude-haiku-5-5",
-          "latencyMs": 824,
+          "latencyMs": 1011,
           "stopReason": "end_turn"
         },
         {
           "inputTokens": 288,
           "outputTokens": 72,
           "model": "claude-haiku-5-5",
-          "latencyMs": 711,
+          "latencyMs": 718,
           "stopReason": "end_turn"
         }
       ],

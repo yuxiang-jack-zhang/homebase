@@ -86,12 +86,14 @@ What it shows ([D64](docs/decisions.md)):
 - Most confident errors are "when are you back?" answered from the end of an away block: gym days, a stale schedule, an undeclared trip.
 - The model isn't the bottleneck: every system-level number is the same across models, so the app now runs on Haiku 5.5, at about 1/48 of Opus's cost and a second faster. Learned arrival patterns were the next lever, judged on this harness (below).
 
-**Learned arrival patterns** ([D74](docs/decisions.md)): the agent now also uses each person's own habits from 8 weeks of enter/exit history (same weekday, same time of day), ignoring them once someone has been out for over a day. Strong habits are answered automatically. Thresholds were tuned on seeds 2–4 and checked on four held-out seeds (1008 questions, "answer if confident"):
+**Learned arrival patterns** ([D74](docs/decisions.md)): the agent also uses each person's own habits from 8 weeks of enter/exit history (same weekday, same time of day). It answers automatically only when every comparable day agrees, never overrides an away block added since, and ignores habits once someone has been out for over a day. The setting was chosen on seeds 2–4 and confirmed once on six seeds nobody had looked at (1512 questions, "answer if confident"):
 
 | | answered correctly | confidently wrong | asked the roommate |
 |---|---|---|---|
-| without patterns | 623 | 41 | 344 |
-| with patterns | 787 | 40 | 181 |
+| without patterns | 930 | 47 | 535 |
+| with patterns | 1172 | 32 | 308 |
+
+Two earlier selection rules failed their held-out checks (one picked a setting that raised confident errors by 10 on fresh seeds); D74 records them.
 
 ### LLM-driven roommates
 
@@ -115,8 +117,8 @@ Every `ask` run is traced in Postgres ([D62](docs/decisions.md)): one row per ru
 
 | suite | what | count |
 |---|---|---|
-| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner, trace report, simulation | 359 |
-| `npm run test:db` | Postgres RLS, RPCs, triggers and edge functions against a local Supabase stack, signed in as real test users | 85 |
+| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner, trace report, simulation | 365 |
+| `npm run test:db` | Postgres RLS, RPCs, triggers and edge functions against a local Supabase stack, signed in as real test users | 86 |
 | `apps/mobile`: `npx jest` | screens, hooks, routing gate, geofence logic, realtime resync, retry | 78 |
 | [manual checklist](docs/manual-test-checklist.md) | two simulators against the hosted project, including a background relaunch after force-quit | 4 sections |
 

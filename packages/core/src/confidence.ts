@@ -9,8 +9,8 @@ const MIN = 60_000;
 
 /** How habits from presence history are used (D74). `matcher: 'off'` gives the pre-pattern behaviour. */
 export interface PatternOptions { matcher: 'off' | Matcher; nMin: number; pMin: number }
-// Tuned on simulation seeds 2-4; held-out seeds 1, 5-7: +164 correct, 41 -> 40 confidently wrong, -47% asked (D74).
-export const PATTERN_DEFAULTS: PatternOptions = { matcher: 'weekday', nMin: 6, pMin: 0.9 };
+// Chosen on simulation seeds 2-4 (fewest confident errors that still beat 'off'), confirmed on fresh seeds 14-19 (D74).
+export const PATTERN_DEFAULTS: PatternOptions = { matcher: 'weekday', nMin: 3, pMin: 0.95 };
 // A weak habit (low confidence) still improves drafts, fallback guesses and always_auto answers.
 const WEAK_N = 2, WEAK_P = 0.6;
 /** A block the person added after the oldest day a habit is based on is newer information than the habit. */

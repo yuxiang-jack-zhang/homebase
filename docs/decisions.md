@@ -499,17 +499,21 @@ Realistic generated lives almost never produce a conflict (someone out when some
 **Decision:** `expo-secure-store`, split into 512-character pieces (items over ~2 KB can be rejected), `AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY` so the background geofence task can read it while the phone is locked; an existing AsyncStorage session is moved over once so nobody is signed out. No extra crypto dependency.
 **Revisit if:** expo-secure-store lifts its size limit.
 
-## D74. Learned arrival patterns: on-the-fly habits from 8 weeks of history, tuned on the simulation — 2026-11-24, Jack
+## D74. Learned arrival patterns: on-the-fly habits from 8 weeks of history, chosen and confirmed on separate seeds — 2026-11-24, Jack
 **Context:** the simulation (D63) found 75% of future at-time questions went to the roommate for lack of evidence, and most confident errors came from away-block end times. Design: `docs/superpowers/specs/2026-11-24-learned-patterns-design.md`. Jack chose option A (strong habits are answered automatically) and approach 1, keeping the alternatives.
-**Options:** *compute habits per question from history (chosen)* — no new tables, testable, simulated directly. *Stored patterns from a nightly job* — kept as the alternative if per-question work gets slow; stale between runs and stores a routine summary at rest. *A statistical model* (hour-of-week probabilities, regression) — kept as the alternative if the simple matcher plateaus; harder to explain and tune. Both plug into the same seam: `buildClaim`'s pattern options.
+**Options:** *compute habits per question from history (chosen)* — no new tables, testable, simulated directly. *Stored patterns from a nightly job* — the alternative if per-question work gets slow (measured 1–17 ms per claim); stale between runs, stores a routine summary at rest. *A statistical model* — the alternative if the simple matcher plateaus; harder to explain and tune. Both plug into the same seam: `buildClaim`'s pattern options.
 **Decision:**
-- `EVIDENCE_DAYS = 56`.
-- `comparableInstants` / `homeShareAt` / `typicalReturn` in `packages/core/src/patterns.ts`.
-- A strong habit is a medium claim (basis `pattern`) and wins over a contradicting away block; a weak one is low.
-- Habits are ignored once someone has been out for over 24 hours. Added after the first sweep found mid-trip habits saying "home by 7".
-- Tuned default: same weekday, at least 6 comparable days, at least 90% agreement, return-time spread ≤ 90 min.
-- Tuned on seeds 2–4 (`npm run sim:tune`, 240 settings); simulation warm-up is now 56 days.
+- **Evidence:** `EVIDENCE_DAYS = 56`, read newest first with an explicit 1000-row cap.
+- **At a time:** a habit (same weekday, same local time) is a medium claim only if every comparable day agrees, with at least 3 of them (`nMin 3, pMin 0.95`). It overrides an away block only if the block is older than that history (`away_blocks.created_at`, migration 0011).
+- **Return time:** a "back by" habit is medium only if that share of comparable away-days, counting days with no return as misses, came back within 30 minutes of the median. An old block whose end such a habit contradicts drops to low confidence.
+- **Trips:** habits are ignored once someone has been out for over 24 hours.
 
-**Result (held-out seeds 1, 5, 6, 7; `auto_when_confident`; 1008 questions):** correct 623 → 787, confidently wrong 41 → 40, asked the roommate 344 → 181. Suggested replies get better too (seed 1, `ask_me`: 65% → 81% right). On seed 1 alone, confident errors went 9 → 11. The approved acceptance rule named seed 1, so Jack chose to judge on the four held-out seeds together instead.
-**Why:** the biggest measured gap in answer quality, fixed with plain, explainable code and measured for free. The writer still only states the claim, so the asker never learns the routine behind it.
-**Revisit if:** confident errors rise in real use; per-question computation gets slow (alternative 2); or more gains are needed (alternative 3, or separate thresholds for at-time and until-when).
+**How it was chosen (including what failed):**
+1. **First version:** a 90-minute spread rule for return times and "most correct under an error cap" as the selection rule. It failed its acceptance on seed 1 (9 → 11 confident errors). The 24-hour guard was designed while looking at seed 1's errors, so seed 1 is no longer a clean held-out seed.
+2. **Review findings fixed:** the review found the evidence query dropping the newest rows past 1000, return-time habits right only 43% of the time, and new blocks being overridden. All three were fixed.
+3. **Second confirmation failed:** the selection rule, fixed in advance, picked the most aggressive setting; on fresh seeds 8–13 confident errors went 68 → 78.
+4. **Rule changed and committed before running:** the fewest confident errors among settings that beat "off" on correct answers. Confirmed once on fresh seeds 14–19.
+
+**Result (seeds 14–19, never inspected; `auto_when_confident`; 1512 questions):** correct 930 → 1172, confidently wrong 47 → 32, asked the roommate 535 → 308. Tuning seeds 2–4: correct 62% → 79%, confidently wrong 4.0% → 1.6%.
+**Why:** the biggest measured gap in answer quality, closed with plain, explainable code. The writer still only states the claim, so the asker never learns the routine behind it.
+**Revisit if:** confident errors rise in real use; real routines turn out less regular than the personas (they are weekday-based, which favours the weekday matcher); or per-question computation gets slow. Next confirmation needs new seeds (20+).
