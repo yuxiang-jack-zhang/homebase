@@ -90,15 +90,15 @@ What it shows ([D64](docs/decisions.md)):
 
 The code simulation can't capture one thing: an answer can change what happens. `npm run lives` has Sonnet invent a household and play every roommate day by day ([D65](docs/decisions.md)). Each morning they plan their day, including needs ("the plumber comes at 3, someone has to be home"). They ask the app about each other, reply when the agent routes a question to them ("I can be back by 2:45"), react to answers, and any of that can change their plans from that moment on. Answers are graded against what actually happened, and each answer mode is scored on **needs met vs how often people get bothered**. Every LLM call is cached, so runs replay for free.
 
-First run, five roommates over 14 days, agent Haiku 5.5:
+Five roommates over 14 days, agent Haiku 5.5:
 
-| mode | needs met | asked per roommate-day | answered correctly | confidently wrong |
-|---|---|---|---|---|
-| Ask me first | 9/9 | 0.17 | 77% | 2% |
-| Answer if confident | 5/5 | 0.07 | 88% | 4% |
-| Always answer | 4/4 | 0.01 | 75% | 10% |
+| mode | answered correctly | confidently wrong | asked per roommate-day |
+|---|---|---|---|
+| Ask me first | 74% | 6% | 0.17 |
+| Answer if confident | 85% | 5% | 0.09 |
+| Always answer | 78% | 8% | 0.01 |
 
-With five people someone is nearly always home, so every need was met without anyone changing plans. The interaction this harness is built to measure needs a smaller household; `--size 2` is next.
+The finding so far: realistic generated lives almost never produce a conflict (someone out when something needs a person home), so in six runs, across households of five and two, no answer ever led a roommate to change plans. Measuring that needs scripted conflicts injected into the generated days, which is next.
 
 ## Tracing
 
@@ -160,7 +160,7 @@ ANTHROPIC_API_KEY=... npm run evals        # billed run against Claude (--model,
 ## Roadmap
 
 Next, in order:
-1. LLM-driven roommates in a two-person household, where plan changes should matter
+1. scripted conflicts in the LLM-roommate simulation, to measure when an answer gets someone to change plans
 2. a security review / threat model
 
 After that:

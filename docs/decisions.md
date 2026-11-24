@@ -423,18 +423,23 @@ The first Opus run flagged one fixture: the answer was "Sam isn't home right now
 **Why:** this result says where quality comes from: the evidence and the policy (no evidence for 75% of future at-time questions; until-when answers from block ends cause most confident errors), not the language model.
 **Revisit if:** harder phrasing (option 3, LLM-driven roommates) separates the models, or a learned predictor makes the parse of times more consequential.
 
-## D65. LLM-driven roommates: day by day, reactions allowed, cached; first result says a five-person house hides the effect — 2026-11-24, Jack
+## D65. LLM-driven roommates: day by day, reactions allowed, cached; generated lives rarely create conflicts — 2026-11-24, Jack
 **Context:** follow-up to D63 ("option 3"). Design: `docs/superpowers/specs/2026-11-23-llm-roommates-design.md`. Jack chose the day-by-day approach because a roommate's answer can change plans.
 **Options:** *lives written up front* — cheap, but answers can't change anything. *Day by day with reactions (chosen)* — measures needs met vs bother and commitments. *LLM-authored rules sampled by code* — no plans or stories.
-**Decision:** `evals/sim/lives/`, `npm run lives`. Sonnet 5.5 invents the household and plays every roommate: morning plans with needs and questions, phrasing, replies when the agent routes a question to them, reactions to answers, end-of-day memories. Any of those can change that person's plans from that moment on. The agent is the real pipeline on `DEFAULT_MODEL`. Answers are graded against the final timeline. Every LLM call is cached in `evals/sim/lives/cache.jsonl`, so the second and third modes replay the shared warm-up for free. Built-in rules: invalid plans are retried once, then become a stay-home day; two API failures stop the run (added after the account hit its monthly API limit mid-run and the first version quietly filled the days with fallbacks); failed agent calls are never cached.
-**First result (seed 1, five roommates, 7 warm-up + 14 days, agent Haiku 5.5):**
+**Decision:** `evals/sim/lives/`, `npm run lives`. Sonnet 5.5 invents the household (`--size`, default 5) and plays every roommate: morning plans with needs and questions, phrasing, replies when the agent routes a question to them, reactions to answers, end-of-day memories. Any of those can change that person's plans from that moment on. The agent is the real pipeline on `DEFAULT_MODEL`. Answers are graded against the final timeline. Every LLM call is cached in `evals/sim/lives/cache.jsonl`. Built-in rules: invalid plans are retried once, then become a stay-home day; two API failures stop the run (added after the account hit its monthly API limit mid-run and the first version quietly filled days with fallbacks); failed agent calls are never cached.
+**What the runs showed (seed 1, 7 warm-up + 14 days, agent Haiku 5.5):**
+1. First prompt, five roommates: 18 needs across the three modes, all met, none by a plan change. They were the askers' own movie nights at times they were home anyway.
+2. Needs restricted to "something needs someone home while you are out" (current prompt):
 
-| mode | questions | needs met | met by a plan change | asked per roommate-day | commitments | correct | confidently wrong | asked roommate |
+| household | mode | questions | needs (met) | asked per roommate-day | commitments | correct | confidently wrong | asked roommate |
 |---|---|---|---|---|---|---|---|---|
-| ask_me | 57 | 9/9 | 0 | 0.17 | 0 | 77% | 2% | 21% |
-| auto_when_confident | 56 | 5/5 | 0 | 0.07 | 0 | 88% | 4% | 9% |
-| always_auto | 52 | 4/4 | 0 | 0.01 | 0 | 75% | 10% | 2% |
+| 5 | ask_me | 62 | 1 (1) | 0.17 | 0 | 74% | 6% | 19% |
+| 5 | auto_when_confident | 62 | 1 (1) | 0.09 | 0 | 85% | 5% | 10% |
+| 5 | always_auto | 60 | 1 (1) | 0.01 | 0 | 78% | 8% | 2% |
+| 2 | ask_me | 28 | 0 | 0.29 | 0 | 68% | 4% | 29% |
+| 2 | auto_when_confident | 28 | 0 | 0.29 | 0 | 68% | 4% | 29% |
+| 2 | always_auto | 25 | 0 | 0.07 | 0 | 68% | 4% | 8% |
 
-In a house of five someone is nearly always home: every need was met with no plan changes, so the effect this harness exists to measure never came up. Replies were realistic ("Nope, at work till 11:30, don't cook for me") and askers sometimes adjusted, but no target ever had to. The trade-off between modes still shows: `always_auto` almost never bothers anyone but is confidently wrong 5× as often as `ask_me`. Parse agreement (89–94%) is lower than in D64 because real-sounding questions are vaguer ("home for dinner tonight?"), so it measures agreement with the asker's intent more than model error. Also found: the answer writer embellishes (backlog).
-**Why:** the harness works and is cheap (about $1.30 for the first mode, a fraction of that for the others thanks to the cache); the household size, not the harness, is what hid the effect.
-**Revisit if:** the two-person run (`--size 2`) can be done after the API limit resets (2026-12-01) or is raised: that is the case where roommates depend on each other and plan changes should matter.
+Realistic generated lives almost never produce a conflict (someone out when something needs a person home), so no answer ever led a roommate to change plans: 0 commitments in 6 runs. Replies were natural ("Nope, at work till 11:30, don't cook for me") and askers did adjust their own plans now and then. The mode trade-off still shows: `always_auto` almost never bothers anyone but is the most often confidently wrong. In the two-person house `ask_me` and `auto_when_confident` decide identically, because every question was either a "now" question with clear presence (answered in every mode) or had no evidence at all (asked in every mode). Parse agreement (79–98%) is lower than D64 because realistic questions are vaguer ("home for dinner tonight?"). Also found: the answer writer embellishes (backlog).
+**Why:** the harness works, replays for free and costs about $1–2 for the first mode of a run; the finding is about generated lives, not the harness.
+**Revisit if:** we want to measure commitments directly: inject scripted conflicts (a repair visit at 14:00 while the only roommate who could cover is at work) into chosen days and compare modes on those, keeping the generated lives around them.
