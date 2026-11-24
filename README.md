@@ -33,7 +33,7 @@ Each phone reports only **home or away**. It never sends a location. Anyone in t
 
 **The `ask` pipeline:**
 1. **Parse.** Claude turns free text into `{kind: now | at_time | until_when, aboutTime}` using structured output, in the household's time zone.
-2. **Decide.** Code gathers one roommate's evidence: their latest presence event and their recurring away blocks ("Mon–Fri 9–5, work"). It builds a claim with a confidence of high, medium or low, then applies the policy:
+2. **Decide.** Code gathers one roommate's evidence: their presence history, their recurring away blocks ("Mon–Fri 9–5, work"), busy times from calendars they chose, and habits learned from 8 weeks of history. It builds a claim with a confidence of high, medium or low, then applies the policy:
    - **Visibility off:** always ask the roommate.
    - **`ask_me`:** never answer for them.
    - **`auto_when_confident`:** answer only at high confidence.
@@ -109,6 +109,10 @@ Five roommates over 14 days, agent Haiku 5.5:
 
 The finding so far: realistic generated lives almost never produce a conflict (someone out when something needs a person home), so in six runs, across households of five and two, no answer ever led a roommate to change plans. Measuring that needs scripted conflicts injected into the generated days, which is next.
 
+## Use it from Claude (MCP)
+
+`apps/mcp` is a local MCP server: Claude Desktop or Claude Code can ask "is Sam home?", list who's home, read and answer your inbox. It signs in as you, so it sees only what the app shows you and goes through the same rate-limited, facts-only `ask` ([D75](docs/decisions.md)). Setup: [`apps/mcp/README.md`](apps/mcp/README.md).
+
 ## Tracing
 
 Every `ask` run is traced in Postgres ([D62](docs/decisions.md)): one row per run (total latency, success) and one per model call (step, model, tokens, latency, stop reason or error type). Only counts and outcomes are stored, never question text or model output, and only the service role can read them. `npm run traces -- --days 7` prints the run count and failures, p50/p95 run latency, total and per-run cost, and per step (parse, answer, draft): calls, calls with no output, p50/p95 latency, tokens and cost, plus why any call produced nothing (refusal, truncation, timeout, overload).
@@ -117,16 +121,16 @@ Every `ask` run is traced in Postgres ([D62](docs/decisions.md)): one row per ru
 
 | suite | what | count |
 |---|---|---|
-| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner, trace report, simulation | 365 |
-| `npm run test:db` | Postgres RLS, RPCs, triggers and edge functions against a local Supabase stack, signed in as real test users | 86 |
-| `apps/mobile`: `npx jest` | screens, hooks, routing gate, geofence logic, realtime resync, retry | 78 |
+| `npm test` | core logic: policy, confidence, presence, scoring, pipeline with a fake model, eval runner, trace report, simulation | 394 |
+| `npm run test:db` | Postgres RLS, RPCs, triggers and edge functions against a local Supabase stack, signed in as real test users | 95 |
+| `apps/mobile`: `npx jest` | screens, hooks, routing gate, geofence logic, realtime resync, retry | 96 |
 | [manual checklist](docs/manual-test-checklist.md) | two simulators against the hosted project, including a background relaunch after force-quit | 4 sections |
 
-Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (74 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
+Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (77 so far), each with the options considered, pros and cons, and what would make us revisit it. For example, D59 covers why table grants are explicit: new hosted Supabase projects stopped granting them by default, the local stack didn't, and the first deploy broke because of it.
 
 ## Stack
 
-- **Mobile:** Expo SDK 58 (React Native, TypeScript), expo-router, expo-location (background geofencing), expo-notifications (local), react-native-maps
+- **Mobile:** Expo SDK 58 (React Native, TypeScript), expo-router, expo-location (background geofencing), expo-notifications (local), expo-calendar (busy times from chosen calendars, start/end only), react-native-maps
 - **Backend:** Supabase (Postgres, row-level security, RPCs, realtime), Deno edge functions, Supabase Cron
 - **AI:** Claude via the Anthropic TypeScript SDK, with structured output (Zod)
 - **Shared logic:** `packages/core`, plain TypeScript imported by both Node and the Deno functions
@@ -134,6 +138,7 @@ Every engineering decision is in [`docs/decisions.md`](docs/decisions.md) (74 so
 
 ```
 apps/mobile/          Expo app (routes in src/app)
+apps/mcp/             local MCP server (Claude Desktop / Claude Code)
 packages/core/        policy, confidence, presence, scoring, agent pipeline + prompts
 supabase/migrations/  schema, RLS, RPCs, triggers, grants
 supabase/functions/   ask, reply, score

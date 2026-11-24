@@ -517,3 +517,28 @@ Realistic generated lives almost never produce a conflict (someone out when some
 **Result (seeds 14–19, never inspected; `auto_when_confident`; 1512 questions):** correct 930 → 1172, confidently wrong 47 → 32, asked the roommate 535 → 308. Tuning seeds 2–4: correct 62% → 79%, confidently wrong 4.0% → 1.6%.
 **Why:** the biggest measured gap in answer quality, closed with plain, explainable code. The writer still only states the claim, so the asker never learns the routine behind it.
 **Revisit if:** confident errors rise in real use; real routines turn out less regular than the personas (they are weekday-based, which favours the weekday matcher); or per-question computation gets slow. Next confirmation needs new seeds (20+).
+
+## D75. A local MCP server that signs in as the person — 2026-11-24, Jack
+**Context:** let Claude Desktop / Claude Code (any MCP client) ask "is Sam home?" from Homebase. Design: `docs/superpowers/specs/2026-11-24-mcp-server-design.md`.
+**Options:** *local stdio server signing in as the person (chosen)* — every read goes through RLS and asks/replies through the edge functions, so rate limits, the facts-only writer and hidden-presence rules apply unchanged; no new server code; − the password sits in a local env file. *Hosted remote MCP with OAuth* — no stored password, works anywhere; − an OAuth server, consent screens and a new hosted surface. *A service-role server* — rejected: it would bypass every per-user guard.
+**Decision:** `apps/mcp` on the MCP TypeScript SDK (v1.32, the maintained v1 line), tools list_households / whos_home / ask / my_inbox / reply / my_questions, lazy sign-in (tools list without credentials) with one re-sign-in after a dead session. Roommate-written text is quoted in «» as data with a note on every output that contains it, and `reply` requires the user's explicit confirmation per item, because that text reaches the user's model (found in review: a crafted question could otherwise ask the model to approve drafts). Names match full name exactly or a unique first name; ambiguity is refused rather than guessed.
+**Revisit if:** the server is used beyond a personal machine (then hosted OAuth, SDK v2), or a third client needs the same status/error wording (move it to core).
+
+## D76. Calendar busy/free as dated away evidence, start and end only — 2026-11-24, Jack
+**Context:** future answers still lean on habits and recurring blocks; people's calendars know about one-off plans. Design: `docs/superpowers/specs/2026-11-24-calendar-away-design.md`.
+**Options:** *phone reads chosen calendars and syncs only start/end (chosen)*; *recurring away blocks only* (today; misses one-off plans); *server-side calendar access (Google/Outlook APIs)* — rejected: titles and attendees would leave the phone, plus OAuth per provider.
+**Decision:** the person picks calendars that mean "I'm away" (stored per device, cleared on sign-out). Timed, busy, non-cancelled events of 24 hours or less for the next 14 days sync as periods (`calendar_away`, 0012) through `sync_calendar_away`, which replaces all of the caller's rows under a per-user lock (no history is kept). Only the person can read their rows; `ask` reads them with the service role. In `buildClaim` a period covering a future time is a medium "away" claim (basis `calendar`) checked before habits and blocks, since it is newer and more specific; someone home now inside an event skipped it; during a trip (out over 24 h) an event's end is not a "back at" time. The writer never learns the basis. Sign-out clears the server rows too.
+**Why:** one-off plans are the gap habits can't fill, and start/end times reveal far less than titles.
+**Revisit if:** declined invites cause wrong answers (EventKit gives no own-attendee status here), or the simulation gains calendar personas to measure this (it doesn't exercise `awayPeriods` yet).
+
+## D77. Pattern fixes from review: near-term state, fixed lookahead, wall-clock returns — 2026-11-24, Jack
+**Context:** D74's review leftovers.
+**Decision:**
+- An at-time question within 2 hours counts only comparable days that were in today's current state at this time of day. Otherwise "home at 7?" asked at 18:55 while away was answered from days they were already home by 18:30.
+- The return lookahead is a fixed 18 hours after each comparable instant. It replaces "until 05:00 the next morning", which jumped from about 5 h to 29 h at midnight.
+- Return times and predicted times use wall-clock minutes, so they're right on DST nights.
+- A spring-forward local time that doesn't exist maps to the first valid instant.
+- A regression test pins that `matcher: 'off'` reproduces pre-pattern claims.
+
+Re-measured on seeds 14–19 (already used to confirm D74, so a no-regression check, not a confirmation): correct 1172 → 1177, confidently wrong 32 → 31, asked 308 → 304.
+**Revisit if:** a new confirmation on fresh seeds (20+) disagrees.

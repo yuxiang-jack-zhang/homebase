@@ -29,7 +29,7 @@ The full loop works end to end on multiple iOS simulators plus Jack's phone, aga
 
 ## Non-goals (MVP)
 
-- Calendar, ETAs, home-screen widget, pattern statistics (these are the roadmap, in that order).
+- Calendar, ETAs, home-screen widget, pattern statistics (roadmap at the time; calendar and patterns have since shipped: D74, D76).
 - Android (much later).
 - Packages, groceries, chores, dinner.
 - App Store release. TestFlight comes after the Apple Developer account is bought.

@@ -13,6 +13,7 @@ The question: **"If I were a hacker, how could I get people's sensitive info thr
 | Away blocks and labels ("therapy Tue 4pm") | private by design, shown to no one else |
 | Questions, drafts, replies | personal messages |
 | API credits | every `ask` costs money |
+| Calendar busy times (start/end only) | a person's one-off plans; titles never leave the phone |
 
 ## Who might attack
 
@@ -44,6 +45,19 @@ The question: **"If I were a hacker, how could I get people's sensitive info thr
 | 9 | Session token in AsyncStorage | Low | iOS keychain, readable after first unlock so background geofencing keeps working (D73) |
 
 Every fix has tests: 333+ core and 85 database tests, signed in as real users against a local Supabase stack.
+
+## Added after the review (2026-11-24)
+
+- **Calendar periods (D76):**
+  - Only start and end times are synced; titles, locations and attendees stay on the phone.
+  - `calendar_away` is readable only by the person.
+  - `sync_calendar_away` replaces all of the caller's rows, so no history accumulates. It is capped at 200 periods of 1 minute to 24 hours, and serialised per user.
+  - Sign-out clears the rows.
+  - A hidden member's questions still always go to them (D29), so their calendar can't answer for them.
+- **MCP server (D75):**
+  - It signs in as the person, so RLS and `ask`'s rate limits apply.
+  - The password lives in a local env file (or the MCP client's config). Use a unique password; a hosted OAuth version is the follow-up.
+  - Roommate-written text reaches the person's model, so it is quoted as untrusted data, and `reply` requires explicit confirmation per item.
 
 ## Still open
 

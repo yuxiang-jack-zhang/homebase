@@ -25,10 +25,10 @@ All three fixed on 2026-11-23 (D60, D61, friendly geofence error); recheck on th
    - Household accuracy counts hint that hidden events existed (unscored rows).
    - `supabase_admin` default privileges still grant anon EXECUTE on functions created via the dashboard/SQL editor.
 4. **ETAs** — opt-in, rough "~20 min" from occasional coarse location samples.
-5. **Calendar** — iPhone calendar read on device; only busy/free blocks sent to the server.
+5. **Calendar** — done (D76). Left: declined invites still count; add calendar personas to the simulation to measure it.
 6. **Home-screen widget** — who's home at a glance (Swift target).
 7. **Pattern statistics** — done (D74). Alternatives kept: stored nightly patterns; a statistical model. Review leftovers: near-term at-time questions ignore the current state (e.g. 18:55, away, 'home at 7?'); return lookahead jumps at midnight; DST-night return times off by an hour; spring-forward gap maps to the hour before.
-8. **MCP server** — expose household tools so any MCP client can ask "is Sam home?".
+8. **MCP server** — done locally (D75, `apps/mcp`). Next: hosted remote MCP with OAuth (no stored password).
 9. **Siri / App Intents** — "Hey Siri, will Sam be home by 7?".
 
 ## Dropped
