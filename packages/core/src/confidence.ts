@@ -1,5 +1,5 @@
 import { blockCovering, blockEndAfter } from './blocks.ts';
-import { homeShareAt, localMinutes, RETURN_TOLERANCE_MIN, typicalReturn, type Matcher } from './patterns.ts';
+import { atLocalMinutes, homeShareAt, localMinutes, RETURN_TOLERANCE_MIN, typicalReturn, type Matcher } from './patterns.ts';
 import { presenceAt } from './presence.ts';
 import type { AwayBlock, Claim, Evidence, ParsedQuestion } from './types.ts';
 
@@ -45,7 +45,7 @@ export function buildClaim(parsed: ParsedQuestion, ev: Evidence, options: Partia
     let weak: Claim | null = null;
     if (usePatterns && o.matcher !== 'off') {
       // A strong habit wins over an away block that disagrees: that disagreement is how stale blocks show up.
-      const { n, home, oldest } = homeShareAt(presence, t, timezone, o.matcher, now);
+      const { n, home, oldest } = homeShareAt(presence, t, timezone, o.matcher, now, pNow);
       const state = home * 2 >= n ? 'home' : 'away';
       const share = n ? Math.max(home, n - home) / n : 0;
       const block = blockCovering(blocks, t, timezone);
@@ -76,7 +76,7 @@ export function buildClaim(parsed: ParsedQuestion, ev: Evidence, options: Partia
       const r = typicalReturn(presence, now, timezone, o.matcher);
       const nowMin = localMinutes(Date.parse(now), timezone);
       if (r && r.median > nowMin && r.n >= o.nMin) {
-        const back = new Date(Date.parse(now) + (r.median - nowMin) * MIN).toISOString();
+        const back = atLocalMinutes(now, r.median, timezone);
         if (r.hit >= o.pMin && !newerThan(block, r.oldest)) return { ...base, predictedState: 'away', predictedTime: back, confidence: 'medium', basis: 'pattern' };
         habitDisagrees = !!blockEnd && !newerThan(block, r.oldest) && Math.abs(Date.parse(blockEnd) - Date.parse(back)) > RETURN_TOLERANCE_MIN * MIN;
       }
