@@ -1,7 +1,7 @@
 import { blockCovering, blockEndAfter } from './blocks.ts';
 import { homeShareAt, localMinutes, RETURN_TOLERANCE_MIN, typicalReturn, type Matcher } from './patterns.ts';
 import { presenceAt } from './presence.ts';
-import type { AwayBlock, Claim, Evidence, ParsedQuestion } from './types.ts';
+import type { AwayBlock, AwayPeriod, Claim, Evidence, ParsedQuestion } from './types.ts';
 
 const NONE = { predictedState: null, predictedTime: null, confidence: 'low', basis: 'none' } as const;
 const HOUR = 3_600_000;
@@ -17,6 +17,9 @@ const WEAK_N = 2, WEAK_P = 0.6;
 const newerThan = (b: AwayBlock | null, oldest: string | null) => !!b?.createdAt && !!oldest && Date.parse(b.createdAt) > Date.parse(oldest);
 // Out for longer than this means they're off their routine (a trip), so habits say nothing.
 const OFF_ROUTINE_MS = 24 * HOUR;
+/** The calendar away period containing `t` (start inclusive, end exclusive). */
+const periodCovering = (periods: AwayPeriod[] | undefined, t: string) =>
+  periods?.find((p) => Date.parse(p.start) <= Date.parse(t) && Date.parse(t) < Date.parse(p.end));
 
 export function buildClaim(parsed: ParsedQuestion, ev: Evidence, options: Partial<PatternOptions> = {}): Claim | null {
   const { now, timezone, presence, blocks } = ev;
@@ -42,6 +45,11 @@ export function buildClaim(parsed: ParsedQuestion, ev: Evidence, options: Partia
       const p = presenceAt(presence, t);
       return p === 'unknown' ? { ...base, ...NONE } : { ...base, predictedState: p, confidence: 'high', basis: 'presence' };
     }
+    // Calendar: a timed event in a calendar the person marked as away is fresh, specific information, so it beats habits
+    // and blocks. Home now inside that same event means they skipped it.
+    const cal = periodCovering(ev.awayPeriods, t);
+    if (cal && !(pNow === 'home' && periodCovering([cal], now))) return { ...base, predictedState: 'away', confidence: 'medium', basis: 'calendar' };
+
     let weak: Claim | null = null;
     if (usePatterns && o.matcher !== 'off') {
       // A strong habit wins over an away block that disagrees: that disagreement is how stale blocks show up.
@@ -67,6 +75,10 @@ export function buildClaim(parsed: ParsedQuestion, ev: Evidence, options: Partia
   if (parsed.kind === 'until_when') {
     const base = { kind: 'until_when', aboutTime: null } as const;
     if (pNow === 'home') return { ...base, predictedState: 'home', predictedTime: now, confidence: 'high', basis: 'presence' };
+    // Calendar: away inside an away event -> back when it ends, before habits and blocks.
+    const cal = pNow === 'away' ? periodCovering(ev.awayPeriods, now) : undefined;
+    if (cal) return { ...base, predictedState: 'away', predictedTime: cal.end, confidence: 'medium', basis: 'calendar' };
+
     const block = pNow === 'away' ? blockCovering(blocks, now, timezone) : null;
     const blockEnd = block ? blockEndAfter(block, now, timezone) : null;
     let habitDisagrees = false;

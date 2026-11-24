@@ -109,6 +109,26 @@ isOneToOne: false
       referencedColumns: ["household_id","user_id"]
     }
                   ]
+                },"calendar_away": {
+                  Row: {
+                    "ends_at": string,"id": number,"starts_at": string,"synced_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "ends_at": string,"id"?: never,"starts_at": string,"synced_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "ends_at"?: string,"id"?: never,"starts_at"?: string,"synced_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "calendar_away_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"household_members": {
                   Row: {
                     "answer_mode": Database["public"]['Enums']["answer_mode"],"home_confirmed_at": string | null,"household_id": string,"joined_at": string | null,"role": Database["public"]['Enums']["member_role"],"status": Database["public"]['Enums']["member_status"],"user_id": string,"visibility": boolean
@@ -419,6 +439,9 @@ isOneToOne: false
                            },
 "shares_household":
 { Args: { "p_user_id": string }; Returns: boolean
+                           },
+"sync_calendar_away":
+{ Args: { "p_periods": Json }; Returns: undefined
                            },
 "targeted_by_question":
 { Args: { "p_question_id": string }; Returns: boolean

@@ -12,6 +12,7 @@ export interface HouseholdData {
    * That household's presence for the user over the last EVIDENCE_DAYS (56) days plus the latest event before (the state going in),
    * keeping only events after the last one recorded while hidden (so a hidden window reads as unknown), and their blocks there.
    * `visibleFrom` (the asker's join time) drops everything earlier, so answers can't reveal presence the asker can't see.
+   * Plus the user's calendar away periods overlapping the next 2 days (per person, so from every household).
    */
   evidence(householdId: string, userId: string, now: string, visibleFrom?: string): Promise<Evidence>;
 }
@@ -49,13 +50,15 @@ export function supabaseHouseholdData(admin: SupabaseClient<Database>): Househol
         const q = admin.from('presence_events').select('kind, at, visible').eq('household_id', householdId).eq('user_id', userId);
         return visibleFrom ? q.gte('at', visibleFrom) : q;
       };
-      const [h, before, recent, blocks] = await Promise.all([
+      const [h, before, recent, blocks, periods] = await Promise.all([
         admin.from('households').select('timezone').eq('id', householdId).single(),
         events().lt('at', since).order('at', { ascending: false }).order('id', { ascending: false }).limit(1),
         // Newest first with an explicit cap (PostgREST returns at most 1000 rows): if history is cut, the oldest goes, never today's.
         events().gte('at', since).order('at', { ascending: false }).order('id', { ascending: false }).limit(RECENT_CAP),
         admin.from('away_blocks').select('days_of_week, start_local, end_local, label, created_at')
           .eq('household_id', householdId).eq('user_id', userId),
+        admin.from('calendar_away').select('starts_at, ends_at').eq('user_id', userId)
+          .gt('ends_at', now).lt('starts_at', new Date(Date.parse(now) + 2 * DAY).toISOString()).order('starts_at'),
       ]);
       // Questions are always about another member, so presence recorded while hidden (and anything before it) is never evidence (D55).
       const window = must(recent).reverse();
@@ -70,6 +73,7 @@ export function supabaseHouseholdData(admin: SupabaseClient<Database>): Househol
           daysOfWeek: b.days_of_week, startLocal: b.start_local.slice(0, 5), endLocal: b.end_local.slice(0, 5),
           ...(b.label ? { label: b.label } : {}), createdAt: new Date(b.created_at).toISOString(),
         })),
+        awayPeriods: must(periods).map((p) => ({ start: new Date(p.starts_at).toISOString(), end: new Date(p.ends_at).toISOString() })),
       };
     },
   };
