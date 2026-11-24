@@ -6,6 +6,8 @@ test('maps known RPC codes', () => {
   expect(friendlyError({ message: 'not_owner' })).toMatch(/owner/i);
   expect(friendlyError({ message: 'invalid_name' })).toMatch(/name/i);
   expect(friendlyError({ message: 'invalid_location' })).toMatch(/location/i);
+  expect(friendlyError({ message: 'invalid_radius' })).toMatch(/50 and 500/);
+  expect(friendlyError({ message: 'invalid_timezone' })).toMatch(/time zone/i);
 });
 
 test('maps membership codes', () => {

@@ -29,7 +29,8 @@ serve(async (req) => {
     // and an arrival between the question and the approval still counts (D56).
     const askedAt = p.question_targets.created_at;
     const since = new Date(Date.parse(askedAt) - 48 * HOUR).toISOString();
-    const events = () => admin.from('presence_events').select('kind, at').eq('household_id', householdId).eq('user_id', p.user_id);
+    // With `visible`, scoreClaim leaves a prediction unscored rather than judge it from presence recorded while hidden.
+    const events = () => admin.from('presence_events').select('kind, at, visible').eq('household_id', householdId).eq('user_id', p.user_id);
     const [before, recent] = await Promise.all([
       events().lt('at', since).order('at', { ascending: false }).limit(1), // the state going into the window
       events().gte('at', since).lte('at', now),

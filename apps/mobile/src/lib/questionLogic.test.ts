@@ -1,4 +1,6 @@
-import { categoryFor, newTargets, notifyDecision, responseToReply, seedOnFirstRun, targetLines } from './questionLogic';
+import {
+  categoryFor, guessRefetchIn, newTargets, notifyDecision, responseToReply, seedOnFirstRun, targetLines, type TargetView,
+} from './questionLogic';
 
 const NOW = Date.parse('2026-11-22T12:00:00Z');
 const T = '44444444-4444-4444-8444-444444444444';
@@ -9,6 +11,14 @@ test('targetLines is time-dependent only for awaiting_reply', () => {
   expect(targetLines({ ...base, status: 'awaiting_reply', created_at: at(10) }, NOW)).toEqual(['Asked Bea — waiting…']);
   expect(targetLines({ ...base, status: 'awaiting_reply', created_at: at(10.1) }, NOW)).toEqual(['No reply yet', 'maybe']);
   expect(targetLines({ ...base, status: 'unknown', created_at: at(99) }, NOW)).toEqual(['Bea: unknown']);
+});
+
+test('guessRefetchIn: ms until the earliest awaiting target passes the wait (plus slack), else null', () => {
+  const at = (min: number) => new Date(NOW - min * 60_000).toISOString();
+  const t = (min: number, status: TargetView['status'] = 'awaiting_reply') => ({ status, fallback_guess: null, created_at: at(min) });
+  expect(guessRefetchIn([t(4), t(7)], NOW)).toBe(3 * 60_000 + 5_000);
+  expect(guessRefetchIn([t(11), t(2, 'answered'), { ...t(1), fallback_guess: 'got it' }], NOW)).toBeNull();
+  expect(guessRefetchIn([], NOW)).toBeNull();
 });
 
 test('categoryFor picks the category by draft presence', () => {

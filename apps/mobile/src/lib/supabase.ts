@@ -1,7 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 import type { Database } from '@homebase/core/src/db.types';
+import { secureStorage } from './secureStorage';
 
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -10,7 +10,7 @@ if (!url || !key) {
 }
 
 export const supabase = createClient<Database>(url, key, {
-  auth: { storage: AsyncStorage, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false },
+  auth: { storage: secureStorage, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false },
 });
 
 // Refresh tokens only while the app is in the foreground (supabase-js RN guidance).

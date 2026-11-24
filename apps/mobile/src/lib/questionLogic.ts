@@ -24,6 +24,18 @@ export function targetLines(t: TargetView, now: number): string[] {
   }
 }
 
+/**
+ * The server lets the asker read a fallback guess only once the wait is over (0009), so re-fetch then.
+ * The slack covers a phone clock slightly ahead of the server's.
+ */
+export function guessRefetchIn(targets: Pick<TargetView, 'status' | 'fallback_guess' | 'created_at'>[], now: number): number | null {
+  const due = targets
+    .filter((t) => t.status === 'awaiting_reply' && !t.fallback_guess)
+    .map((t) => Date.parse(t.created_at) + NO_REPLY_AFTER_MS - now)
+    .filter((ms) => ms > 0);
+  return due.length ? Math.min(...due) + 5_000 : null;
+}
+
 /** Approve needs a draft, so a draft-less question gets the category without it. */
 export const categoryFor = (draft: string | null) => (draft ? 'question' : 'question_nodraft');
 

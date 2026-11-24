@@ -217,14 +217,14 @@ isOneToOne: false
                   ]
                 },"question_targets": {
                   Row: {
-                    "created_at": string,"fallback_guess": string | null,"id": string,"question_id": string,"status": Database["public"]['Enums']["target_status"],"updated_at": string,"user_id": string
+                    "created_at": string,"id": string,"question_id": string,"status": Database["public"]['Enums']["target_status"],"updated_at": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"fallback_guess"?: string | null,"id"?: string,"question_id": string,"status": Database["public"]['Enums']["target_status"],"updated_at"?: string,"user_id": string
+                    "created_at"?: string,"id"?: string,"question_id": string,"status": Database["public"]['Enums']["target_status"],"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "created_at"?: string,"fallback_guess"?: string | null,"id"?: string,"question_id"?: string,"status"?: Database["public"]['Enums']["target_status"],"updated_at"?: string,"user_id"?: string
+                    "created_at"?: string,"id"?: string,"question_id"?: string,"status"?: Database["public"]['Enums']["target_status"],"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -283,6 +283,26 @@ isOneToOne: false
       foreignKeyName: "responses_question_target_id_fkey"
       columns: ["question_target_id"]
 isOneToOne: false
+      referencedRelation: "question_targets"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"target_guesses": {
+                  Row: {
+                    "guess": string,"question_target_id": string,"visible_after": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "guess": string,"question_target_id": string,"visible_after"?: string
+                  }
+                  Update: {
+                    "guess"?: string,"question_target_id"?: string,"visible_after"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "target_guesses_question_target_id_fkey"
+      columns: ["question_target_id"]
+isOneToOne: true
       referencedRelation: "question_targets"
       referencedColumns: ["id"]
     }

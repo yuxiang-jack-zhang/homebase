@@ -42,8 +42,9 @@ describe("supabaseHouseholdData", () => {
     const hid = household.id;
     const setVisible = async (v: boolean) =>
       ok(await sam.client.rpc("update_my_settings", { p_household_id: hid, p_visibility: v, p_answer_mode: "ask_me" }));
+    // Service role: a member's own insert is stamped now() (0009). The trigger still stamps visibility.
     const ins = async (kind: "enter" | "exit", at: string) =>
-      ok(await sam.client.from("presence_events").insert({ household_id: hid, user_id: sam.id, kind, at }));
+      ok(await admin.from("presence_events").insert({ household_id: hid, user_id: sam.id, kind, at }));
     await ins("exit", daysAgo(20));  // visible, before the window
     await ins("enter", daysAgo(3));  // visible
     await setVisible(false);
@@ -51,13 +52,17 @@ describe("supabaseHouseholdData", () => {
     await ins("enter", daysAgo(1));  // hidden, latest
     expect((await data.evidence(hid, sam.id, NOW)).presence).toEqual([]);
 
-    await setVisible(true); // only the latest event becomes visible
-    expect((await data.evidence(hid, sam.id, NOW)).presence).toEqual([{ kind: "enter", at: daysAgo(1) }]);
+    await setVisible(true); // reveals the current state as a new event at the unhide time
+    const now = new Date().toISOString();
+    const [revealed, ...rest] = (await data.evidence(hid, sam.id, now)).presence;
+    expect(rest).toEqual([]);
+    expect(revealed.kind).toBe("enter");
+    expect(Math.abs(Date.parse(revealed.at) - Date.parse(now))).toBeLessThan(60_000);
   });
 
   it("evidence() keeps the latest event before the window when the window is empty", async () => {
     const { household, members: [sam] } = await makeHousehold(["Sam"]);
-    ok(await sam.client.from("presence_events").insert({ household_id: household.id, user_id: sam.id, kind: "enter", at: daysAgo(30) }));
+    ok(await admin.from("presence_events").insert({ household_id: household.id, user_id: sam.id, kind: "enter", at: daysAgo(30) }));
     expect((await data.evidence(household.id, sam.id, NOW)).presence).toEqual([{ kind: "enter", at: daysAgo(30) }]);
   });
 
