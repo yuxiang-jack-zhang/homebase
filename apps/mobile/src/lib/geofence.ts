@@ -12,7 +12,7 @@ export const GEOFENCE_TASK = 'homebase-geofence';
  * so skip kinds equal to my latest; the presence_events trigger (0004) is the race-proof guarantee.
  */
 async function insertEvents(rows: { household_id: string; kind: Kind }[]) {
-  // The task may run headless after iOS relaunches the app; the session comes from AsyncStorage.
+  // The task may run headless after iOS relaunches the app; the session comes from the keychain (secureStorage).
   const { data } = await supabase.auth.getSession();
   const userId = data.session?.user.id;
   if (!userId) {
