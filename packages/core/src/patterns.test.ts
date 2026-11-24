@@ -53,21 +53,37 @@ describe('comparableInstants', () => {
 describe('homeShareAt', () => {
   it('counts comparable days home vs away at that local time', () => {
     const ev = daily(56, 8 * 60, 18 * 60); // out 08:00-18:00 every day
-    expect(homeShareAt(ev, '2027-01-21T03:00:00.000Z', LA, 'weekday', NOW)).toEqual({ n: 8, home: 8 }); // 19:00: home
-    expect(homeShareAt(ev, '2027-01-21T01:00:00.000Z', LA, 'weekday', NOW)).toEqual({ n: 8, home: 0 }); // 17:00: away
+    expect(homeShareAt(ev, '2027-01-21T03:00:00.000Z', LA, 'weekday', NOW)).toMatchObject({ n: 8, home: 8 }); // 19:00: home
+    expect(homeShareAt(ev, '2027-01-21T01:00:00.000Z', LA, 'weekday', NOW)).toMatchObject({ n: 8, home: 0 }); // 17:00: away
+    expect(homeShareAt(ev, '2027-01-21T03:00:00.000Z', LA, 'weekday', NOW).oldest).toBe('2026-11-26T03:00:00.000Z'); // Wed 2026-11-25 19:00 local, 8 Wednesdays back
   });
 
   it('skips days whose state is unknown (history shorter than 8 weeks)', () => {
     const ev = daily(20, 8 * 60, 18 * 60); // 20 days: Wednesdays 7 and 14 days back are known, 21 days back isn't
-    expect(homeShareAt(ev, '2027-01-21T03:00:00.000Z', LA, 'weekday', NOW)).toEqual({ n: 2, home: 2 });
+    expect(homeShareAt(ev, '2027-01-21T03:00:00.000Z', LA, 'weekday', NOW)).toMatchObject({ n: 2, home: 2 });
   });
 });
 
 describe('typicalReturn', () => {
-  it('median and spread of when they got back on comparable days they were out at this time', () => {
-    const ev = daily(56, 8 * 60, 18 * 60, (i) => i % 7 === 0).concat(daily(56, 8 * 60, 18 * 60 + 40, (i) => i % 7 !== 0)); // one weekday at 18:40
+  it('median return, and the share of comparable away-days back within 30 min of it', () => {
+    const ev = daily(56, 8 * 60, 18 * 60, (i) => i % 7 === 0).concat(daily(56, 8 * 60, 18 * 60 + 40, (i) => i % 7 !== 0)); // Wednesdays back 18:40
     const r = typicalReturn(ev.sort((a, b) => a.at.localeCompare(b.at)), NOW, LA, 'weekday');
-    expect(r).toEqual({ n: 8, median: 18 * 60 + 40, iqr: 0 }); // NOW is a Wednesday; the 18:40 day is Wednesday
+    expect(r).toMatchObject({ n: 8, median: 18 * 60 + 40, hit: 1 }); // NOW is a Wednesday
+  });
+
+  it('two peaks (gym days) are not a consistent return time', () => {
+    // Wednesdays: back 18:00 on 5, 19:15 on 3 -> median 18:00, only 5/8 within 30 min.
+    const ev = daily(56, 8 * 60, 18 * 60, (i) => [7, 21, 35].includes(i)).concat(daily(56, 8 * 60, 19 * 60 + 15, (i) => ![7, 21, 35].includes(i)));
+    const r = typicalReturn(ev.sort((a, b) => a.at.localeCompare(b.at)), NOW, LA, 'weekday')!;
+    expect(r.median).toBe(18 * 60);
+    expect(r.hit).toBeCloseTo(5 / 8);
+  });
+
+  it('a day with no return by 05:00 counts as a miss', () => {
+    const ev = daily(56, 8 * 60, 18 * 60, (i) => i === 7).concat([{ kind: 'exit', at: '2027-01-13T16:00:00.000Z' }]); // last Wednesday: left 08:00, never back
+    const r = typicalReturn(ev.sort((a, b) => a.at.localeCompare(b.at)), NOW, LA, 'weekday')!;
+    expect(r).toMatchObject({ n: 8, median: 18 * 60 });
+    expect(r.hit).toBeCloseTo(7 / 8);
   });
 
   it('a return after midnight counts as minutes past 24:00', () => {

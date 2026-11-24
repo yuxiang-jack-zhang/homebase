@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { pickBest, type TuneRow } from './tune.ts';
 
 const row = (correct: number, wrong: number, nMin = 4): TuneRow =>
-  ({ matcher: 'weekday', nMin, pMin: 0.8, spreadMax: 45, correct, wrongConfident: wrong, asked: 1 - correct - wrong });
+  ({ matcher: 'weekday', nMin, pMin: 0.8, correct, wrongConfident: wrong, asked: 1 - correct - wrong });
 
 describe('pickBest', () => {
   it('takes the most correct config whose confident-error rate is no worse than the baseline', () => {

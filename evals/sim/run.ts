@@ -56,8 +56,8 @@ export async function simulate(opts: SimOptions, deps: { model: ModelClient | nu
       askerText = r.askerText;
     } else {
       parsed = intent;
-      const { matcher, nMin, pMin, spreadMax } = opts;
-      claim = buildClaim(parsed, evidence, { matcher, nMin, pMin, spreadMax });
+      const { matcher, nMin, pMin } = opts;
+      claim = buildClaim(parsed, evidence, { matcher, nMin, pMin });
     }
     return {
       id: q.id, persona: q.targetId, kind: q.intent.kind, text: q.text, style: q.style, ...(q.error ? { error: q.error } : {}),
@@ -81,12 +81,14 @@ const positiveInt = (flag: string, v: string) => {
 };
 
 export function parseSimArgs(args: string[]): SimOptions {
+  const patternFlag = args.some((a) => ['--patterns', '--n-min', '--p-min'].includes(a));
+  if (patternFlag && args.includes('--llm')) throw new Error('pattern options apply to code mode only; --llm uses the production defaults');
   const o: SimOptions = { days: 14, seed: 1, perDay: 3, mode: 'auto_when_confident', noise: true, llm: false, model: DEFAULT_MODEL, generator: 'claude-sonnet-5-5', ...PATTERN_DEFAULTS };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === '--no-noise') { o.noise = false; continue; }
     if (a === '--llm') { o.llm = true; continue; }
-    if (!['--days', '--seed', '--per-day', '--mode', '--model', '--generator', '--patterns', '--n-min', '--p-min', '--spread-max'].includes(a)) throw new Error(`unknown argument ${a}`);
+    if (!['--days', '--seed', '--per-day', '--mode', '--model', '--generator', '--patterns', '--n-min', '--p-min'].includes(a)) throw new Error(`unknown argument ${a}`);
     const v = args[++i];
     if (v === undefined || v.startsWith('--')) throw new Error(`${a} needs a value`);
     if (a === '--days') o.days = positiveInt(a, v);
@@ -102,8 +104,7 @@ export function parseSimArgs(args: string[]): SimOptions {
     else if (a === '--p-min') {
       o.pMin = Number(v);
       if (!(o.pMin > 0.5 && o.pMin <= 1)) throw new Error('--p-min must be in (0.5, 1]');
-    } else if (a === '--spread-max') o.spreadMax = positiveInt(a, v);
-    else if (a === '--model') o.model = v;
+    } else if (a === '--model') o.model = v;
     else o.generator = v;
   }
   return o;

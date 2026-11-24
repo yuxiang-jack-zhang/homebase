@@ -35,7 +35,7 @@ describe("supabaseHouseholdData", () => {
       now: NOW,
       timezone: "America/Los_Angeles",
       presence: [{ kind: "exit", at: daysAgo(60) }, { kind: "enter", at: daysAgo(40) }, { kind: "exit", at: daysAgo(3) }, { kind: "enter", at: daysAgo(2) }, { kind: "exit", at: daysAgo(1) }],
-      blocks: [{ daysOfWeek: [1, 3], startLocal: "18:00", endLocal: "21:30", label: "climbing" }],
+      blocks: [{ daysOfWeek: [1, 3], startLocal: "18:00", endLocal: "21:30", label: "climbing", createdAt: expect.any(String) }],
     });
   });
 

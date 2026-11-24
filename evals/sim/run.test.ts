@@ -17,8 +17,10 @@ describe('parseSimArgs', () => {
   });
 
   it('reads the pattern options', () => {
-    expect(parseSimArgs(['--patterns', 'daytype', '--n-min', '5', '--p-min', '0.85', '--spread-max', '30']))
-      .toMatchObject({ matcher: 'daytype', nMin: 5, pMin: 0.85, spreadMax: 30 });
+    expect(parseSimArgs(['--patterns', 'daytype', '--n-min', '5', '--p-min', '0.85']))
+      .toMatchObject({ matcher: 'daytype', nMin: 5, pMin: 0.85 });
+    // LLM mode runs the production pipeline, which uses the default patterns: setting them there would be a lie in the report.
+    expect(() => parseSimArgs(['--llm', '--patterns', 'off'])).toThrow(/--llm/);
     expect(() => parseSimArgs(['--patterns', 'sometimes'])).toThrow(/patterns/);
     expect(() => parseSimArgs(['--p-min', '2'])).toThrow(/p-min/);
   });

@@ -54,7 +54,7 @@ export function supabaseHouseholdData(admin: SupabaseClient<Database>): Househol
         events().lt('at', since).order('at', { ascending: false }).order('id', { ascending: false }).limit(1),
         // Newest first with an explicit cap (PostgREST returns at most 1000 rows): if history is cut, the oldest goes, never today's.
         events().gte('at', since).order('at', { ascending: false }).order('id', { ascending: false }).limit(RECENT_CAP),
-        admin.from('away_blocks').select('days_of_week, start_local, end_local, label')
+        admin.from('away_blocks').select('days_of_week, start_local, end_local, label, created_at')
           .eq('household_id', householdId).eq('user_id', userId),
       ]);
       // Questions are always about another member, so presence recorded while hidden (and anything before it) is never evidence (D55).
@@ -68,7 +68,7 @@ export function supabaseHouseholdData(admin: SupabaseClient<Database>): Househol
         presence: visible.map((e) => ({ kind: e.kind, at: new Date(e.at).toISOString() })),
         blocks: must(blocks).map((b) => ({
           daysOfWeek: b.days_of_week, startLocal: b.start_local.slice(0, 5), endLocal: b.end_local.slice(0, 5),
-          ...(b.label ? { label: b.label } : {}),
+          ...(b.label ? { label: b.label } : {}), createdAt: new Date(b.created_at).toISOString(),
         })),
       };
     },

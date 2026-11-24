@@ -91,14 +91,14 @@ isOneToOne: false
                   ]
                 },"away_blocks": {
                   Row: {
-                    "days_of_week": (number)[],"end_local": string,"household_id": string,"id": string,"label": string | null,"start_local": string,"user_id": string
+                    "created_at": string,"days_of_week": (number)[],"end_local": string,"household_id": string,"id": string,"label": string | null,"start_local": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "days_of_week": (number)[],"end_local": string,"household_id": string,"id"?: string,"label"?: string | null,"start_local": string,"user_id": string
+                    "created_at"?: string,"days_of_week": (number)[],"end_local": string,"household_id": string,"id"?: string,"label"?: string | null,"start_local": string,"user_id": string
                   }
                   Update: {
-                    "days_of_week"?: (number)[],"end_local"?: string,"household_id"?: string,"id"?: string,"label"?: string | null,"start_local"?: string,"user_id"?: string
+                    "created_at"?: string,"days_of_week"?: (number)[],"end_local"?: string,"household_id"?: string,"id"?: string,"label"?: string | null,"start_local"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
